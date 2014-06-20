@@ -20,8 +20,7 @@ filetype plugin indent on
 NeoBundleCheck
 
 
-" Bundles 
-
+" Bundles
 NeoBundleLazy 'scrooloose/nerdtree'
 
 
