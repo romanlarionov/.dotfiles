@@ -6,7 +6,8 @@
 
 ########## First Time install
 
-if [[ ! -f /.roman ]]; then
+if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
+	cd ~/.dotfiles
 	mkdir .roman
 	echo "First time installing."
 	
@@ -26,6 +27,8 @@ if [[ ! -f /.roman ]]; then
 	mkdir -p ~/.vim/autoload ~/.vim/bundle && \
 	curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 	echo "done"
+
+	cd ~/
 fi
 
 ########## Variables
@@ -54,7 +57,7 @@ done
 if [[ $platform == 'Darwin' ]]; then
     
     # if iTerm isn't already installed 
-    if [[ ! -d ~/Applications/iTerm.app ]]; then
+    if [[ ! -d "~/Applications/iTerm.app" ]]; then
 	read -p "iTerm2 is not installed, would you like to do that now (y/n) " yn
 
 	# Only install if the user wants to.
@@ -69,7 +72,7 @@ if [[ $platform == 'Darwin' ]]; then
 	    	echo "Finshed installing iTerm2"
 	     
             # Download iTerm2 Monokai color scheme.
-            if [[ ! -d $dir/colorscheme ]]; then
+            if [[ ! -d "$dir/colorscheme" ]]; then
 				echo "Installing iTerm2 Monokai color scheme." 
 				mkdir $dir/colorscheme
 				cd $dir/colorscheme
