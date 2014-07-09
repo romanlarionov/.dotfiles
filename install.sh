@@ -20,6 +20,8 @@ echo "done"
 
 # Move any existing dotfiles in ~/ to ~/.dotfiles, then create symlinks from ~/ to any files in ~/.dotfiles specified in $files
 for file in $files; do
+    echo "Copying all dotfiles to home directory."
+    cp file ~/
     echo "Creating symlink to $file in home directory."
     ln -s $dir/.$file ~/.$file
 done
