@@ -4,6 +4,30 @@
 # This script creates symlinks from the home directory to any desired dotfiles in ~/.dotfiles
 ############################
 
+########## First Time install
+
+if [[ ! -f /.roman ]]; then
+	mkdir .roman
+	echo "First time installing."
+	
+	echo "Installing Homebrew."
+	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"	
+	echo "done"
+
+	echo "Installing Brew Cask."
+	brew install brew-cask
+	echo "done"
+
+	echo "Installing VIM"
+	brew install vim
+	echo "done"
+
+	echo "Installing Pathogen"
+	mkdir -p ~/.vim/autoload ~/.vim/bundle && \
+	curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+	echo "done"
+fi
+
 ########## Variables
 
 dir=~/.dotfiles                    # dotfiles directory
