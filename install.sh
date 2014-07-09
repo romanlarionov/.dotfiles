@@ -28,6 +28,11 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 	curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 	echo "done"
 
+	echo "Installing VIM Solarized Color Scheme"
+	cd ~/.vim/bundle
+	git clone git://github.com/altercation/vim-colors-solarized.git
+	echo "done"
+
 	cd ~/
 fi
 
@@ -57,7 +62,7 @@ done
 if [[ $platform == 'Darwin' ]]; then
     
     # if iTerm isn't already installed 
-    if [[ ! -d "~/Applications/iTerm.app" ]]; then
+    if [[ ! -d "$HOME/Applications/iTerm.app" ]]; then
 	read -p "iTerm2 is not installed, would you like to do that now (y/n) " yn
 
 	# Only install if the user wants to.
