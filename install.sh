@@ -7,7 +7,7 @@
 ########## Variables
 
 dir=~/.dotfiles                    # dotfiles directory
-files=".vimrc .vim .zshrc .oh-my-zsh .gitconfig"    # list of files/folders to symlink in homedir
+files=".vimrc .vim .zshrc .oh-my-zsh .gitconfig .hydra"    # list of files/folders to symlink in homedir
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
@@ -20,10 +20,10 @@ echo "done"
 
 # Move any existing dotfiles in ~/ to ~/.dotfiles, then create symlinks from ~/ to any files in ~/.dotfiles specified in $files
 for file in $files; do
-    echo "Copying all dotfiles to home directory."
-    cp file ~/
+    echo "Copying file/folder to home directory."
+    cp $file ~/
     echo "Creating symlink to $file in home directory."
-    ln -s $dir/.$file ~/.$file
+    ln -s $dir/$file ~/$file
 done
 
 # Mac OS X specific configuration.
