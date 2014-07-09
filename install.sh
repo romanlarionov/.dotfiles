@@ -38,21 +38,21 @@ if [[ $platform == 'Darwin' ]]; then
             # Download iTerm2.
             echo 'Grabbing iTerm'
             curl -o iterm.zip http://www.iterm2.com/downloads/stable/iTerm2_v1_0_0.zip
-	    cd $dir
+	    	cd $dir
             unzip iterm.zip
             mv iTerm.app ~/Applications
             rm -r iterm.zip
-	    echo "Finshed installing iTerm2"
+	    	echo "Finshed installing iTerm2"
 	     
             # Download iTerm2 Monokai color scheme.
-            if [[ ! -d $dir/fonts ]]; then
-		echo "Installing iTerm2 Monokai color scheme." 
-		mkdir $dir/fonts
-		cd $dir/fonts
-		git clone https://github.com/dawnerd/monokai-iterm
-		cd $dir
-	    fi
-	fi
+            if [[ ! -d $dir/colorscheme ]]; then
+				echo "Installing iTerm2 Monokai color scheme." 
+				mkdir $dir/colorscheme
+				cd $dir/colorscheme
+				git clone https://github.com/dawnerd/monokai-iterm
+				cd $dir
+	 	    fi
+		fi
     fi 
 fi
 
