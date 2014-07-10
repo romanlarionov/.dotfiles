@@ -1,8 +1,11 @@
 #!/bin/bash
 ############################
 # install.sh
-# This script creates symlinks from the home directory to any desired dotfiles in ~/.dotfiles
-
+# This file is an automatic installer for all of 
+# Roman Larionov's dotfiles and specialized configurations. 
+#
+# To use, simply run : $ sh install.sh
+#
 ########### Variables
 
 dir=~/.dotfiles                    # dotfiles directory
@@ -10,7 +13,7 @@ files="vimrc vim zshrc oh-my-zsh gitconfig hydra"    # list of files/folders to 
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
-########## First Time install
+########## First Time Install
 
 if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 	cd ~/.dotfiles
@@ -45,71 +48,65 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 				mv iTerm.app ~/Applications
 				rm -r iterm.zip
 				echo "Finshed installing iTerm2"
-			 
-				# Download iTerm2 Monokai color scheme.
-				if [[ ! -d "$dir/colorscheme" ]]; then
-					echo "Installing iTerm2 Monokai color scheme." 
-					mkdir $dir/colorscheme
-					cd $dir/colorscheme
-					git clone https://github.com/dawnerd/monokai-iterm
-					cd $dir
-				fi
 			fi
 		fi
 	fi
-	
+
+	# VIM Add-ons and Plugins.	
 	echo "Installing Pathogen"
-	mkdir -p ~/.vim/autoload ~/.vim/bundle && \
-	curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+	mkdir -p $dir/vim/autoload $dir/vim/bundle && \
+	curl -LSso $dir/vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 	echo "done"
 
-	echo "Installing VIM Solarized Color Scheme"
+	echo "Installing vim Solarized Color Scheme"
 	cd $dir/vim/bundle
 	git clone git://github.com/altercation/vim-colors-solarized.git
 	echo "done"
+	
+	echo "Installing vim-airline."
+	mkdir /vim/bundle/vim-airline
+	cd $dir/vim/bundle/vim-airline
+	git clone https://github.com/bling/vim-airline
+	echo "done"
 
-	cd ~/
+	# ZShell/oh-my-zsh.
+	if [[ ! -d "$dir/oh-my-zsh" ]]; then
+		# Test to see if zshell is installed.  If it is:
+		if [ -f /bin/zsh -o -f /usr/bin/zsh ]; then
+			# Clone my oh-my-zsh repository from GitHub only if it isn't already present
+			if [[ ! -d $dir/oh-my-zsh ]]; then
+				git clone http://github.com/robbyrussell/oh-my-zsh.git
+			fi
+			# Set the default shell to zsh if it isn't currently set to zsh
+			if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
+				chsh -s $(which zsh)
+			fi
+		else	# If zsh isn't installed, get the platform of the current machine
+			
+			echo "Installing ZShell"	
+			# If using OS X.	
+			if [[ $platform == 'Darwin' ]]; then
+				brew install zsh	
+			fi
+			echo "done"
+		fi
+	fi
+
+	cd $HOME
 fi
 
-##########
+########## Frequently Updated Commands
 
 # Change to the dotfiles directory.
 echo -n "Changing to the dotfiles directory ..."
 cd $dir
 echo "done"
 
-# Move any existing dotfiles in ~/ to ~/.dotfiles, then create symlinks from ~/ to any files in ~/.dotfiles specified in $files
+# Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
 for file in $files; do
-    echo "Copying file/folder to home directory."
+    echo "Copying $file to home directory."
     cp $.file ~/
     echo "Creating symlink to $file in home directory."
     ln -s $dir/$file ~/.$file
 done
 
-install_zsh () {
-# Test to see if zshell is installed.  If it is:
-if [ -f /bin/zsh -o -f /usr/bin/zsh ]; then
-    # Clone my oh-my-zsh repository from GitHub only if it isn't already present
-    if [[ ! -d $dir/.oh-my-zsh/ ]]; then
-        git clone http://github.com/robbyrussell/oh-my-zsh.git
-    fi
-    # Set the default shell to zsh if it isn't currently set to zsh
-    if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
-        chsh -s $(which zsh)
-    fi
-else
-    # If zsh isn't installed, get the platform of the current machine
-    platform=$(uname);
-    # If the platform is Linux, try an apt-get to install zsh and then recurse
-    if [[ $platform == 'Linux' ]]; then
-        sudo apt-get install zsh
-        install_zsh
-    # If the platform is OS X, tell the user to install zsh :)
-    elif [[ $platform == 'Darwin' ]]; then
-        echo "Please install zsh, then re-run this script!"
-        exit
-    fi
-fi
-}
-
-install_zsh
