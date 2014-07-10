@@ -1,3 +1,18 @@
 [user]
 	name = Roman Larionov
 	email = romanylarionov@gmail.com
+
+[color]
+	ui = auto
+
+[core]
+	editor = vim
+
+[alias]
+	unstage = reset HEAD
+	cm = commit -m
+	st = status
+	br = branch
+	co = checkout 
+	pl = pull
+	
