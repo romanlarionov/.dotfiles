@@ -64,7 +64,7 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 	echo "done"
 
 	echo "Installing VIM Solarized Color Scheme"
-	cd ~/.vim/bundle
+	cd $dir/vim/bundle
 	git clone git://github.com/altercation/vim-colors-solarized.git
 	echo "done"
 
