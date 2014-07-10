@@ -16,7 +16,7 @@ iTerm_version='_v1_0_0';
 ########## First Time Install
 
 if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
-	cd ~/.dotfiles
+	cd $dir
 	mkdir .roman
 	echo "First time installing."
 
@@ -58,6 +58,10 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 	curl -LSso $dir/vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 	echo "done"
 
+	echo "Installing Vundle."
+	git clone https://github.com/gmarik/Vundle.vim.git $dir/vim/bundle/Vundle.vim
+	echo "done"
+
 	echo "Installing vim Solarized Color Scheme"
 	cd $dir/vim/bundle
 	git clone git://github.com/altercation/vim-colors-solarized.git
@@ -72,6 +76,11 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 	echo "Installing NERDTree for vim."
 	cd $dir/vim/bundle
 	git clone https://github.com/scrooloose/nerdtree.git
+	echo "done"
+
+	echo "Installing YouCompleteMe for VIM."
+	git clone https://github.com/Valloric/YouCompleteMe.git
+
 	echo "done"
 
 	# ZShell/oh-my-zsh.
@@ -102,16 +111,11 @@ fi
 
 ########## Frequently Updated Commands
 
-# Change to the dotfiles directory.
-echo -n "Changing to the dotfiles directory ..."
-cd $dir
-echo "done"
-
-# Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
+ Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
 for file in $files; do
     echo "Copying $file to home directory."
-    cp $.file ~/
+    cp $dir/$.file $HOME/
     echo "Creating symlink to $file in home directory."
-    ln -s $dir/$file ~/.$file
+    ln -s $dir/$file $HOME/.$file
 done
 
