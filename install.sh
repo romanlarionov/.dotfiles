@@ -69,6 +69,11 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 	git clone https://github.com/bling/vim-airline
 	echo "done"
 
+	echo "Installing NERDTree for vim."
+	cd $dir/vim/bundle
+	git clone https://github.com/scrooloose/nerdtree.git
+	echo "done"
+
 	# ZShell/oh-my-zsh.
 	if [[ ! -d "$dir/oh-my-zsh" ]]; then
 		# Test to see if zshell is installed.  If it is:
