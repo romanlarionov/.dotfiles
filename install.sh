@@ -6,6 +6,9 @@
 #
 # To use, simply run : $ sh install.sh
 #
+# Remember to add installer for YouCompleteMe essentials, including:
+# 		XCode latest release, MacVim, XBuild
+#
 ########### Variables
 
 dir=~/.dotfiles                    # dotfiles directory

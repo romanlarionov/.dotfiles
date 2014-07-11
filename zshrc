@@ -54,7 +54,8 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export VISUAL='mvim -f'
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
