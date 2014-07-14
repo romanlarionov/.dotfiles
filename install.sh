@@ -34,7 +34,7 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 		echo "done"
 
 		echo "Installing VIM"
-		brew install vim
+		brew install macvim
 		echo "done"
 
 		# if iTerm isn't already installed 
@@ -88,24 +88,21 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 
 	# ZShell/oh-my-zsh.
 	if [[ ! -d "$dir/oh-my-zsh" ]]; then
-		# Test to see if zshell is installed.  If it is:
-		if [ -f /bin/zsh -o -f /usr/bin/zsh ]; then
-			# Clone my oh-my-zsh repository from GitHub only if it isn't already present
-			if [[ ! -d $dir/oh-my-zsh ]]; then
-				git clone http://github.com/robbyrussell/oh-my-zsh.git
-			fi
-			# Set the default shell to zsh if it isn't currently set to zsh
-			if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
-				chsh -s $(which zsh)
-			fi
-		else	# If zsh isn't installed, get the platform of the current machine
-			
+		if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
 			echo "Installing ZShell"	
 			# If using OS X.	
 			if [[ $platform == 'Darwin' ]]; then
 				brew install zsh	
 			fi
 			echo "done"
+			echo "Switching shells..."
+			chsh -s $(which zsh)
+			echo "done"
+
+			# Clone my oh-my-zsh repository from GitHub only if it isn't already present
+			if [[ ! -d $dir/oh-my-zsh ]]; then
+				git clone http://github.com/robbyrussell/oh-my-zsh.git
+			fi
 		fi
 	fi
 
