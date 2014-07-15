@@ -12,7 +12,7 @@
 ########### Variables
 
 dir=~/.dotfiles                    # dotfiles directory
-files="vimrc vim zshrc oh-my-zsh gitconfig hydra"    # list of files/folders to symlink in homedir
+files="vimrc vim oh-my-zsh zshrc gitconfig hydra"    # list of files/folders to symlink in homedir
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
@@ -55,40 +55,8 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 		fi
 	fi
 
-	# VIM Add-ons and Plugins.	
-	echo "Installing Pathogen"
-	mkdir -p $dir/vim/autoload $dir/vim/bundle && \
-	curl -LSso $dir/vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
-	echo "done"
-
-	echo "Installing Vundle."
-	git clone https://github.com/gmarik/Vundle.vim.git $dir/vim/bundle/Vundle.vim
-	echo "done"
-
-	echo "Installing vim Solarized Color Scheme"
-	cd $dir/vim/bundle
-	git clone git://github.com/altercation/vim-colors-solarized.git
-	echo "done"
-	
-	echo "Installing vim-airline."
-	mkdir /vim/bundle/vim-airline
-	cd $dir/vim/bundle/vim-airline
-	git clone https://github.com/bling/vim-airline
-	echo "done"
-
-	echo "Installing NERDTree for vim."
-	cd $dir/vim/bundle
-	git clone https://github.com/scrooloose/nerdtree.git
-	echo "done"
-
-	echo "Installing YouCompleteMe for VIM."
-	git clone https://github.com/Valloric/YouCompleteMe.git
-
-	echo "done"
-
-	# ZShell/oh-my-zsh.
-	if [[ ! -d "$dir/oh-my-zsh" ]]; then
-		if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
+	# Zshell
+	if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
 			echo "Installing ZShell"	
 			# If using OS X.	
 			if [[ $platform == 'Darwin' ]]; then
@@ -98,12 +66,6 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 			echo "Switching shells..."
 			chsh -s $(which zsh)
 			echo "done"
-
-			# Clone my oh-my-zsh repository from GitHub only if it isn't already present
-			if [[ ! -d $dir/oh-my-zsh ]]; then
-				git clone http://github.com/robbyrussell/oh-my-zsh.git
-			fi
-		fi
 	fi
 
 	cd $HOME
