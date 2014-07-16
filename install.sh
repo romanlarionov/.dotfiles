@@ -76,7 +76,7 @@ fi
  Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
 for file in $files; do
     echo "Copying $file to home directory."
-    cp $dir/$.file $HOME/
+    cp $dir/.$file $HOME/
     echo "Creating symlink to $file in home directory."
     ln -s $dir/$file $HOME/.$file
 done

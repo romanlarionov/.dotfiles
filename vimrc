@@ -34,7 +34,8 @@ set visualbell					" No more dings.
 " Useful remaps
 nnoremap ; :					
 nnoremap j gj	
-nnoremap k gk					
+nnoremap k gk				
+nnoremap <silent> <C-T> :tabnext<CR>
 
 """"""""""""""""""""""""""""
 " Vundle Plugins
@@ -78,7 +79,7 @@ autocmd vimenter * NERDTree 				" Auto start NERD Tree.
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-nnoremap <silent> <C-T> :NERDTreeToggle<CR>
+nnoremap <silent> <C-X> :NERDTreeToggle<CR>
 nnoremap <silent> <C-C> :NERDTree<CR>
 let NERDTreeShowHidden=1
 
