@@ -16,3 +16,9 @@
 [submodule "oh-my-zsh"]
 	path = oh-my-zsh
 	url = https://github.com/robbyrussell/oh-my-zsh
+[submodule "vim/bundle/Conque-Shell"]
+	path = vim/bundle/Conque-Shell
+	url = https://github.com/lrvick/Conque-Shell.git
+[submodule "vim/bundle/Auto-Pairs"]
+	path = vim/bundle/Auto-Pairs
+	url = https://github.com/vim-scripts/Auto-Pairs.git

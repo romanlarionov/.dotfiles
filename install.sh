@@ -73,7 +73,7 @@ fi
 
 ########## Frequently Updated Commands
 
- Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
+# Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
 for file in $files; do
     echo "Copying $file to home directory."
     cp $dir/.$file $HOME/

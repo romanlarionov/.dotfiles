@@ -17,23 +17,27 @@ set copyindent
 set smartindent
 set shiftround
 
+" Searching
+set ignorecase
+set smartcase
+set nohlsearch					" Disable highlighting after seach.
+
 " Standard
 syntax on
 set number
-set hlsearch
-set smartcase
-set showmatch
+set showmatch					" Shows matching brace/bracket.
 set nobackup
 set noswapfile
 set term=xterm-256color
-set scrolloff=8         		" Start scrolling when we're 8 lines away from margins. 
+set scrolloff=999         		" Current line always stays in the middle of the screen. 
 set colorcolumn=105				" Color in code stop marker on start.
+set cursorline					" Highlights current line.
 
 " Useful remaps
 nnoremap ; :					
 nnoremap j gj	
-nnoremap k gk				
-nnoremap <silent> t :tabnext<CR>
+nnoremap k gk	
+nnoremap <silent> t :tabnext<CR>	
 
 """"""""""""""""""""""""""""
 " Vundle Plugins
@@ -54,7 +58,8 @@ Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
 Plugin 'altercation/vim-colors-solarized' 
 Plugin 'bling/vim-airline'
-
+Plugin 'vim-scripts/Conque-Shell'
+Plugin 'vim-scripts/Auto-Pairs'
 
 call vundle#end()
 filetype plugin indent on
@@ -74,12 +79,10 @@ let g:airline_enable_branch    = 1
 let g:airline_enable_syntastic = 1
 
 " NERDTree			
-autocmd vimenter * NERDTree 				" Auto start NERD Tree.
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 nnoremap <silent> <C-X> :NERDTreeToggle<CR>
-nnoremap <silent> <C-C> :NERDTree<CR>
 let NERDTreeShowHidden=1	" Show hidden files
 
 
