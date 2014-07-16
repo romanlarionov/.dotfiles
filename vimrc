@@ -21,6 +21,7 @@ set shiftround
 set ignorecase
 set smartcase
 set nohlsearch					" Disable highlighting after seach.
+set incsearch					" Search as you type
 
 " Standard
 syntax on
@@ -60,6 +61,7 @@ Plugin 'altercation/vim-colors-solarized'
 Plugin 'bling/vim-airline'
 Plugin 'vim-scripts/Conque-Shell'
 Plugin 'vim-scripts/Auto-Pairs'
+Plugin 'scrooloose/syntastic'
 
 call vundle#end()
 filetype plugin indent on
@@ -82,8 +84,13 @@ let g:airline_enable_syntastic = 1
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-nnoremap <silent> <C-X> :NERDTreeToggle<CR>
 let NERDTreeShowHidden=1	" Show hidden files
+nnoremap <silent> <C-X> :NERDTreeToggle<CR>
+
+" Conque Shell
+nnoremap <C-Z> :ConqueTermSplit zsh <CR>
+let g:ConqueTerm_StartMessages = 0 
+
 
 
 
