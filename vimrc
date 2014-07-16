@@ -5,12 +5,8 @@
 """"""""""""""""""""""""""""
 " General
 """"""""""""""""""""""""""""
-
 set nocompatible
 filetype off
-
-syntax on
-set number
 
 " Whitespace
 set tabstop=4
@@ -22,6 +18,8 @@ set smartindent
 set shiftround
 
 " Standard
+syntax on
+set number
 set hlsearch
 set smartcase
 set showmatch
@@ -29,13 +27,13 @@ set nobackup
 set noswapfile
 set term=xterm-256color
 set scrolloff=8         		" Start scrolling when we're 8 lines away from margins. 
-set visualbell					" No more dings.
+set colorcolumn=105				" Color in code stop marker on start.
 
 " Useful remaps
 nnoremap ; :					
 nnoremap j gj	
 nnoremap k gk				
-nnoremap <silent> <C-T> :tabnext<CR>
+nnoremap <silent> t :tabnext<CR>
 
 """"""""""""""""""""""""""""
 " Vundle Plugins
@@ -62,7 +60,7 @@ call vundle#end()
 filetype plugin indent on
 
 """"""""""""""""""""""""""""
-" Vundle Options
+" Plugin Options
 """"""""""""""""""""""""""""
 
 " VIM Solarized Theme
@@ -71,8 +69,9 @@ colorscheme solarized
 
 " Airline
 set laststatus=2					" Makes airline appear all the time.
-let g:airline_powerline_fonts = 1	" Allow Powerline fonts.
-let g:airline_theme="solarized"
+let g:airline_powerline_fonts  = 1	" Allow Powerline fonts.
+let g:airline_enable_branch    = 1
+let g:airline_enable_syntastic = 1
 
 " NERDTree			
 autocmd vimenter * NERDTree 				" Auto start NERD Tree.
@@ -81,6 +80,9 @@ autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 nnoremap <silent> <C-X> :NERDTreeToggle<CR>
 nnoremap <silent> <C-C> :NERDTree<CR>
-let NERDTreeShowHidden=1
+let NERDTreeShowHidden=1	" Show hidden files
+
+
+
 
 
