@@ -57,29 +57,31 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 
 	# Zshell
 	if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
-			echo "Installing ZShell"	
-			# If using OS X.	
-			if [[ $platform == 'Darwin' ]]; then
-				brew install zsh	
-			fi
-			echo "done"
-			echo "Switching shells..."
-			chsh -s $(which zsh)
-			echo "done"
+	
+		echo "Installing ZShell"	
+		# If using OS X.	
+		if [[ $platform == 'Darwin' ]]; then
+			brew install zsh	
+		fi
+		echo "done"
+
+		echo "Switching shells..."
+		chsh -s $(which zsh)
+		echo "done"
 	fi
 
 	# If there exsists any old dotfiles, save them and replace them with the new ones.
 	echo "Saving old dotfiles..."
-	cd $HOME/.dotfiles
-	mkdir .dotfiles.old
-	oldFiles=~/.dotfiles/.dotfiles.old
 
 	# Special case
 	rm -r -f ~/.oh-my-zsh
-
+	
+	mkdir $dir/.dotfiles.old
+	oldFiles=~/.dotfiles/.dotfiles.old
+	
 	for file in $files; do
 		echo "Caching $file ..."
-		mv ~/.$file ~/.dotfiles/.dotfiles.old
+		mv ~/$.file $oldFiles
 		echo "done"
 	done
 	echo "Completed caching. Your files are safe :)"

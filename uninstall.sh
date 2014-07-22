@@ -10,6 +10,7 @@
 
 dir=~/.dotfiles
 files= "vimrc vim oh-my-zsh zshrc gitconfig hydra"
+oldFiles=$dir/.dotfiles.old
 
 ########## Deletions
 
@@ -25,6 +26,15 @@ echo "done"
 				
 echo "Removing .dotfiles directory."
 
+echo "Reverting back to your previous settings..."
+cd $oldFiles
+for file in $files; do
+	mv $.file $HOME
+done
+
 rm -rf $HOME/.dotfiles  
+echo "Uninstall complete!"
+
+
 
 
