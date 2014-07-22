@@ -68,7 +68,22 @@ if [[ ! -d "$HOME/.dotfiles/.roman" ]]; then
 			echo "done"
 	fi
 
-	cd $HOME
+	# If there exsists any old dotfiles, save them and replace them with the new ones.
+	echo "Saving old dotfiles..."
+	cd $HOME/.dotfiles
+	mkdir .dotfiles.old
+	oldFiles=~/.dotfiles/.dotfiles.old
+
+	# Special case
+	rm -r -f ~/.oh-my-zsh
+
+	for file in $files; do
+		echo "Caching $file ..."
+		mv ~/.$file ~/.dotfiles/.dotfiles.old
+		echo "done"
+	done
+	echo "Completed caching. Your files are safe :)"
+
 fi
 
 ########## Frequently Updated Commands
