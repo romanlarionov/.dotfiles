@@ -10,9 +10,7 @@ Installation
 From within the home directory: 
 
 ```shell
-mkdir .dotfiles
-cd .dotfiles
-git clone https://github.com:HowdyDutty/dotfiles.git
+git clone https://github.com/HowdyDutty/.dotfiles.git
 sh install.sh
 ```
 
