@@ -21,7 +21,7 @@ iTerm_version='_v1_0_0';
 cd $dir
 
 # OS X specific initial intallations.	
-if [[ $platform == 'Darwin' ]]; then
+if [ $platform == 'Darwin' ]; then
 	echo "Installing Homebrew."
 	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"	
 	echo "done"
@@ -35,11 +35,11 @@ if [[ $platform == 'Darwin' ]]; then
 	echo "done"
 
 	# if iTerm isn't already installed 
-	if [[ ! -d "$HOME/Applications/iTerm.app" ]]; then
+	if [ ! -d "$HOME/Applications/iTerm.app" ]; then
 		read -p "iTerm2 is not installed, would you like to do that now? | (y/n) " yn
 
 		# Only install if the user wants to.
-		if [[ $yn == [Yy]* ]]; then 
+		if [ $yn == [Yy]* ]; then 
 			# Download iTerm2.
 			echo "Installing iTerm2."
 			curl -o iterm.zip http://www.iterm2.com/downloads/stable/iTerm2$iTerm_version.zip
@@ -53,11 +53,11 @@ if [[ $platform == 'Darwin' ]]; then
 fi
 
 # Zshell
-if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
+if [ $(echo $SHELL) != $(which zsh) ]; then
 
 	echo "Installing ZShell"	
 	# If using OS X.	
-	if [[ $platform == 'Darwin' ]]; then
+	if [ $platform == 'Darwin' ]; then
 		brew install zsh	
 	fi
 	echo "done"

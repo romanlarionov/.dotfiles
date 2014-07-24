@@ -19,7 +19,7 @@ cd $HOME
 echo "Removing all dotfiles within your home directory..."
 for file in $files; do
 	echo "Deleting $file ..."
-	rm -rf $.file
+	rm -rf .$file
 	echo "done"
 done
 echo "done"
