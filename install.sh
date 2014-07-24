@@ -76,17 +76,20 @@ cd $dir/vim/bundle/YouCompleteMe
 clangSupp=""
 dotNetSupp=""
 
-read -p "Do you want to have semantic support for C-type languages? | (y/n)" yn
-if [[ $yn == [Yy]* ]]; then 
-	$clangSupp="--clang-completer"
+read -p "Do you want to have semantic support for C-type languages? | (y/n)" yn2
+if [[ $yn2 == [Yy]* ]]; then 
+	clangSupp="--clang-completer"
 fi
 
-read -p "Do you want to have semantic support for .Net/C# ? | (y/n)" yn
-if [[ $yn == [Yy]* ]]; then
-	$dotNetSupp="--omnisharp-completer"
+read -p "Do you want to have semantic support for .Net/C# ? | (y/n)" yn3
+if [[ $yn3 == [Yy]* ]]; then
+	dotNetSupp="--omnisharp-completer"
 fi
 
+git submodule update --init --recursive
 ./install.sh $clangSupp $dotNetSupp
+
+cd $dir
 
 # If there exsists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
@@ -117,17 +120,19 @@ echo "
 
 Finished installation process!
 
-                    .--.
-          : (! ". _......_ ." /) :
-           '.    ^        ^   .'		   ______                __       __      __  
-            |'   _        _   '|		  / ____/____ _____ ____/ /      / /____ / /_ 
-           |     0}      {0     |		 / / __/ __  / __  / __  /  __  / / __  / __ \
-          |       /      |       |		/ /_/ / /_/ / /_/ / /_/ /  / /_/ / /_/ / /_/ /
-          |     /'        '|     |	   /_____/_____/_____/___,_/  /_____/_____/_.___/ 
-           |   | .  .==.  . |   |
-            '._ |.' |__| './ _.'
-            /   ''._-''-_.''  \
-                    '--'
+                   .--.
+         : (! ". _......_ ." /) :
+          '.    ^        ^   .'            ______                __       __      __  
+           |'   _        _   '|           / ____/____ _____ ____/ /      / /____ / /_ 
+          |     0}      {0     |         / / __/ __  / __  / __  /  __  / / __  / __ \
+
+         |       /      |       |       / /_/ / /_/ / /_/ / /_/ /  / /_/ / /_/ / /_/ /
+         |     /'        '|     |      /_____/_____/_____/___,_/  /_____/_____/_.___/ 
+          |   | .  .==.  . |   |
+           '._ |.' |__| './ _.'
+           /   ''._-''-_.''  \
+
+                   '--'
 "
 
 
