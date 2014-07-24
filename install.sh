@@ -36,7 +36,7 @@ if [[ $platform == 'Darwin' ]]; then
 
 	# if iTerm isn't already installed 
 	if [[ ! -d "$HOME/Applications/iTerm.app" ]]; then
-		read -p "iTerm2 is not installed, would you like to do that now (y/n) " yn
+		read -p "iTerm2 is not installed, would you like to do that now? | (y/n) " yn
 
 		# Only install if the user wants to.
 		if [[ $yn == [Yy]* ]]; then 
@@ -71,7 +71,22 @@ echo "Updating git submodules..."
 git submodule init
 git submodule update
 
+# YouCompleteMe compilation
+cd $dir/vim/bundle/YouCompleteMe
+clangSupp=""
+dotNetSupp=""
 
+read -p "Do you want to have semantic support for C-type languages? | (y/n)" yn
+if [[ $yn == [Yy]* ]]; then 
+	$clangSupp="--clang-completer"
+fi
+
+read -p "Do you want to have semantic support for .Net/C# ? | (y/n)" yn
+if [[ $yn == [Yy]* ]]; then
+	$dotNetSupp="--omnisharp-completer"
+fi
+
+./install.sh $clangSupp $dotNetSupp
 
 # If there exsists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
@@ -102,17 +117,17 @@ echo "
 
 Finished installation process!
 
-                   .--.
-          : (\ ". _......_ ." /) :
-           '.    `        `    .'		   ______                __       __      __  
-            /'   _        _   `\		  / ____/___  ____  ____/ /      / /___  / /_ 
-           /     0}      {0     \		 / / __/ __ \/ __ \/ __  /  __  / / __ \/ __ \
-          |       /      \       |		/ /_/ / /_/ / /_/ / /_/ /  / /_/ / /_/ / /_/ /
-          |     /'        `\     |		\____/\____/\____/\__,_/   \____/\____/_.___/ 
-           \   | .  .==.  . |   /
-            '._ \.' \__/ './ _.'
-            /  ``'._-''-_.'``  \
-                    `--`
+                    .--.
+          : (! ". _......_ ." /) :
+           '.    ^        ^   .'		   ______                __       __      __  
+            |'   _        _   '|		  / ____/____ _____ ____/ /      / /____ / /_ 
+           |     0}      {0     |		 / / __/ __  / __  / __  /  __  / / __  / __ \
+          |       /      |       |		/ /_/ / /_/ / /_/ / /_/ /  / /_/ / /_/ / /_/ /
+          |     /'        '|     |	   /_____/_____/_____/___,_/  /_____/_____/_.___/ 
+           |   | .  .==.  . |   |
+            '._ |.' |__| './ _.'
+            /   ''._-''-_.''  \
+                    '--'
 "
 
 
