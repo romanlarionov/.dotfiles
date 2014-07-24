@@ -11,7 +11,6 @@ From within the home directory:
 
 ```shell
 git clone https://github.com/HowdyDutty/.dotfiles.git
-cd .dotfiles
 sh install.sh
 ```
 
