@@ -5,6 +5,7 @@
 	ui = auto
 [core]
 	editor = vim
+	autocrlf = input
 [alias]
 	unstage = reset HEAD
 	cm = commit -m
