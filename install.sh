@@ -76,12 +76,12 @@ cd $dir/vim/bundle/YouCompleteMe
 clangSupp=""
 dotNetSupp=""
 
-read -p "Do you want to have semantic support for C-type languages? | (y/n)" yn2
+read -p "Do you want to have semantic support for C-type languages? | (y/n) " yn2
 if [[ $yn2 == [Yy]* ]]; then 
 	clangSupp="--clang-completer"
 fi
 
-read -p "Do you want to have semantic support for .Net/C# ? | (y/n)" yn3
+read -p "Do you want to have semantic support for .Net/C# ? | (y/n) " yn3
 if [[ $yn3 == [Yy]* ]]; then
 	dotNetSupp="--omnisharp-completer"
 fi
