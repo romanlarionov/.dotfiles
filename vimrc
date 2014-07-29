@@ -33,6 +33,8 @@ set term=xterm-256color
 set scrolloff=999         		" Current line always stays in the middle of the screen. 
 set colorcolumn=105				" Color in code stop marker on start.
 set cursorline					" Highlights current line.
+set visualbell					" Set bell to flash screen.
+set t_vb=						" Visual bell now does nothing.
 
 " Useful remaps
 nnoremap ; :					
@@ -99,5 +101,7 @@ hi IndentGuidesEven ctermbg=darkgrey
 let g:indent_guides_start_level=2
 let g:indent_guides_guide_size=1
 
+" Syntastic
+let g:syntastic_cpp_check_header = 1
 
 
