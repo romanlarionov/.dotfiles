@@ -104,4 +104,12 @@ let g:indent_guides_guide_size=1
 " Syntastic
 let g:syntastic_cpp_check_header = 1
 
+" YouCompleteMe
+let g:ycm_enable_diagnostic_highlighting = 1			" YCM will highlight the part of the line where there's an issue.
+let g:ycm_seed_identifiers_with_syntax = 1				" YCM will show keywords for various languages in complete box.
+let g:ycm_add_preview_to_completeopt = 1				" Shows more info about the proposed autocomplete.
+let g:ycm_autoclose_preview_window_after_completion = 1 " Closes preview after tab complete.
+let g:ycm_autoclose_preview_window_after_insertion = 1  " Closes preview if user leaves insert mode.
+
+
 
