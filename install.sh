@@ -16,11 +16,10 @@ files="vimrc vim oh-my-zsh zshrc gitconfig hydra"    # list of files/folders to 
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
-########## First Time Install
-
 cd $dir
 
-# OS X specific initial intallations.	
+########## OS X Specific
+
 if [ $platform == 'Darwin' ]; then
 	echo "Installing Homebrew."
 	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"	
@@ -52,7 +51,8 @@ if [ $platform == 'Darwin' ]; then
 	fi
 fi
 
-# Zshell
+########## Zshell
+
 if [ $(echo $SHELL) != $(which zsh) ]; then
 
 	echo "Installing ZShell"	
@@ -67,12 +67,16 @@ if [ $(echo $SHELL) != $(which zsh) ]; then
 	echo "done"
 fi
 
+########## Git Submodules 
+
 echo "Updating git submodules..."
 git submodule init
 git submodule update
 
 # YouCompleteMe does not support Windows.
-if [ $platform != 'Cygwin' ]; then
+windows=$(uname -o)
+
+if [ $windows != 'Cygwin' ]; then
 	# YouCompleteMe compilation
 	cd $dir/vim/bundle/YouCompleteMe
 	clangSupp=""
@@ -94,10 +98,13 @@ if [ $platform != 'Cygwin' ]; then
 	cd $dir
 fi
 
+########## File Management
+
 # If there exsists any old dotfiles, save them and replace them with the new ones.
-echo "Saving old dotfiles..."
 
 cd $HOME
+
+echo "Saving old dotfiles..."
 
 # Special case
 rm -r -f ~/.oh-my-zsh
