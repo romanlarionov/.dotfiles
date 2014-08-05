@@ -27,3 +27,19 @@ sh uninstall.sh
 ```
 
 And that's it!
+
+Personal Preferences
+========
+
+On Windows:
+
+I use a fairly new shell that's still in it's early stages of development. It's called  [babun](https://github.com/babun/babun) and it's awesome!
+
+
+On OS X:
+
+This is already in the auto installer, but I think it's worth mentioning. 
+
+[iTerm2](iterm2.com) is great. It allows for a lot of customization and has a huge followng. I enjoy it.
+
+

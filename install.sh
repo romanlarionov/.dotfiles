@@ -71,28 +71,33 @@ echo "Updating git submodules..."
 git submodule init
 git submodule update
 
-# YouCompleteMe compilation
-cd $dir/vim/bundle/YouCompleteMe
-clangSupp=""
-dotNetSupp=""
+# YouCompleteMe does not support Windows.
+if [ $platform != 'Cygwin' ]; then
+	# YouCompleteMe compilation
+	cd $dir/vim/bundle/YouCompleteMe
+	clangSupp=""
+	dotNetSupp=""
 
-read -p "Do you want to have semantic support for C-type languages? | (y/n) " yn2
-if [[ $yn2 == [Yy]* ]]; then 
-	clangSupp="--clang-completer"
+	read -p "Do you want to have semantic support for C-type languages? | (y/n) " yn2
+	if [[ $yn2 == [Yy]* ]]; then 
+		clangSupp="--clang-completer"
+	fi
+
+	read -p "Do you want to have semantic support for .Net/C# ? | (y/n) " yn3
+	if [[ $yn3 == [Yy]* ]]; then
+		dotNetSupp="--omnisharp-completer"
+	fi
+
+	git submodule update --init --recursive
+	./install.sh $clangSupp $dotNetSupp
+
+	cd $dir
 fi
-
-read -p "Do you want to have semantic support for .Net/C# ? | (y/n) " yn3
-if [[ $yn3 == [Yy]* ]]; then
-	dotNetSupp="--omnisharp-completer"
-fi
-
-git submodule update --init --recursive
-./install.sh $clangSupp $dotNetSupp
-
-cd $dir
 
 # If there exsists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
+
+cd $HOME
 
 # Special case
 rm -r -f ~/.oh-my-zsh
@@ -102,7 +107,7 @@ oldFiles=~/.dotfiles/.dotfiles.old
 
 for file in $files; do
 	echo "Caching $file ..."
-	mv ~/$.file $oldFiles
+	mv .$file $oldFiles
 	echo "done"
 done
 echo "Completed caching. Your files are safe :)"
@@ -115,24 +120,6 @@ for file in $files; do
     ln -s $dir/$file $HOME/.$file
 done
 
-
-echo "
-
-Finished installation process!
-
-                   .--.
-         : (! ". _......_ ." /) :
-          '.    ^        ^   .'            ______                __       __      __  
-           |'   _        _   '|           / ____/____ _____ ____/ /      / /____ / /_ 
-          |     0}      {0     |         / / __/ __  / __  / __  /  __  / / __  / __ \
-
-         |       /      |       |       / /_/ / /_/ / /_/ / /_/ /  / /_/ / /_/ / /_/ /
-         |     /'        '|     |      /_____/_____/_____/___,_/  /_____/_____/_.___/ 
-          |   | .  .==.  . |   |
-           '._ |.' |__| './ _.'
-           /   ''._-''-_.''  \
-
-                   '--'
-"
-
+# Needs to restart.
+exit
 
