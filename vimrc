@@ -57,7 +57,6 @@ call vundle#begin()	" Place all vundle plugins here:
 
 " Plugins
 Plugin 'gmarik/Vundle.vim'
-Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
 Plugin 'altercation/vim-colors-solarized' 
 Plugin 'bling/vim-airline'
@@ -65,6 +64,10 @@ Plugin 'vim-scripts/Conque-Shell'
 Plugin 'vim-scripts/Auto-Pairs'
 Plugin 'scrooloose/syntastic'
 Plugin 'nathanaelkane/vim-indent-guides'
+
+if !has("win32") || !has("win16")
+	Plugin 'Valloric/YouCompleteMe'
+endif
 
 call vundle#end()
 filetype plugin indent on
