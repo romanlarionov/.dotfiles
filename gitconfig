@@ -14,6 +14,7 @@
 	co = checkout 
 	pl = pull origin
 	ps = push origin	
+	up = !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
 [credential]
 	helper = cache --timeout=9000
 [help]
