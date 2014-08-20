@@ -28,7 +28,7 @@ if [ $platform == 'Darwin' ]; then
 	echo "Installing Brew Cask."
 	brew install brew-cask
 	echo "done"
-
+	
 	echo "Installing VIM"
 	brew install macvim
 	echo "done"
@@ -60,7 +60,12 @@ if [ $(echo $SHELL) != $(which zsh) ]; then
 	if [ $platform == 'Darwin' ]; then
 		brew install zsh	
 	fi
+	if [ $platform == "Debian" ]; then
+		sudo apt-get install zsh	
+	fi
 	echo "done"
+	
+	# Windows comes pre-installed with zsh.
 
 	echo "Switching shells..."
 	chsh -s $(which zsh)
@@ -74,21 +79,19 @@ git submodule init
 git submodule update
 
 # YouCompleteMe does not support Windows.
-windows=$(uname -o)
-
-if [ $windows != 'Cygwin' ]; then
+if [ "$platform" != "Cygwin" ]; then
 	# YouCompleteMe compilation
 	cd $dir/vim/bundle/YouCompleteMe
 	clangSupp=""
 	dotNetSupp=""
 
 	read -p "Do you want to have semantic support for C-type languages? | (y/n) " yn2
-	if [[ $yn2 == [Yy]* ]] then 
+	if [ $yn2 == [Yy]* ]; then 
 		clangSupp="--clang-completer"
 	fi
 
 	read -p "Do you want to have semantic support for .Net/C# ? | (y/n) " yn3
-	if [[ $yn3 == [Yy]* ]] then
+	if [ $yn3 == [Yy]* ]; then
 		dotNetSupp="--omnisharp-completer"	
 	fi
 	git submodule update --init --recursive
@@ -106,7 +109,9 @@ cd $HOME
 echo "Saving old dotfiles..."
 
 # Special case
-rm -r -f ~/.oh-my-zsh
+if [ -d "$HOME/.oh-my-zsh" ]; then
+	rm -rf ~/.oh-my-zsh
+fi
 
 mkdir $dir/.dotfiles.old
 oldFiles=~/.dotfiles/.dotfiles.old

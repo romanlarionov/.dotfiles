@@ -8,6 +8,7 @@
 	autocrlf = input
 [alias]
 	unstage = reset HEAD
+	unmerge = reset --merge
 	cm = commit -m
 	st = status
 	br = branch
