@@ -12,7 +12,7 @@
 ########### Variables
 
 dir=~/.dotfiles                    # dotfiles directory
-files="vimrc vim oh-my-zsh zshrc gitconfig hydra"    # list of files/folders to symlink in homedir
+files="vimrc vim oh-my-zsh zshrc gitconfig fonts hydra"     # list of files/folders to symlink in homedir
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
@@ -24,7 +24,7 @@ if [ $platform == 'Darwin' ]; then
 	echo "Installing Homebrew."
 	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"	
 	echo "done"
-
+	
 	echo "Installing Brew Cask."
 	brew install brew-cask
 	echo "done"
@@ -83,15 +83,14 @@ if [ $windows != 'Cygwin' ]; then
 	dotNetSupp=""
 
 	read -p "Do you want to have semantic support for C-type languages? | (y/n) " yn2
-	if [[ $yn2 == [Yy]* ]]; then 
+	if [[ $yn2 == [Yy]* ]] then 
 		clangSupp="--clang-completer"
 	fi
 
 	read -p "Do you want to have semantic support for .Net/C# ? | (y/n) " yn3
-	if [[ $yn3 == [Yy]* ]]; then
-		dotNetSupp="--omnisharp-completer"
+	if [[ $yn3 == [Yy]* ]] then
+		dotNetSupp="--omnisharp-completer"	
 	fi
-
 	git submodule update --init --recursive
 	./install.sh $clangSupp $dotNetSupp
 
@@ -126,7 +125,4 @@ for file in $files; do
     echo "Creating symlink to $file in home directory."
     ln -s $dir/$file $HOME/.$file
 done
-
-# Needs to restart.
-exit
 
