@@ -53,9 +53,10 @@ fi
 
 ########## Zshell
 
-if [ $(echo $SHELL) != $(which zsh) ]; then
+if [ $(echo $SHELL) != "/bin/zsh" ]; then
 
 	echo "Installing ZShell"	
+	
 	# If using OS X.	
 	if [ $platform == 'Darwin' ]; then
 		brew install zsh	
@@ -79,7 +80,7 @@ git submodule init
 git submodule update
 
 # YouCompleteMe does not support Windows.
-if [ "$platform" != "Cygwin" ]; then
+if [ $OSTYPE != "cygwin" ]; then
 	# YouCompleteMe compilation
 	cd $dir/vim/bundle/YouCompleteMe
 	clangSupp=""
