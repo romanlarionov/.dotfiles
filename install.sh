@@ -33,6 +33,10 @@ if [ $platform == 'Darwin' ]; then
 	brew install macvim
 	echo "done"
 
+	echo "Installing npm"
+	brew install npm
+	echo "done"
+
 	# if iTerm isn't already installed 
 	if [ ! -d "$HOME/Applications/iTerm.app" ]; then
 		read -p "iTerm2 is not installed, would you like to do that now? | (y/n) " yn
@@ -78,6 +82,10 @@ fi
 echo "Updating git submodules..."
 git submodule init
 git submodule update
+
+echo "Installing JSHint"
+npm install -g jshint
+echo "done"
 
 # YouCompleteMe does not support Windows.
 if [ $OSTYPE != "cygwin" ]; then
