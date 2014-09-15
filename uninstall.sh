@@ -9,7 +9,7 @@
 ########## Variables
 
 dir=~/.dotfiles
-files= "vimrc vim oh-my-zsh zshrc gitconfig hydra"
+files= "vimrc vim oh-my-zsh zshrc gitconfig mjolnir"
 oldFiles=$dir/.dotfiles.old
 
 ########## Deletions
