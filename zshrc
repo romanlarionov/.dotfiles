@@ -55,6 +55,7 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export GOPATH=$HOME/Go
 export VISUAL='mvim -f'
 # export MANPATH="/usr/local/man:$MANPATH"
 
