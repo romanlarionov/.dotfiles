@@ -21,16 +21,9 @@ local grid = require "mjolnir.sd.grid"
 local spotify = require "mjolnir.lb.spotify"
 local alert = require "mjolnir.alert"
 
-
 ----------- Global Variables
 local mash = {"cmd", "alt", "ctrl"}
 local mashShift = {"cmd", "alt", "shift"}
-
-local function reloadConfig()
-	mjolnir.reload()
-	alert.show("Config Reloaded!")
-end
-
 ----------- Custom Hotkeys
 
 -- Spotify 
@@ -43,14 +36,14 @@ hotkey.bind(mash, "left", spotify.previous)
 hotkey.bind(mash, "k", grid.pushwindow_left)
 hotkey.bind(mash, "l", grid.pushwindow_right)
 
-hotkey.bind(mash, "m", window.maximize)
+hotkey.bind(mash, 'M', grid.maximize_window)
 hotkey.bind(mash, "n", window.minimize)
 
 -- Mjolnir Specific
-hotkey.bind(mash, "r", reloadConfig)
+hotkey.bind(mash, "r", mjolnir.reload)
 
 -- On StartUp
-
+alert.show("Config Loaded!");
 
 
 
