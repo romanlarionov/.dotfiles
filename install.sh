@@ -39,9 +39,9 @@ if [ $platform == 'Darwin' ]; then
 
 	# if iTerm isn't already installed 
 	if [ ! -d "$HOME/Applications/iTerm.app" ]; then
-		read -p "iTerm2 is not installed, would you like to do that now? | (y/n) " yn
-
+		
 		# Only install if the user wants to.
+		read -p "iTerm2 is not installed, would you like to do that now? | (y/n) " yn
 		if [ $yn == [Yy]* ]; then 
 			# Download iTerm2.
 			echo "Installing iTerm2."
@@ -58,7 +58,6 @@ fi
 ########## Zshell
 
 if [ $(echo $SHELL) != "/bin/zsh" ]; then
-
 	echo "Installing ZShell"	
 	
 	# If using OS X.	
@@ -71,7 +70,7 @@ if [ $(echo $SHELL) != "/bin/zsh" ]; then
 	echo "done"
 	
 	# Windows comes pre-installed with zsh.
-
+	
 	echo "Switching shells..."
 	chsh -s $(which zsh)
 	echo "done"
@@ -89,32 +88,34 @@ echo "done"
 
 # YouCompleteMe does not support Windows.
 if [ $OSTYPE != "cygwin" ]; then
-	# YouCompleteMe compilation
-	cd $dir/vim/bundle/YouCompleteMe
-	clangSupp=""
-	dotNetSupp=""
+	read -p "Do you want to install YouCompleteMe error detection? | (y/n) " yn1
+	if [ $yn1 == [Yy]* ]; then
+		# YouCompleteMe compilation
+		cd $dir/vim/bundle/YouCompleteMe
+		clangSupp=""
+		dotNetSupp=""
 
-	read -p "Do you want to have semantic support for C-type languages? | (y/n) " yn2
-	if [ $yn2 == [Yy]* ]; then 
-		clangSupp="--clang-completer"
+		read -p "Do you want to have semantic support for C-type languages? | (y/n) " yn2
+		if [ $yn2 == [Yy]* ]; then 
+			clangSupp="--clang-completer"
+		fi
+
+		read -p "Do you want to have semantic support for .Net/C# ? | (y/n) " yn3
+		if [ $yn3 == [Yy]* ]; then
+			dotNetSupp="--omnisharp-completer"	
+		fi
+		git submodule update --init --recursive
+		./install.sh $clangSupp $dotNetSupp
+
+		cd $dir
 	fi
-
-	read -p "Do you want to have semantic support for .Net/C# ? | (y/n) " yn3
-	if [ $yn3 == [Yy]* ]; then
-		dotNetSupp="--omnisharp-completer"	
-	fi
-	git submodule update --init --recursive
-	./install.sh $clangSupp $dotNetSupp
-
-	cd $dir
 fi
+
+cd $HOME
 
 ########## File Management
 
 # If there exsists any old dotfiles, save them and replace them with the new ones.
-
-cd $HOME
-
 echo "Saving old dotfiles..."
 
 # Special case
@@ -139,4 +140,7 @@ for file in $files; do
     echo "Creating symlink to $file in home directory."
     ln -s $dir/$file $HOME/.$file
 done
+
+echo "You did it. Good job."
+
 
