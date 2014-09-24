@@ -10,6 +10,7 @@ ZSH_THEME="agnoster"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias chrome="open /Applications/Google\ Chrome.app --args --allow-file-access-from-files"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
