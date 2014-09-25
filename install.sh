@@ -12,7 +12,7 @@
 ########### Variables
 
 dir=~/.dotfiles                    # dotfiles directory
-files="vimrc vim ssh oh-my-zsh zshrc gitconfig fonts mjolnir"     # list of files/folders to symlink in homedir
+files="vimrc vim oh-my-zsh zshrc gitconfig fonts mjolnir"     # list of files/folders to symlink in homedir
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
