@@ -64,6 +64,7 @@ Plugin 'vim-scripts/Conque-Shell'
 Plugin 'vim-scripts/Auto-Pairs'
 Plugin 'scrooloose/syntastic'
 Plugin 'nathanaelkane/vim-indent-guides'
+Plugin 'tikhomirov/vim-glsl'
 Plugin 'walm/jshint.vim'
 
 if !has("win32") || !has("win16")

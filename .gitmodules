@@ -31,3 +31,6 @@
 [submodule "vim/bundle/jshint.vim"]
 	path = vim/bundle/jshint.vim
 	url = git@github.com:walm/jshint.vim.git
+[submodule "vim/bundle/vim-glsl"]
+	path = vim/bundle/vim-glsl
+	url = git@github.com:tikhomirov/vim-glsl.git
