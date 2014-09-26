@@ -13,7 +13,7 @@
 
 
 ------------ External Dependencies. 
-local application = require "mjolnir.application"
+--local application = require "mjolnir.application"
 local hotkey = require "mjolnir.hotkey"
 local window = require "mjolnir.window"
 local grid = require "mjolnir.sd.grid"
@@ -33,11 +33,16 @@ hotkey.bind(mash, "right", spotify.next)
 hotkey.bind(mash, "left", spotify.previous)
 
 -- Window Management 
-hotkey.bind(mash, "k", grid.pushwindow_left)
-hotkey.bind(mash, "l", grid.pushwindow_right)
+hotkey.bind(mash, '=', function() grid.adjustwidth( 1 ) end)
+hotkey.bind(mash, '-', function() grid.adjustwidth(-1) end)
 
 hotkey.bind(mash, 'M', grid.maximize_window)
-hotkey.bind(mash, "n", window.minimize)
+
+hotkey.bind(mash, 'H', grid.pushwindow_left)
+hotkey.bind(mash, 'L', grid.pushwindow_right)
+
+hotkey.bind(mash, 'O', grid.resizewindow_wider)
+hotkey.bind(mash, 'I', grid.resizewindow_thinner)
 
 -- Mjolnir Specific
 hotkey.bind(mash, "r", mjolnir.reload)
