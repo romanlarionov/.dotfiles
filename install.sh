@@ -22,7 +22,7 @@ cd $dir
 
 if [ $platform == 'Darwin' ]; then
 	echo "Installing Homebrew."
-	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"	
+	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"	
 	echo "done"
 	
 	echo "Installing Brew Cask."
