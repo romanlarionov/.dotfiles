@@ -37,7 +37,6 @@ set visualbell					" Set bell to flash screen.
 set t_vb=						" Visual bell now does nothing.
 
 " Useful remaps
-nnoremap ; :					
 nnoremap j gj	
 nnoremap k gk	
 nnoremap <silent> t :tabnext<CR>	
