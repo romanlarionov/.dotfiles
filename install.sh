@@ -94,6 +94,8 @@ fi
 git clone https://github.com/gmarik/Vundle.vim.git $dir/vim/bundle
 vim +PluginInstall +qall
 
+git clone git@github.com:robbyrussell/oh-my-zsh.git $dir
+
 echo "Installing JSHint"
 npm install -g jshint
 echo "done"
