@@ -25,15 +25,17 @@
 #
 ########### Variables
 
-dir=~/.dotfiles                    # dotfiles directory
-files="vimrc vim oh-my-zsh zshrc gitconfig fonts mjolnir"     # list of files/folders to symlink in homedir
+dir=~/.dotfiles
 platform=$(uname);
-
+files=""
 cd $dir
 
 ########## OS X Specific
 
 if [[ $platform == 'Darwin' ]]; then
+	
+	files="vimrc oh-my-zsh zshrc gitconfig fonts mjolnir" 
+	
 	echo "Installing Homebrew."
 	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"	
 	echo "done"
@@ -68,6 +70,14 @@ if [[ $platform == 'Darwin' ]]; then
 	fi
 fi
 
+if [[ $platform == 'Debian' ]]; then
+	files="vimrc oh-my-zsh zshrc gitconfig fonts" 
+fi
+
+if [[ $OSTYPE == 'cygwin' ]]; then
+	files="vimrc oh-my-zsh zshrc gitconfig fonts" 
+fi
+
 ########## Zshell
 
 if [[ $(echo $SHELL) != "/bin/zsh" ]]; then
@@ -91,7 +101,7 @@ fi
 
 ########## Vim Bundles
 
-git clone https://github.com/gmarik/Vundle.vim.git $dir/vim/bundle
+git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle
 vim +PluginInstall +qall
 
 git clone git@github.com:robbyrussell/oh-my-zsh.git $dir
@@ -132,10 +142,16 @@ cd $HOME
 # If there exsists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
 
-# Special case
+# Special cases
 if [ -d "$HOME/.oh-my-zsh" ]; then
 	echo "Deleting current version of oh-my-zsh."
 	rm -rf $HOME/.oh-my-zsh
+	echo "done"
+fi
+
+if [ -d "$HOME/.vim" ]; then
+	echo "Deleting .vim directory."
+	rm -rf $HOME/.vim
 	echo "done"
 fi
 
@@ -158,6 +174,7 @@ for file in $files; do
     ln -s $dir/$file $HOME/.$file
 done
 
+echo ""
 echo "You did it. Good job."
 
 
