@@ -28,7 +28,6 @@
 dir=~/.dotfiles                    # dotfiles directory
 files="vimrc vim oh-my-zsh zshrc gitconfig fonts mjolnir"     # list of files/folders to symlink in homedir
 platform=$(uname);
-iTerm_version='_v1_0_0';
 
 cd $dir
 
@@ -59,7 +58,7 @@ if [[ $platform == 'Darwin' ]]; then
 		if [[ $yn == [Yy]* ]]; then 
 			# Download iTerm2.
 			echo "Installing iTerm2."
-			curl -o iterm.zip http://www.iterm2.com/downloads/stable/iTerm2$iTerm_version.zip
+			curl -o iterm.zip http://www.iterm2.com/downloads/stable/iTerm2_v1_0_0.zip
 			cd $dir
 			unzip iterm.zip
 			mv iTerm.app ~/Applications
@@ -90,11 +89,10 @@ if [[ $(echo $SHELL) != "/bin/zsh" ]]; then
 	echo "done"
 fi
 
-########## Git Submodules 
+########## Vim Bundles
 
-echo "Updating git submodules..."
-git submodule init
-git submodule update
+git clone https://github.com/gmarik/Vundle.vim.git $dir/vim/bundle
+vim +PluginInstall +qall
 
 echo "Installing JSHint"
 npm install -g jshint
