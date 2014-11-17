@@ -9,7 +9,7 @@
 ########## Variables
 
 dir=~/.dotfiles
-files= "vimrc ideavimrc tmux.conf vim oh-my-zsh zshrc gitconfig mjolnir"
+files= "vimrc ideavimrc xvimrc tmux.conf vim oh-my-zsh zshrc gitconfig mjolnir"
 oldFiles=$dir/.dotfiles.old
 
 ########## Deletions
