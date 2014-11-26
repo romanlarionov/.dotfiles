@@ -26,7 +26,7 @@
 ########### Variables
 
 dir=~/.dotfiles                    # dotfiles directory
-files="vimrc ideavimrc xvimrc tmux.conf vim oh-my-zsh zshrc gitconfig fonts mjolnir ycm_extra_conf.py"     # list of files/folders to symlink in homedir
+files="vimrc ideavimrc xvimrc tmux.conf vim zshrc gitconfig fonts mjolnir ycm_extra_conf.py"     # list of files/folders to symlink in homedir
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
@@ -92,8 +92,9 @@ fi
 
 ########## Vim Plugins
 
-git clone https://github.com/gmarik/Vundle.vim ~/.vim/bundle/Vundle.vim
-git clone https://github.com/robbyrussell/oh-my-zsh ~/.oh-my-zsh
+mkdir ~/.vim/bundle
+git clone https://github.com/gmarik/Vundle.vim $HOME/.vim/bundle/Vundle.vim
+git clone https://github.com/robbyrussell/oh-my-zsh $HOME/.oh-my-zsh
 
 vim +PluginInstall +qall
 
