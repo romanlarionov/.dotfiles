@@ -92,9 +92,8 @@ fi
 
 ########## Vim Plugins
 
-git clone https://github.com/gmarik/Vundle.vim ~/.vim/bundle/
-git clone https://github.com/robbyrussell/oh-my-zsh ~/
-mv ~/oh-my-zsh ~/.oh-my-zsh
+git clone https://github.com/gmarik/Vundle.vim ~/.vim/bundle/Vundle.vim
+git clone https://github.com/robbyrussell/oh-my-zsh ~/.oh-my-zsh
 
 vim +PluginInstall +qall
 
