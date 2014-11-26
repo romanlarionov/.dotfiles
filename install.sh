@@ -26,7 +26,7 @@
 ########### Variables
 
 dir=~/.dotfiles                    # dotfiles directory
-files="vimrc ideavimrc xvimrc tmux.conf vim zshrc gitconfig fonts mjolnir ycm_extra_conf.py"     # list of files/folders to symlink in homedir
+files="vimrc ideavimrc xvimrc tmux.conf zshrc gitconfig fonts mjolnir ycm_extra_conf.py"     # list of files/folders to symlink in homedir
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
@@ -92,14 +92,13 @@ fi
 
 ########## Vim Plugins
 
-mkdir ~/.vim/bundle
 git clone https://github.com/gmarik/Vundle.vim $HOME/.vim/bundle/Vundle.vim
 git clone https://github.com/robbyrussell/oh-my-zsh $HOME/.oh-my-zsh
 
-vim +PluginInstall +qall
+#vim +PluginInstall +qall
 
 echo "Installing JSHint"
-npm install -g jshint
+#npm install -g jshint
 echo "done"
 
 # YouCompleteMe does not support Windows.
@@ -159,6 +158,9 @@ for file in $files; do
     echo "Creating symlink to $file in home directory."
     ln -s $dir/$file $HOME/.$file
 done
+
+# Special case
+mv $dir/vim/syntax/ ~/.vim/
 
 echo "You did it. Good job."
 

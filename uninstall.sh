@@ -9,7 +9,7 @@
 ########## Variables
 
 dir=~/.dotfiles
-files="vimrc fonts ideavimrc xvimrc tmux.conf vim zshrc gitconfig mjolnir ycm_extra_conf.py"
+files="vimrc fonts ideavimrc xvimrc tmux.conf zshrc gitconfig mjolnir ycm_extra_conf.py"
 oldFiles=$dir/.dotfiles.old
 
 ########## Deletions
@@ -17,6 +17,8 @@ oldFiles=$dir/.dotfiles.old
 cd $HOME
 
 echo "Removing all dotfiles within your home directory..."
+rm -rf ~/.oh-my-zsh
+
 for file in $files; do
 	echo "Deleting $file ..."
 	rm -rf .$file
