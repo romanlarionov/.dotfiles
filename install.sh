@@ -95,10 +95,10 @@ fi
 git clone https://github.com/gmarik/Vundle.vim $HOME/.vim/bundle/Vundle.vim
 git clone https://github.com/robbyrussell/oh-my-zsh $HOME/.oh-my-zsh
 
-#vim +PluginInstall +qall
+vim +PluginInstall +qall
 
 echo "Installing JSHint"
-#npm install -g jshint
+npm install -g jshint
 echo "done"
 
 # YouCompleteMe does not support Windows.
@@ -132,13 +132,6 @@ cd $HOME
 
 # If there exists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
-
-# Special case
-if [ -d "$HOME/.oh-my-zsh" ]; then
-	echo "Deleting current version of oh-my-zsh."
-	rm -rf $HOME/.oh-my-zsh
-	echo "done"
-fi
 
 mkdir $dir/.dotfiles.old
 oldFiles=$dir/.dotfiles.old
