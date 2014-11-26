@@ -1,6 +1,9 @@
 [submodule "vim/bundle/Vundle.vim"]
 	path = vim/bundle/Vundle.vim
 	url = https://github.com/gmarik/Vundle.vim
+[submodule "oh-my-zsh"]
+	path = oh-my-zsh
+	url = git@github.com:robbyrussell/oh-my-zsh.git
 #[submodule "vim/bundle/YouCompleteMe"]
 #	path = vim/bundle/YouCompleteMe
 #	url = https://github.com/Valloric/YouCompleteMe
@@ -22,6 +25,4 @@
 #[submodule "vim/bundle/jshint.vim"]
 #	path = vim/bundle/jshint.vim
 #	url = git@github.com:walm/jshint.vim.git
-#[submodule "oh-my-zsh"]
-#	path = oh-my-zsh
-#	url = git@github.com:robbyrussell/oh-my-zsh.git
+
