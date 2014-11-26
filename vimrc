@@ -57,16 +57,17 @@ call vundle#begin()	" Place all vundle plugins here:
 " Plugins
 Plugin 'gmarik/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
-Plugin 'altercation/vim-colors-solarized' 
 Plugin 'bling/vim-airline'
 Plugin 'vim-scripts/Auto-Pairs'
 Plugin 'scrooloose/syntastic'
-Plugin 'tikhomirov/vim-glsl'
+Plugin 'beyondmarc/glsl.vim'
 Plugin 'walm/jshint.vim'
+Plugin 'majutsushi/tagbar'
 
 if has("win32") || has("win16")
 else
 	Plugin 'Valloric/YouCompleteMe'
+	Plugin 'altercation/vim-colors-solarized' 
 endif
 
 call vundle#end()
@@ -77,8 +78,12 @@ filetype plugin indent on
 """"""""""""""""""""""""""""
 
 " VIM Solarized Theme
-set background=dark
-colorscheme solarized
+if has("win32") || has("win16")
+	set background=light
+else	
+	set background=dark
+	colorscheme solarized
+endif
 
 " Airline
 set laststatus=2					" Makes airline appear all the time.
@@ -88,24 +93,19 @@ let g:airline_enable_syntastic = 1
 
 " NERDTree			
 autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif " If no file is specified, open with NERDTree by default.
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 let NERDTreeShowHidden=1	" Show hidden files
 nnoremap <silent> <C-X> :NERDTreeToggle<CR>
 
-" Conque Shell
-nnoremap <C-Z> :ConqueTermSplit zsh <CR>
-let g:ConqueTerm_StartMessages = 0 
-
-" Indent Guides
-"hi IndentGuidesOdd  ctermbg=black
-hi IndentGuidesEven ctermbg=darkgrey
-"let g:indent_guides_enable_on_vim_startup = 1
-let g:indent_guides_start_level=2
-let g:indent_guides_guide_size=1
+" Tagbar
+autocmd VimEnter * TagbarToggle " Tagbar loads on start.
+nnoremap <silent> <C-C> :TagbarToggle<CR>
 
 " Syntastic
 let g:syntastic_cpp_check_header = 1
+let g:syntastic_error_symbol = "✗"
+let g:syntastic_warning_symbol = "⚠"
 
 " YouCompleteMe
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' 
@@ -114,6 +114,10 @@ let g:ycm_seed_identifiers_with_syntax = 1				" YCM will show keywords for vario
 let g:ycm_add_preview_to_completeopt = 1				" Shows more info about the proposed autocomplete.
 let g:ycm_autoclose_preview_window_after_completion = 1 " Closes preview after tab complete.
 let g:ycm_autoclose_preview_window_after_insertion = 1  " Closes preview if user leaves insert mode.
+
+" GLSL filetype detection.
+autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tcs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl 
+ \ set filetype=glsl
 
 
 
