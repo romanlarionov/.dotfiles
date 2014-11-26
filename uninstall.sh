@@ -32,7 +32,8 @@ for file in $files; do
 	mv $.file $HOME
 done
 
-rm -rf $HOME/.dotfiles  
+cd $HOME
+rm -rf .dotfiles  
 echo "Uninstall complete!"
 
 

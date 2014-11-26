@@ -129,7 +129,7 @@ cd $HOME
 
 ########## File Management
 
-# If there exsists any old dotfiles, save them and replace them with the new ones.
+# If there exists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
 
 # Special case
