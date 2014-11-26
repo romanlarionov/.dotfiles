@@ -93,6 +93,8 @@ fi
 ########## Vim Plugins
 
 echo "Updating git submodules..."
+git submodule init
+git submodule update
 vim +PluginInstall +qall
 
 echo "Installing JSHint"
