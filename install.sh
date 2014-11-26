@@ -92,9 +92,10 @@ fi
 
 ########## Vim Plugins
 
-echo "Updating git submodules..."
-git submodule init
-git submodule update
+git clone https://github.com/gmarik/Vundle.vim ~/.vim/bundle/
+git clone https://github.com/robbyrussell/oh-my-zsh ~/
+mv ~/oh-my-zsh ~/.oh-my-zsh
+
 vim +PluginInstall +qall
 
 echo "Installing JSHint"
