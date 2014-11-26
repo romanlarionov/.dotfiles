@@ -30,6 +30,35 @@ files="vimrc ideavimrc xvimrc tmux.conf zshrc gitconfig fonts mjolnir ycm_extra_
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
+cd $HOME
+
+########## File Management
+
+# If there exists any old dotfiles, save them and replace them with the new ones.
+echo "Saving old dotfiles..."
+
+mkdir $dir/.dotfiles.old
+oldFiles=$dir/.dotfiles.old
+
+for file in $files; do
+	echo "Caching $file ..."
+	mv .$file $oldFiles
+	echo "done"
+done
+echo "Completed caching. Your files are safe :)"
+
+# Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
+for file in $files; do
+    echo "Copying .$file to home directory."
+    cp $dir/$file $HOME
+    mv $file .$file
+    echo "Creating symlink to $file in home directory."
+    ln -s $dir/$file $HOME/.$file
+done
+
+# Special case
+cp $dir/vim/syntax/ ~/.vim/
+
 cd $dir
 
 ########## OS X Specific
@@ -125,35 +154,6 @@ if [ $OSTYPE != "cygwin" ]; then
 		./install.sh $clangSupp $dotNetSupp
 	fi
 fi
-
-cd $HOME
-
-########## File Management
-
-# If there exists any old dotfiles, save them and replace them with the new ones.
-echo "Saving old dotfiles..."
-
-mkdir $dir/.dotfiles.old
-oldFiles=$dir/.dotfiles.old
-
-for file in $files; do
-	echo "Caching $file ..."
-	mv .$file $oldFiles
-	echo "done"
-done
-echo "Completed caching. Your files are safe :)"
-
-# Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
-for file in $files; do
-    echo "Copying .$file to home directory."
-    cp $dir/$file $HOME
-    mv $file .$file
-    echo "Creating symlink to $file in home directory."
-    ln -s $dir/$file $HOME/.$file
-done
-
-# Special case
-mv $dir/vim/syntax/ ~/.vim/
 
 echo "You did it. Good job."
 
