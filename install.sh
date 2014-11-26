@@ -90,11 +90,10 @@ if [[ $(echo $SHELL) != "/bin/zsh" ]]; then
 	echo "done"
 fi
 
-########## Git Submodules 
+########## Vim Plugins
 
 echo "Updating git submodules..."
-git submodule init
-git submodule update
+vim +PluginInstall +qall
 
 echo "Installing JSHint"
 npm install -g jshint
