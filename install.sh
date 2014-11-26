@@ -135,7 +135,7 @@ if [ $OSTYPE != "cygwin" ]; then
 	read -p "Do you want to install YouCompleteMe error detection? | (y/n) " yn1
 	if [[ $yn1 == [Yy]* ]]; then
 		# YouCompleteMe compilation
-		YCM_DIR=$dir/vim/bundle/YouCompleteMe
+		YCM_DIR=$HOME/.vim/bundle/YouCompleteMe
 		clangSupp=""
 		dotNetSupp=""
 

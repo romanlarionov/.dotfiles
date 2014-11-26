@@ -18,7 +18,7 @@ cd $HOME
 
 echo "Removing all dotfiles within your home directory..."
 rm -rf ~/.oh-my-zsh
-
+rm -rf ~/.vim
 for file in $files; do
 	echo "Deleting $file ..."
 	rm -rf .$file
