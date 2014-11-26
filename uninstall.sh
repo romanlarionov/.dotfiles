@@ -28,8 +28,9 @@ echo "Removing .dotfiles directory."
 
 echo "Reverting back to your previous settings..."
 cd $oldFiles
-for file in $files; do
-	mv $.file $HOME
+for file in $oldFiles; do
+	mv $file .$file
+	mv .$file $HOME
 done
 
 cd $HOME
