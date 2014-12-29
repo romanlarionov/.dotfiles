@@ -126,12 +126,14 @@ git clone https://github.com/robbyrussell/oh-my-zsh $HOME/.oh-my-zsh
 
 vim +PluginInstall +qall
 
-echo "Installing JSHint"
-npm install -g jshint
-echo "done"
-
-# YouCompleteMe does not support Windows.
 if [ $OSTYPE != "cygwin" ]; then
+	
+	# NPM is a pain on Windows, no JavaScript error handling for you.	
+	echo "Installing JSHint"
+	npm install -g jshint
+	echo "done"
+
+	# YouCompleteMe does not support Windows.
 	read -p "Do you want to install YouCompleteMe error detection? | (y/n) " yn1
 	if [[ $yn1 == [Yy]* ]]; then
 		# YouCompleteMe compilation
