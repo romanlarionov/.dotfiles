@@ -11,6 +11,7 @@ ZSH_THEME="agnoster"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias chrome="open /Applications/Google\ Chrome.app --args --allow-file-access-from-files"
+alias lock="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"

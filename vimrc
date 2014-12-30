@@ -26,6 +26,7 @@ set incsearch					" Search as you type
 " Standard
 syntax on
 set number
+set paste
 set showmatch					" Shows matching brace/bracket.
 set nobackup
 set noswapfile
