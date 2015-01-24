@@ -64,6 +64,7 @@ Plugin 'scrooloose/syntastic'
 Plugin 'beyondmarc/glsl.vim'
 Plugin 'walm/jshint.vim'
 Plugin 'majutsushi/tagbar'
+Plugin 'xolox/vim-notes'
 
 if has("win32") || has("win16")
 else
