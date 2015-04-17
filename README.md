@@ -9,7 +9,7 @@ Installation
 From within the home directory: 
 
 ```shell
-git clone git@github.com:HowdyDutty/.dotfiles.git
+git clone git@github.com:romanlarionov/.dotfiles.git
 cd .dotfiles
 ./install.sh
 ```
