@@ -6,24 +6,9 @@
 #
 # To use, simply run: 
 #	
-#	$ sh install.sh
+#	$ ./install.sh
 #
-# ########### WARNING #############
-#	This script assumes that you have GIT installed. If you 
-#	do not have it installed, you need to grab it from your 
-#	prefered package manager, i.e.
-#	
-#	$ brew install git
-#	$ sudo apt-get install git
-#
-#	and so on...
-#
-# #################################
-#
-# TODO: add installer for YouCompleteMe essentials, including:
-# 		XCode latest release, XBuild
-#
-########### Variables
+########## Variables
 
 dir=~/.dotfiles                    # dotfiles directory
 files="vimrc ideavimrc xvimrc tmux.conf zshrc gitconfig fonts mjolnir ycm_extra_conf.py"     # list of files/folders to symlink in homedir
@@ -65,7 +50,7 @@ cd $dir
 
 if [[ $platform == 'Darwin' ]]; then
 	echo "Installing Homebrew."
-	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"	
+	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	echo "done"
 	
 	echo "Installing Brew Cask."
@@ -106,14 +91,12 @@ if [[ $(echo $SHELL) != "/bin/zsh" ]]; then
 	# If using OS X.	
 	if [[ $platform == 'Darwin' ]]; then
 		brew install zsh	
-	fi
-	if [[ $platform == "Debian" ]]; then
+	elif [[ $platform == "Debian" ]]; then
 		sudo apt-get install zsh	
 	fi
 	echo "done"
 	
 	# Windows comes pre-installed with zsh.
-	
 	echo "Switching shells..."
 	chsh -s $(which zsh)
 	echo "done"
@@ -158,5 +141,4 @@ if [ $OSTYPE != "cygwin" ]; then
 fi
 
 echo "You did it. Good job."
-
 

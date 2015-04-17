@@ -2,8 +2,10 @@
 #################################################
 # uninstall.sh
 #
-# If you're fed up with all the dots in the files, 
-# just run:		$ sh uninstall.sh
+# To use, simply run:
+#
+# 	$ ./uninstall.sh
+#
 #################################################
 
 ########## Variables
@@ -26,19 +28,13 @@ for file in $files; do
 done
 echo "done"
 				
-echo "Removing .dotfiles directory."
-
 echo "Reverting back to your previous settings..."
 cd $oldFiles
 for file in $oldFiles; do
-	mv $file .$file
-	mv .$file $HOME
+	mv $file $HOME/.$file
 done
 
 cd $HOME
-rm -rf .dotfiles  
+rm -rf $dir
 echo "Uninstall complete!"
-
-
-
 
