@@ -63,14 +63,10 @@ Plugin 'vim-scripts/Auto-Pairs'
 Plugin 'scrooloose/syntastic'
 Plugin 'beyondmarc/glsl.vim'
 Plugin 'walm/jshint.vim'
-Plugin 'majutsushi/tagbar'
-Plugin 'xolox/vim-notes'
-
-if has("win32") || has("win16")
-else
-	Plugin 'Valloric/YouCompleteMe'
-	Plugin 'altercation/vim-colors-solarized' 
-endif
+Plugin 'xolox/vim-misc'
+Plugin 'Chiel92/vim-autoformat'
+Plugin 'chriskempson/base16-vim'
+Plugin 'Valloric/YouCompleteMe'
 
 call vundle#end()
 filetype plugin indent on
@@ -79,13 +75,10 @@ filetype plugin indent on
 " Plugin Options
 """"""""""""""""""""""""""""
 
-" VIM Solarized Theme
-if has("win32") || has("win16")
-	set background=light
-else	
-	set background=dark
-	colorscheme solarized
-endif
+" VIM Base16 Color Scheme
+let base16colorspace=256
+colorscheme base16-railcasts
+set background=dark
 
 " Airline
 set laststatus=2					" Makes airline appear all the time.
@@ -99,10 +92,6 @@ autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif " If
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 let NERDTreeShowHidden=1	" Show hidden files
 nnoremap <silent> <C-X> :NERDTreeToggle<CR>
-
-" Tagbar
-autocmd VimEnter * TagbarToggle " Tagbar loads on start.
-nnoremap <silent> <C-C> :TagbarToggle<CR>
 
 " Syntastic
 let g:syntastic_cpp_check_header = 1
