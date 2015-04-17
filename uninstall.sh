@@ -11,7 +11,7 @@
 ########## Variables
 
 dir=~/.dotfiles
-files="vimrc fonts ideavimrc xvimrc tmux.conf zshrc gitconfig mjolnir ycm_extra_conf.py"
+files="vimrc fonts ideavimrc xvimrc tmux.conf zshrc gitconfig ycm_extra_conf.py"
 oldFiles=$dir/.dotfiles.old
 
 ########## Deletions

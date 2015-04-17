@@ -11,7 +11,7 @@
 ########## Variables
 
 dir=~/.dotfiles                    # dotfiles directory
-files="vimrc ideavimrc xvimrc tmux.conf zshrc gitconfig fonts mjolnir ycm_extra_conf.py"     # list of files/folders to symlink in homedir
+files="vimrc ideavimrc xvimrc tmux.conf zshrc gitconfig fonts ycm_extra_conf.py"     # list of files/folders to symlink in homedir
 platform=$(uname);
 iTerm_version='_v1_0_0';
 
