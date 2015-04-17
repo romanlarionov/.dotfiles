@@ -77,7 +77,6 @@ filetype plugin indent on
 
 " VIM Base16 Color Scheme
 let base16colorspace=256
-colorscheme base16-railcasts
 set background=dark
 
 " Airline
