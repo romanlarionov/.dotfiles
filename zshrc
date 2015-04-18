@@ -61,5 +61,5 @@ export VISUAL='mvim -f'
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # Base16 Shell
-BASE16_SHELL="$HOME/.dotfiles/base16-railscasts.dark.sh"
+BASE16_SHELL="$HOME/.dotfiles/base16-eighties.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
