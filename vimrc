@@ -67,6 +67,7 @@ Plugin 'xolox/vim-misc'
 Plugin 'Chiel92/vim-autoformat'
 Plugin 'chriskempson/base16-vim'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'xieyu/pyclewn'
 
 call vundle#end()
 filetype plugin indent on
