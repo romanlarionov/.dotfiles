@@ -46,6 +46,15 @@ cp $dir/vim/syntax/ ~/.vim/
 
 cd $dir
 
+########## Ubuntu Specific
+
+if [ "$(lsb_release -si)" == "Ubuntu" ]; then
+	# Powerline fonts
+	mkdir ~/.fonts
+	git clone https://github.com/pdf/ubuntu-mono-powerline-ttf.git ~/.fonts/ubuntu-mono-powerline-ttf
+	fc-cache -vf
+fi
+
 ########## OS X Specific
 
 if [[ $platform == 'Darwin' ]]; then

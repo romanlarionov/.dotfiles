@@ -36,6 +36,8 @@ set colorcolumn=105				" Color in code stop marker on start.
 set cursorline					" Highlights current line.
 set visualbell					" Set bell to flash screen.
 set t_vb=						" Visual bell now does nothing.
+set guifont=Ubuntu\ Mono\ for\ VimPowerline\ 12
+let g:Powerline_symbols = 'fancy'
 
 " Useful remaps
 nnoremap j gj	
