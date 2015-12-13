@@ -61,15 +61,15 @@ call vundle#begin()	" Place all vundle plugins here:
 Plugin 'gmarik/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'bling/vim-airline'
-Plugin 'vim-scripts/Auto-Pairs'
+Plugin 'jiangmiao/auto-pairs'
 Plugin 'scrooloose/syntastic'
 Plugin 'beyondmarc/glsl.vim'
 Plugin 'walm/jshint.vim'
 Plugin 'xolox/vim-misc'
 Plugin 'Chiel92/vim-autoformat'
 Plugin 'chriskempson/base16-vim'
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'xieyu/pyclewn'
+Plugin 'godlygeek/tabular'
+Plugin 'plasticboy/vim-markdown'
 
 call vundle#end()
 filetype plugin indent on
