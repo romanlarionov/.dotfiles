@@ -1,26 +1,13 @@
 #!/bin/bash
-#################################################
-# uninstall.sh
-#
-# To use, simply run:
-#
-# 	$ ./uninstall.sh
-#
-#################################################
-
-########## Variables
 
 dir=~/.dotfiles
-files="vimrc fonts tmux.conf zshrc gitconfig ycm_extra_conf.py"
+files="fonts zshrc gitconfig"
 oldFiles=$dir/.dotfiles.old
-
-########## Deletions
 
 cd $HOME
 
 echo "Removing all dotfiles within your home directory..."
 rm -rf ~/.oh-my-zsh
-rm -rf ~/.vim
 for file in $files; do
 	echo "Deleting $file ..."
 	rm -rf .$file
@@ -37,4 +24,3 @@ done
 cd $HOME
 rm -rf $dir
 echo "Uninstall complete!"
-
