@@ -1,17 +1,7 @@
 #!/bin/bash
 ############################
-# install.sh
-# This file is an automatic installer for all of 
-# Roman Larionov's dotfiles and specialized configurations. 
-#
-# To use, simply run: 
-#	
-#	$ ./install.sh
-#
-########## Variables
-
 dir=~/.dotfiles                    # dotfiles directory
-files="zshrc gitconfig fonts"     # list of files/folders to symlink in homedir
+files="spacemacs zshrc gitconfig fonts"     # list of files/folders to symlink in homedir
 platform=$(uname);
 
 cd $HOME
@@ -21,26 +11,26 @@ cd $HOME
 # If there exists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
 
-mkdir $dir/.dotfiles.old
-oldFiles=$dir/.dotfiles.old
+mkdir ${dir}/.dotfiles.old
+oldFiles=${dir}/.dotfiles.old
 
 echo "Caching files..."
-for file in $files; do
-	mv .$file $oldFiles
+for file in ${files}; do
+	mv .${file} ${oldFiles}
 done
 echo "Completed caching. Your files are safe :)"
 
 # Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
-for file in $files; do
-    echo "Copying .$file to home directory."
-    cp $dir/$file $HOME
-    mv $file .$file
-    echo "Creating symlink to $file in home directory."
-    ln -s $dir/$file $HOME/.$file
+for file in ${files}; do
+    echo "Copying .${file} to home directory."
+    cp ${dir}/${file} ${HOME}
+    mv ${file} .${file}
+    echo "Creating symlink to ${file} in home directory."
+    ln -s ${dir}/${file} ${HOME}/.${file}
 done
 
 # Special case
-cd $dir
+cd ${dir}
 
 ########## Ubuntu Specific
 
@@ -49,19 +39,7 @@ if [ "$(lsb_release -si)" == "Ubuntu" ]; then
 	mkdir ~/.fonts
 	git clone https://github.com/pdf/ubuntu-mono-powerline-ttf.git ~/.fonts/ubuntu-mono-powerline-ttf
 	fc-cache -vf
-fi
 
-########## OS X Specific
-
-if [[ $platform == 'Darwin' ]]; then
-	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	brew install brew-cask
-
-	# Useful tools and libraries
-	brew install emacs zsh cmake wget 
-fi
-
-if [[ $platform == "Debian" ]]; then
 	# Useful tools and libraries
 	sudo apt-get install zsh cmake wget 
 
@@ -77,9 +55,18 @@ if [[ $platform == "Debian" ]]; then
 	git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 fi
 
+########## OS X Specific
+
+if [[ $platform == 'Darwin' ]]; then
+	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	brew install brew-cask zsh cmake wget
+  brew tap d12frosted/emacs-plus
+  brew install emacs-plus --with-cocoa --with-gnutls --with-librsvg --with-imagemagick --with-spacemacs-icon
+  brew linkapps
+
+	git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+fi
+
 ########## Zshell
 echo "Switching shells..."
 chsh -s $(which zsh)
-
-sudo reboot now
-
