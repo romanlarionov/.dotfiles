@@ -37,8 +37,9 @@ if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
   # Powerline fonts
   git clone https://github.com/pdf/ubuntu-mono-powerline-ttf.git fonts/ubuntu &&
   mv fonts/ubuntu &&
-  sudo cp *.ttf /usr/share/fonts &&
-  fc-cache -vf
+  sudo cp -f *.ttf /usr/share/fonts &&
+  fc-cache -vf &&
+  cd ${dir}
   
   # Useful tools and libraries
   sudo apt-get install zsh cmake wget curl libncurses-dev
