@@ -1,10 +1,10 @@
 #!/bin/bash
 ############################
-dir=~/.dotfiles                    # dotfiles directory
+dir="~/.dotfiles"
 files="spacemacs zshrc gitconfig fonts"     # list of files/folders to symlink in homedir
-platform=$(uname);
+platform=${uname};
 
-cd $HOME
+cd ${HOME}
 
 ########## File Management
 
@@ -29,26 +29,26 @@ for file in ${files}; do
   ln -s ${dir}/${file} ${HOME}/.${file}
 done
 
-# Special case
 cd ${dir}
 
 ########## Ubuntu Specific
 
-if [ "$(lsb_release -si)" == "Ubuntu" ]; then
+if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
   # Powerline fonts
-  mkdir ~/.fonts
-  git clone https://github.com/pdf/ubuntu-mono-powerline-ttf.git ~/.fonts/ubuntu-mono-powerline-ttf
+  git clone https://github.com/pdf/ubuntu-mono-powerline-ttf.git fonts/ubuntu &&
+  mv fonts/ubuntu &&
+  sudo cp *.ttf /usr/share/fonts &&
   fc-cache -vf
   
   # Useful tools and libraries
   sudo apt-get install zsh cmake wget curl libncurses-dev
   
   # Emacs
-  sudo wget http://ftp.gnu.org/gnu/emacs/emacs-24.5.tar.gz
-  tar -xzf emacs-24.5.tar.gz
-  cd emacs-24.5
-  ./configure --without-x
-  make -j4
+  sudo wget http://ftp.gnu.org/gnu/emacs/emacs-24.5.tar.gz &&
+  tar -xzf emacs-24.5.tar.gz &&
+  cd emacs-24.5 &&
+  ./configure --without-x &&
+  make -j4 &&
   sudo make install
   
   # Spacemacs
