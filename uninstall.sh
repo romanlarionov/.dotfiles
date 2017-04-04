@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dir=~/.dotfiles
-files="spacemacs fonts zshrc gitconfig"
+files="fonts zshrc gitconfig"
 oldFiles=${dir}/.dotfiles.old
 
 cd ${HOME}

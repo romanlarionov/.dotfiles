@@ -1,7 +1,7 @@
 #!/bin/bash
 ############################
 dir="~/.dotfiles"
-files="spacemacs zshrc gitconfig fonts"     # list of files/folders to symlink in homedir
+files="zshrc gitconfig fonts"     # list of files/folders to symlink in homedir
 platform=${uname};
 
 cd ${HOME}
@@ -43,17 +43,6 @@ if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
   
   # Useful tools and libraries
   sudo apt-get install zsh cmake wget curl libncurses-dev
-  
-  # Emacs
-  sudo wget http://ftp.gnu.org/gnu/emacs/emacs-24.5.tar.gz &&
-  tar -xzf emacs-24.5.tar.gz &&
-  cd emacs-24.5 &&
-  ./configure --without-x &&
-  make -j4 &&
-  sudo make install
-  
-  # Spacemacs
-  git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 fi
 
 ########## OS X Specific
@@ -61,11 +50,7 @@ fi
 if [[ $platform == 'Darwin' ]]; then
   ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   brew install brew-cask zsh cmake wget
-  brew tap d12frosted/emacs-plus
-  brew install emacs-plus --with-cocoa --with-gnutls --with-librsvg --with-imagemagick --with-spacemacs-icon
   brew linkapps
-
-  git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 fi
 
 ########## Zsh
