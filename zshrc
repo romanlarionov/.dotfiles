@@ -53,13 +53,12 @@ plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-
-export VIS="~/.vis/vis"
 export PATH="$PATH:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin"
-export PATH=$PATH:$VIS
 export VISUAL='mvim -f'
-# export MANPATH="/usr/local/man:$MANPATH"
 
 # Base16 Shell
 BASE16_SHELL="$HOME/.dotfiles/base16-eighties.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
+
+alias bark="curl https://gist.githubusercontent.com/romanlarionov/d9213f1a3376a9988afd8953408d6258/raw/5d2fbd8d212a37d0a5a9b1eab531ee63341cfb16/bark.sh | bash"
+

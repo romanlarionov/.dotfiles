@@ -45,12 +45,17 @@ if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
   sudo apt-get install zsh cmake wget curl libncurses-dev
 fi
 
-########## OS X Specific
+########## macOS Specific
 
 if [[ $platform == 'Darwin' ]]; then
   ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   brew install brew-cask zsh cmake wget
   brew linkapps
+
+  # SpaceVim (only tested on macOS)
+  curl -sLf https://spacevim.org/install.sh | bash
+  mkdir ~/.SpaceVim.d/
+  mv ${dir}/init.vim ~/.SpaceVim.d/
 fi
 
 ########## Zsh
