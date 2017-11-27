@@ -20,8 +20,13 @@ export PATH="$PATH:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin"
 BASE16_SHELL="$HOME/.dotfiles/base16-eighties.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
 
+function rgrep { grep -rn --color "$1"; }
+function rfind { find . -name "$1"; }
+
 # Aliases
 alias la="ls -a"
 alias ll="ls -l"
+alias ezrc="vim ~/.zshrc"
+alias ezrc="source ~/.zshrc"
 alias g="git"
 alias bark="curl https://gist.githubusercontent.com/romanlarionov/d9213f1a3376a9988afd8953408d6258/raw/5d2fbd8d212a37d0a5a9b1eab531ee63341cfb16/bark.sh | bash"
