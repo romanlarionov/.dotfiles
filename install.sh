@@ -1,7 +1,7 @@
 #!/bin/bash
 ############################
 dotfilesDir="~/.dotfiles"
-files=".zshrc .gitconfig .fonts .tmux.conf"     # list of files/folders to symlink in homedir
+files=".zshrc .gitconfig .fonts .tmux.conf .clang-format" # list of files/folders to symlink in homedir
 platform=${uname};
 
 cd ${HOME}
@@ -65,8 +65,7 @@ fi
     
 ########## SpaceVim
 curl -sLf https://spacevim.org/install.sh | bash
-mkdir ~/.SpaceVim.d/
-cp ${dotfilesDir}/init.vim ~/.SpaceVim.d/init.vim
+ln -s ${dotfilesDir}/.SpaceVim.d ~/.SpaceVim.d
 
 ########## Zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
