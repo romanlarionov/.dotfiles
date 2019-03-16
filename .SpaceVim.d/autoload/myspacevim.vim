@@ -8,6 +8,9 @@ function! myspacevim#before() abort
         \ 'stdin': 1,
         \ }
 
+    " remaps space+f+f (file->format) to clang format
+    noremap <Space>ff :Neoformat<cr>
+
     if s:SYS.isWindows
 
     endif
