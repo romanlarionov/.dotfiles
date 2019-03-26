@@ -12,11 +12,21 @@
 	cm = commit -m
 	st = status
 	br = branch
-	co = checkout 
+	co = checkout
 	pl = pull --rebase origin
 	ps = push origin
 	rb = rebase -i origin
+    submodinit = submodule update --recursive --init
 [credential]
 	helper = cache --timeout=9000
 [help]
 	autocorrect = 1
+[merge]
+    tool = vimdiff
+    conflictstyle = diff3
+[mergetool "vimdiff"]
+    prompt = false
+[diff]
+    tool = vimdiff
+[difftool]
+    prompt = false

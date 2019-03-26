@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dotfilesDir="~/.dotfiles"
-files=".fonts .zshrc .gitconfig .tmux.conf"
+files=".fonts .zshrc .gitconfig .tmux.conf .clang-format"
 oldFiles=${dotfilesDir}/oldDotfiles
 
 cd ${HOME}
