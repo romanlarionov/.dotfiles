@@ -1,83 +1,67 @@
 #!/bin/bash
-############################
-dotfilesDir="~/.dotfiles"
-files=".zshrc .gitconfig .fonts .tmux.conf .clang-format" # list of files/folders to symlink in homedir
-platform=${uname};
 
-cd ${HOME}
+DOTFILES_DIR="${HOME}/.dotfiles"
+FILES=".SpaceVim.d .zshrc .gitconfig .fonts .tmux.conf .clang-format" # list of files/folders to symlink in homedir
 
 ########## File Management
 
-# If there exists any old dotfiles, save them and replace them with the new ones.
 echo "Saving old dotfiles..."
+if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
+    mkdir ${DOTFILES_DIR}/OldDotFiles
 
-mkdir ${dotfilesDir}/oldDotfiles
-oldFiles=${dotfilesDir}/oldDotfiles
-
-echo "Caching files..."
-for file in ${files}; do
-    mv ${file} ${oldFiles}
-done
-echo "Completed caching."
-
-# Update symlinked dotfiles in home directory with files located in ~/.dotfiles.
-for file in ${files}; do
-    echo "Creating symlink to ${file} in home directory."
-    ln -s ${dotfilesDir}/${file} ${HOME}/${file}
-done
-
-cd ${dotfilesDir}
+    echo "Caching old dotfiles files..."
+    for file in ${FILES}; do
+        mv ${HOME}/${file} ${DOTFILES_DIR}/OldDotFiles
+    done
+    
+    echo "Updating new dotfiles"
+    for file in ${FILES}; do
+        ln -s ${DOTFILES_DIR}/${file} ${HOME}/${file}
+    done
+fi
 
 ########## Ubuntu Specific
 if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
-    # Useful tools and libraries
-    sudo apt-get install -y zsh cmake wget curl
-    
-    # replacing vim with neovim
-    sudo apt remove vim
-    sudo apt-get install -y software-properties-common python-software-properties
-    sudo add-apt-repository ppa:neovim-ppa/stable
-    sudo apt-get update
-    sudo apt-get install -y neovim python-dev python-pip python3-dev python3-pip python3-setuptools
-    sudo easy_install3 pip
-    sudo update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60
-    sudo update-alternatives --config vim
-    sudo pip install --upgrade neovim
-    sudo pip2 install --upgrade neovim
-    gem install neovim
+    sudo apt-get install -q -y zsh cmake wget curl
 
+    # todo: make sure spacevim works here
+    
     # Powerline fonts
-    git clone https://github.com/pdf/ubuntu-mono-powerline-ttf.git ${dotfilesDir}/.fonts/ubuntu
-    cd ${dotfilesDir}/.fonts/ubuntu
-    sudo cp -f *.ttf /usr/share/fonts/truetype
-    sudo cp -f *.otf /usr/share/fonts/opentype
-    fc-cache -vf
-    cd ${dotfilesDir}
+    if [[ ! -d ${DOTFILES_DIR}/.fonts/ubuntu ]]; then
+        git clone https://github.com/pdf/ubuntu-mono-powerline-ttf.git ${DOTFILES_DIR}/.fonts/ubuntu
+        sudo cp -f ${DOTFILES_DIR}/.fonts/ubuntu/*.ttf /usr/share/fonts/truetype
+        sudo cp -f ${DOTFILES_DIR}/.fonts/ubuntu/*.otf /usr/share/fonts/opentype
+        fc-cache -vf
+    fi
 fi
 
 ########## macOS Specific
-if [[ $platform == 'Darwin' ]]; then
+if [[ "${uname}" == "Darwin" ]]; then
     # Homebrew
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    brew install git brew-cask zsh cmake wget
-    brew linkapps
+    if [[ $(command -v brew) == "" ]]; then
+        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        brew install git brew-cask zsh cmake wget
+        brew linkapps
+    else
+        brew update
+    fi
 fi
     
 ########## SpaceVim
 curl -sLf https://spacevim.org/install.sh | bash
-ln -s ${dotfilesDir}/.SpaceVim.d ~/.SpaceVim.d
 
-########## Zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-chsh -s $(which zsh)
+if [[ "${SHELL}" != "zsh" ]]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" >/dev/null
+    if [[ "${SHELL}" == "zsh" ]]; then
+        chsh -s $(which zsh)
+    fi
+fi
 
-echo ""
-echo ""
 echo ""
 echo "done"
 echo "NOTE: ZSH requires reboot for complete installation"
 echo -n "Do it now? (y/n): "
-read answer
-if echo "$answer" | grep -iq "^y" ;then
+read ANSWER
+if [[ $(echo "${ANSWER}" | grep -iq "^y") ]]; then
 	sudo shutdown -r now
 fi
