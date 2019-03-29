@@ -1,30 +1,36 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".SpaceVim.d .zshrc .gitconfig .fonts .tmux.conf .clang-format" # list of files/folders to symlink in homedir
+FILES=".SpaceVim.d .bashrc .zshrc .gitconfig .fonts .tmux.conf .clang-format" # list of files/folders to symlink in homedir
 
-########## File Management
+# File Management
+read -p "Do you want to install zsh? (y/n): " -n 1 -r ZSH_ANSWER
+echo
+read -p "Do you want to install Spacevim? (y/n): " -n 1 -r SPACEVIM_ANSWER
+echo
 
-echo "Saving old dotfiles..."
 if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
     mkdir ${DOTFILES_DIR}/OldDotFiles
 
     echo "Caching old dotfiles files..."
     for file in ${FILES}; do
-        mv ${HOME}/${file} ${DOTFILES_DIR}/OldDotFiles
+        if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
+            mv ${HOME}/${file} ${DOTFILES_DIR}/OldDotFiles
+        fi
     done
-    
+
     echo "Updating new dotfiles"
     for file in ${FILES}; do
         ln -s ${DOTFILES_DIR}/${file} ${HOME}/${file}
     done
 fi
 
-########## Ubuntu Specific
-if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
-    sudo apt-get install -q -y zsh cmake wget curl
+if [[ "$(lsb_release -si 2>/dev/null)" == "Ubuntu" ]]; then
+    sudo apt-get install -q -y cmake wget curl clang-format cscope xfonts-utils
 
-    # todo: make sure spacevim works here
+    if [[ $ZSH_REPLY =~ ^[Yy]$ ]]; then
+        sudo apt-get install -q -y zsh
+    fi
     
     # Powerline fonts
     if [[ ! -d ${DOTFILES_DIR}/.fonts/ubuntu ]]; then
@@ -35,33 +41,39 @@ if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
     fi
 fi
 
-########## macOS Specific
 if [[ "${uname}" == "Darwin" ]]; then
-    # Homebrew
     if [[ $(command -v brew) == "" ]]; then
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        brew install git brew-cask zsh cmake wget
+        brew install git brew-cask cmake wget
         brew linkapps
+
+        if [[ $ZSH_REPLY =~ ^[Yy]$ ]]; then
+            brew install zsh
+        fi
     else
         brew update
     fi
 fi
     
-########## SpaceVim
-curl -sLf https://spacevim.org/install.sh | bash
+if [[ $SPACEVIM_ANSWER =~ ^[Yy]$ ]]; then
+    curl -sLf https://spacevim.org/install.sh | bash
+fi
 
-if [[ "${SHELL}" != "zsh" ]]; then
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" >/dev/null
-    if [[ "${SHELL}" == "zsh" ]]; then
-        chsh -s $(which zsh)
+if [[ $ZSH_REPLY =~ ^[Yy]$ ]]; then
+    if [[ "${SHELL}" != "zsh" ]]; then
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" >/dev/null
+
+        if [[ "${SHELL}" == "zsh" ]]; then
+            chsh -s $(which zsh)
+
+            read -p "ZSH requires reboot for complete installation. Do it now? (y/n): " -n 1 -r
+            if [[ $ZSH_REPLY =~ ^[Yy]$ ]]; then
+            	sudo shutdown -r now
+            fi
+        else
+            echo "ZSH failed to install."
+        fi
     fi
 fi
 
-echo ""
 echo "done"
-echo "NOTE: ZSH requires reboot for complete installation"
-echo -n "Do it now? (y/n): "
-read ANSWER
-if [[ $(echo "${ANSWER}" | grep -iq "^y") ]]; then
-	sudo shutdown -r now
-fi
