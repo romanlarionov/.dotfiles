@@ -1,0 +1,10 @@
+BoldAsFont=-1
+ThemeFile=flat-ui
+Transparency=off
+OpaqueWhenFocused=no
+CursorType=block
+Font=Consolas
+Term=xterm-256color
+BellType=0
+BellFlash=yes
+BellTaskbar=no
