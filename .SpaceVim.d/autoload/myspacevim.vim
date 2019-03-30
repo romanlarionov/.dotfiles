@@ -8,11 +8,14 @@ function! myspacevim#before() abort
         \ 'stdin': 1,
         \ }
 
-    " remaps space+f+f (file->format) to clang format
-    noremap <Space>ff :Neoformat<cr>
+    nnoremap <Space>mgg :GtagsCursor<cr>
+    let g:indentLine_enabled = 0
 
-    if s:SYS.isWindows
-
-    endif
-
+    "if s:SYS.isWindows
+    "endif
 endfunction
+
+function! myspacevim#after() abort
+    colorscheme default
+endfunction
+

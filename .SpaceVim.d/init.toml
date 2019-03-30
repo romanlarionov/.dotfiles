@@ -1,16 +1,12 @@
 
 [options]
     default_indent = 4
-# enable_debug = 1
     enable_ale = 0
     filemanager = "vimfiler"
     filetree_direction = "right"
-# enable_ycm = 1
-# snippet_engine = "ultisnips"
+#   enable_ycm = 1
     line_on_the_fly = 0
-    enable_statusline_mode = false
     realtime_leader_guide = 1
-    enable_tabline_filetype_icon = false
     enable_os_fileformat_icon = false
     bootstrap_before = "myspacevim#before"
     bootstrap_after = "myspacevim#after"
@@ -20,19 +16,36 @@
     statusline_separator = 'arrow'
     github_username = 'romanlarionov'
     auto_disable_touchpad = 0
-# colorscheme = 'one'
     checkinstall = false
     guifont = 'SauceCodePro Nerd Font:h11:cANSI:qDRAFT'
+    enable_guicolors = false
     enable_tabline_filetype_icon = false
-    search_tools = ["rg", "pt", "ack", "grep", "findstr"]
-# autocomplete_method = "coc"
+    search_tools = ["grep", "findstr", "rg", "pt", "ack"]
     commandline_prompt = '>'
-# vimcompatible = true
-# enable_language_specific_leader = false
-    enable_statusline_tag = false
+    indentLine_enabled = false
+    enable_statusline_mode = false
+    enable_statusline_tag = true
+    relativenumber = false
+    max_column = 140
+
+[[custom_plugins]]
+  name = "sickill/vim-monokai"
+  merged = 0
+
+[[layers]]
+    name = "tags"
 
 [[layers]]
     name = "cscope"
+
+[[layers]]
+    name = "unite"
+
+[[layers]]
+    name = "autocomplete"
+    auto-completion-delay = 10
+    auto-completion-return-key-behavior = "smart"
+    auto-completion-tab-key-behavior = "smart"
 
 [[layers]]
     name = "lang#c"

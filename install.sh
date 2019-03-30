@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".SpaceVim.d .bashrc .zshrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format" # list of files/folders to symlink in homedir
+FILES=".SpaceVim.d .bashrc .zshrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc"
 
 if [[ "$(expr substr $(uname -s) 1 10)" != "MINGW64_NT" ]]; then
     read -p "Do you want to install zsh? (y/n): " -n 1 -r ZSH_REPLY
@@ -48,7 +48,7 @@ fi
 if [[ "${uname}" == "Darwin" ]]; then
     if [[ $(command -v brew) == "" ]]; then
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        brew install git brew-cask cmake wget
+        brew install git brew-cask cmake wget vim global ctags cscope ag
         brew linkapps
 
         if [[ ${ZSH_REPLY} =~ ^[Yy]$ ]]; then
