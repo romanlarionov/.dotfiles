@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".SpaceVim.d .bashrc .zshrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc"
+FILES=".SpaceVim.d .bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc .gitignore.global"
 
 if [[ "$(expr substr $(uname -s) 1 10)" != "MINGW64_NT" ]]; then
     read -p "Do you want to install zsh? (y/n): " -n 1 -r ZSH_REPLY

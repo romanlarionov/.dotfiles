@@ -28,10 +28,6 @@
     relativenumber = false
     max_column = 140
 
-[[custom_plugins]]
-  name = "sickill/vim-monokai"
-  merged = 0
-
 [[layers]]
     name = "tags"
 
@@ -46,6 +42,12 @@
     auto-completion-delay = 10
     auto-completion-return-key-behavior = "smart"
     auto-completion-tab-key-behavior = "smart"
+
+#[[layers]]
+#    name = "tools"
+
+#[[layers]]
+#    name = "format"
 
 [[layers]]
     name = "lang#c"
