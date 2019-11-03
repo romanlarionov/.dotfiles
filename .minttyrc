@@ -1,10 +1,14 @@
 BoldAsFont=-1
-ThemeFile=flat-ui
+ThemeFile=
 Transparency=off
 OpaqueWhenFocused=no
-CursorType=block
+CursorType=underscore
 Font=Consolas
 Term=xterm-256color
 BellType=0
 BellFlash=yes
 BellTaskbar=no
+RightClickAction=paste
+ClipShortcuts=no
+WindowShortcuts=no
+SwitchShortcuts=no

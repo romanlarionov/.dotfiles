@@ -1,13 +1,12 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".SpaceVim.d .bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc .gitignore.global"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc .gitignore.global"
 OLD_DOTFILES_DIR=${DOTFILES_DIR}/OldDotFiles
 
 if [[ -d ${OLD_DOTFILES_DIR} ]]; then
 
     echo "Removing all dotfiles within your home directory..."
-    rm -rf ~/.oh-my-zsh
     for file in ${FILES}; do
     	rm -rf ${HOME}/${file}
     done
@@ -17,9 +16,8 @@ if [[ -d ${OLD_DOTFILES_DIR} ]]; then
     	mv ${OLD_DOTFILES_DIR}/${file} ${HOME}/${file}
     done
     
-    #todo: uninstall spacevim?
-    
     cd ${HOME}
     rm -rf ${DOTFILES_DIR}
     echo "Uninstall complete!"
 fi
+
