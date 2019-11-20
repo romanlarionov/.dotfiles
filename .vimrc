@@ -33,8 +33,12 @@ set shiftwidth=4
 set smarttab
 set smartindent
 
+" todo: when already indented, and typing a comment, it brings that comment to the beginning of the line
+
 " print matching curly brace
 inoremap {<CR> {<CR>}<Esc>ko
+
+" todo: when a comment is at the leftmost column, and using > to indent, doesn't work
 
 nnoremap < <<
 nnoremap > >>
@@ -72,6 +76,7 @@ highlight PmenuSel ctermbg=green
 highlight PmenuSel ctermfg=black
 
 " todo: need to fix vimdiff colors. current colors are unusable
+
 highlight ErrorMsg ctermfg=red
 
 """""""""""""""""""""""""""""""""""""""""""""""""""" Windows/Buffers
