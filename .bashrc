@@ -1,36 +1,28 @@
 
-if [[ -f ${HOME}/.bashrc.local ]]; then
-    source ${HOME}/.bashrc.local
+if [[ -f ~/.bashrc.local ]]; then
+    source ~/.bashrc.local
 fi
 
-# Terminal colors
+# set up ssh-agent on first git push/pull (if on windows?)
+
 BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
 [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
 
-function rgrep { grep -rn "$1" "$2" --color; }
+function rgrep { grep -irn "$1" "$2" --color; }
 function rfind { find "$2" -name "$1"; }
-function rperf {
-    start_ms=$(ruby -e 'puts (Time.now.to_f * 1000).to_i');
-    $($@);
-    end_ms=$(ruby -e 'puts (Time.now.to_f * 1000).to_i');
-    elapsed_ms=$((end_ms - start_ms));
-    echo "";
-    echo "perf output: $elapsed_ms ms passed";
-}
 
-function mergecheck {
-    git format-patch $(git merge-base "$1" "$2").."$2" --stdout | git apply --check -;
-}
-
-alias grep="grep -n --color"
-alias ls="ls -G"
+alias ls="ls -G --color"
 alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ..."
 alias g="git"
-alias p3="python3"
+alias grep="grep -irn --color"
 alias ebrc="vim ~/.bashrc"
-alias sbrc="source ~/.bashrc"
-alias bark="curl https://gist.githubusercontent.com/romanlarionov/d9213f1a3376a9988afd8953408d6258/raw/5d2fbd8d212a37d0a5a9b1eab531ee63341cfb16/bark.sh | bash"
+alias sbrc="source ~/.bashrc > /dev/null"
+alias p3="python3"
+
+if [[ "$OSTYPE" == "msys" ]]; then
+    alias open="explorer "
+fi
 

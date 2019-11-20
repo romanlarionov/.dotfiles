@@ -1,32 +1,30 @@
 [user]
-	name = Roman Larionov
-	email = romanylarionov@gmail.com
+    name = Roman Larionov
+    email = romanylarionov@gmail.com
 [color]
-	ui = auto
+    ui = auto
+    diff = auto
+    status = auto
+    branch = auto
+    interactive = true
 [core]
-	editor = vim
-	autocrlf = input
-	excludesfile = ~/.gitignore.global
+    symlinks = false
+    editor = vim
+    autocrlf = false
+    safecrlf = false
+    filemode = false
+    excludesfile = ~/.gitignore_global
 [alias]
-	unstage = reset HEAD
-	unmerge = reset --merge
-	cm = commit -m
-	st = status
-	br = branch
-	co = checkout
-	pl = pull --rebase origin
-	ps = push origin
-	rb = rebase -i origin
-    submodinit = submodule update --recursive --init
+    cm = commit -m
+    st = status
+    br = branch
+    co = checkout
+    pl = pull --rebase origin
+    ps = push origin
 [credential]
-	helper = cache --timeout=9000
+    helper = cache --timeout=18000 # 5 hours
 [help]
-	autocorrect = 1
-[merge]
-    tool = vimdiff
-    conflictstyle = diff3
-[mergetool "vimdiff"]
-    prompt = false
+    autocorrect = 1
 [diff]
     tool = vimdiff
 [difftool]
