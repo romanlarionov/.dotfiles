@@ -1,17 +1,17 @@
 
-if [[ -f ~/.bashrc.local ]]; then
-    source ~/.bashrc.local
+if [[ -f "${HOME}/.bashrc.local" ]]; then
+    source ${HOME}/.bashrc.local
 fi
 
-if [[ $PATH != *".dotfiles/scripts"* ]]; then
-    if [[ -d ~/.dotfiles ]]; then
-        PATH="~/.dotfiles/scripts:$PATH"
+if [[ -d "${HOME}/.dotfiles" ]]; then
+    if [[ $PATH != *".dotfiles/scripts"* ]]; then
+        PATH="${HOME}/.dotfiles/scripts:$PATH"
     fi
-fi
 
-# Setup terminal colors
-BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
-[[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
+    # Setup terminal colors
+    BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
+    [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
+fi
 
 # Functions
 rgrep() { grep -irn "$1" "$2" --color=auto; }
@@ -57,6 +57,15 @@ g()
     fi
 }
 
+open()
+{
+    if [[ "$OSTYPE" == "msys" ]]; then
+        explorer.exe "${@////\\}" # replace slashes with backslashes (for windows)
+    else
+        open "$@"
+    fi
+}
+
 # Aliases
 alias ls="ls -G --color=auto"
 alias la="ls -a"
@@ -64,11 +73,7 @@ alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
 alias grep="grep -i --color=auto"
-alias ebrc="vim ~/.bashrc"
-alias sbrc="source ~/.bashrc > /dev/null"
+alias ebrc="vim ${HOME}/.bashrc"
+alias sbrc="source ${HOME}/.bashrc > /dev/null"
 alias p3="python3"
-
-if [[ "$OSTYPE" == "msys" ]]; then
-    alias open="explorer "
-fi
 

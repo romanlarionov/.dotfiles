@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc .inputrc"
 
 if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
     mkdir ${DOTFILES_DIR}/OldDotFiles
