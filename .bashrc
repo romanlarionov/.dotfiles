@@ -4,7 +4,9 @@ if [[ -f ~/.bashrc.local ]]; then
 fi
 
 if [[ $PATH != *".dotfiles/scripts"* ]]; then
-    PATH="~/.dotfiles/scripts:$PATH"
+    if [[ -d ~/.dotfiles ]]; then
+        PATH="~/.dotfiles/scripts:$PATH"
+    fi
 fi
 
 # Setup terminal colors
@@ -12,13 +14,12 @@ BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
 [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
 
 # Functions
-function rgrep { grep -irn "$1" "$2" --color; }
-function rfind { find "$2" -name "$1"; }
+rgrep() { grep -irn "$1" "$2" --color=auto; }
+rfind() { find "$2" -name "$1"; }
 
 setup_ssh_agent()
 {
-    #SSH_AGENT_TIMEOUT=18000 # 5 hours
-    SSH_AGENT_TIMEOUT=1
+    SSH_AGENT_TIMEOUT=9000 # 2.5 hours
     env=~/.ssh/agent.env
 
     # setup environment
@@ -32,6 +33,7 @@ setup_ssh_agent()
         (umask 077; ssh-agent >| "$env")
         . "$env" >| /dev/null;
 
+        # assumes name of key is id_rsa
         ssh-add -q -t ${SSH_AGENT_TIMEOUT} >| /dev/null
     elif [ "${SSH_AUTH_SOCK}" ] && [ ${AGENT_RUN_STATE} = 1 ]; then
         ssh-add -q -t ${SSH_AGENT_TIMEOUT} >| /dev/null
@@ -41,12 +43,11 @@ setup_ssh_agent()
 }
 
 # If running a git command for the first time, setup ssh-agent
-function g
+g()
 {
     # todo: need to only run when git would normally request a password (not on git status)
     # todo: if a new terminal window is openned (with ssh-agent process still running in the background),
     #       SSH_AGENT_PID might not be set, so the else branch here is taken when it shouldn't
-    # todo: this has id_rsa as the hardcoded key to add to the agent
     if ps -p ${SSH_AGENT_PID} &>/dev/null
     then
         git "$@"
@@ -57,12 +58,12 @@ function g
 }
 
 # Aliases
-alias ls="ls -G --color"
+alias ls="ls -G --color=auto"
 alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
-alias grep="grep -irn --color"
+alias grep="grep -i --color=auto"
 alias ebrc="vim ~/.bashrc"
 alias sbrc="source ~/.bashrc > /dev/null"
 alias p3="python3"
