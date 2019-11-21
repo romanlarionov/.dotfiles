@@ -1,5 +1,5 @@
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""" Misc
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Misc
 set nocompatible
 set number
 set noswapfile
@@ -19,7 +19,11 @@ autocmd WinEnter * :execute "normal \<S-M>"
 autocmd BufEnter * :execute "normal \<S-M>"
 autocmd TabEnter * :execute "normal \<S-M>"
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""" Search
+" todo: CTRL-Backspace (and CTRL-Delete) should delete a tabs worth of spaces
+
+let s:on_windows = has('win32') || has('win64')
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Search
 set incsearch
 set fileignorecase
 set ignorecase
@@ -31,7 +35,7 @@ inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\
 " which buffers to search for autocomplete via TAB
 set complete=w,.,b
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""" Indentation
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Indentation
 set autoindent
 set expandtab
 set tabstop=4
@@ -39,23 +43,23 @@ set shiftwidth=4
 set smarttab
 set smartindent
 
-" todo: when already indented, and typing a comment, it brings that comment to the beginning of the line
+nnoremap < <<
+nnoremap > >>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Formatting
+" todo: checkout what else I can do with :h fo-table
+set formatoptions+=ro
 
 " print matching curly brace
 inoremap {<CR> {<CR>}<Esc>ko
 
-" todo: when a comment is at the leftmost column, and using > to indent, doesn't work
-
-nnoremap < <<
-nnoremap > >>
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""" Folds
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Folds
 set foldmethod=manual
 
 " fold matching brace
 nnoremap <C-M> zf%<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""" Colors
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Colors
 color torte
 
 set cursorline
@@ -81,11 +85,13 @@ highlight Pmenu ctermfg=black
 highlight PmenuSel ctermbg=green
 highlight PmenuSel ctermfg=black
 
+" todo: set statusbar color to different things depending on mode im on (visual, normal, etc)
+
 " todo: need to fix vimdiff colors. current colors are unusable
 
 highlight ErrorMsg ctermfg=red
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""" Windows/Buffers
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Windows/Buffers
 " keeps window sizes equal after closing
 set equalalways
 
@@ -158,14 +164,16 @@ endfunction
 command! -bang -complete=buffer -nargs=? Bclose call <SID>Bclose(<q-bang>, <q-args>)
 nnoremap <silent> gd :Bclose<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""" Clang Format
-
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Clang Format
 " all taken and adapated from here: https://github.com/rhysd/vim-clang-format
-" todo: make sure clang format is located on the system already, else print not found
-    " if we don't find the .clang-format file
-    "if ! (findfile('.clang-format', fnameescape(expand('%:p:h')).';') != '')
 
-let s:on_windows = has('win32') || has('win64')
+" todo: should be command to echo the chosen .clang-format file's path
+" todo: make sure clang format is located on the system already, else print not found
+" todo: surround this entire block by a check if the shell command 'clang-format'
+"       exists plus make sure that a .clang-format file can be found
+
+" if we don't find the .clang-format file
+"if ! (findfile('.clang-format', fnameescape(expand('%:p:h')).';') != '')
 
 function! s:error_message(result) abort
     echoerr 'clang-format has failed to format.'
@@ -193,17 +201,7 @@ function! s:shellescape(str) abort
     return shellescape(a:str)
 endfunction
 
-function! s:getg(name, default) abort
-    " backward compatibility
-    if exists('g:operator_'.substitute(a:name, '#', '_', ''))
-        echoerr 'g:operator_'.substitute(a:name, '#', '_', '').' is deprecated. Please use g:'.a:name
-        return g:operator_{substitute(a:name, '#', '_', '')}
-    else
-        return get(g:, a:name, a:default)
-    endif
-endfunction
-
-let g:command = s:getg('command', 'clang-format')
+let g:command = get(g:, 'command', 'clang-format')
 
 function! s:format(line1, line2) abort
     let args = printf(' -lines=%d:%d', a:line1, a:line2)
