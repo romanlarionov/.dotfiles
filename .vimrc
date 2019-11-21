@@ -2,11 +2,17 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""" Misc
 set nocompatible
 set number
-set belloff=all
 set noswapfile
 set mouse=i
 set mousehide
-set termsize=10x999
+
+if exists(":belloff")
+    set belloff=all
+endif
+
+if exists(":termsize")
+    set termsize=10x999
+endif
 
 " automatically center cursorline to center of screen
 autocmd WinEnter * :execute "normal \<S-M>"

@@ -1,5 +1,5 @@
 BoldAsFont=-1
-ThemeFile=
+ThemeFile=flat-ui
 Transparency=off
 OpaqueWhenFocused=no
 CursorType=underscore
@@ -9,6 +9,7 @@ BellType=0
 BellFlash=yes
 BellTaskbar=no
 RightClickAction=paste
+Window=max
 ClipShortcuts=no
 WindowShortcuts=no
 SwitchShortcuts=no

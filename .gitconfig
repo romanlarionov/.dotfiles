@@ -13,7 +13,6 @@
     autocrlf = false
     safecrlf = false
     filemode = false
-    excludesfile = ~/.gitignore_global
 [alias]
     cm = commit -m
     st = status

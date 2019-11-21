@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc .gitignore.global"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc"
 
 if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
     mkdir ${DOTFILES_DIR}/OldDotFiles
@@ -12,12 +12,11 @@ if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
             mv ${HOME}/${file} ${DOTFILES_DIR}/OldDotFiles
         fi
     done
-
-    echo "Updating new dotfiles"
-    for file in ${FILES}; do
-        ln -s ${DOTFILES_DIR}/${file} ${HOME}/${file}
-    done
 fi
+
+for file in ${FILES}; do
+    ln -s ${DOTFILES_DIR}/${file} ${HOME}/${file} &> /dev/null
+done
 
 if [[ "$(lsb_release -si 2>/dev/null)" == "Ubuntu" ]]; then
     sudo apt-get install -q -y cmake wget curl clang-format cscope xfonts-utils

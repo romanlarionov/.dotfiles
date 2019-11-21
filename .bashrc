@@ -3,6 +3,10 @@ if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
+if [[ $PATH != *".dotfiles/scripts"* ]]; then
+    PATH="~/.dotfiles/scripts:$PATH"
+fi
+
 # Setup terminal colors
 BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
 [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
