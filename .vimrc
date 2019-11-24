@@ -3,8 +3,14 @@
 set nocompatible
 set number
 set noswapfile
-set mouse=i
 set mousehide
+
+" allow backspace to go to previous line
+set backspace=2
+
+if exists(":mouse")
+    set mouse=i
+endif
 
 if exists(":belloff")
     set belloff=all
@@ -13,6 +19,13 @@ endif
 if exists(":termsize")
     set termsize=10x999
 endif
+
+" use vertical split for help
+autocmd FileType help wincmd L
+
+" understand glsl files
+autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl 
+ \ set filetype=glsl
 
 " automatically center cursorline to center of screen
 autocmd WinEnter * :execute "normal \<S-M>"
@@ -28,7 +41,7 @@ set incsearch
 set fileignorecase
 set ignorecase
 
-" Opens autocompete popup with the tab/shift-tab keys in smart way
+" opens autocompete popup with the tab/shift-tab keys in smart way
 inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
 inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-P>" : "<TAB>"
 
@@ -59,37 +72,83 @@ set foldmethod=manual
 " fold matching brace
 nnoremap <C-M> zf%<CR>
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Git
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Colors
+syntax enable
 color torte
 
 set cursorline
 highlight clear CursorLine
-highlight Cursor ctermbg=30
-highlight CursorLine ctermbg=18
-highlight comment ctermfg=darkgreen
+highlight Cursor cterm=none ctermbg=lightgray
+highlight CursorLine cterm=none ctermbg=darkgray
+highlight comment cterm=none ctermfg=darkgreen
 
 set hlsearch
-highlight IncSearch ctermbg=red
-highlight Search ctermbg=yellow
-highlight Visual ctermfg=yellow
-highlight Folded ctermfg=yellow
+highlight IncSearch cterm=none ctermbg=red
+highlight Search cterm=none ctermbg=yellow
+highlight Visual cterm=none ctermfg=yellow
+highlight Folded cterm=bold ctermfg=yellow
 
-highlight LineNr ctermfg=blue
+highlight LineNr cterm=none ctermfg=blue
 
-highlight StatusLine ctermbg=black
-highlight StatusLine ctermfg=green
-highlight StatusLineNC ctermfg=gray
+highlight StatusLine cterm=none ctermfg=black ctermbg=darkblue
+highlight StatusLineNC cterm=none ctermfg=black ctermbg=darkblue
 
-highlight Pmenu ctermbg=red
-highlight Pmenu ctermfg=black
-highlight PmenuSel ctermbg=green
-highlight PmenuSel ctermfg=black
-
-" todo: set statusbar color to different things depending on mode im on (visual, normal, etc)
+highlight Pmenu cterm=none ctermbg=darkblue ctermfg=red
+highlight PmenuSel cterm=none ctermbg=blue ctermfg=black
 
 " todo: need to fix vimdiff colors. current colors are unusable
 
-highlight ErrorMsg ctermfg=red
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Statusline
+set laststatus=2
+
+" changes the statusbar git branch color depending on if there are any unstaged changes detected
+function! ChangeStatuslineGitColor()
+    let has_unstanged_git_changes = (strlen(system("git status 2>/dev/null | grep 'Changes not staged for commit'")) > 0) ? 1 : 0
+    if (has_unstanged_git_changes)
+        exe 'hi! StatusLineNC ctermbg=yellow'
+    else
+        exe 'hi! StatusLineNC ctermbg=green'
+    endif
+endfunction
+autocmd VimEnter * :call ChangeStatuslineGitColor()
+
+" changes statusline color depending on vim mode
+function! ChangeStatuslineColor()
+    let curr_mode=mode()
+    if (curr_mode =~# '\v(n|no)')
+        exe 'hi! StatusLine ctermbg=darkblue'
+        return '  NORMAL '
+    elseif (curr_mode =~# '\v(v|V)')
+        exe 'hi! StatusLine ctermbg=yellow'
+        return '  VISUAL '
+    elseif (curr_mode =~# '\v(v|V)')
+        exe 'hi! StatusLine ctermbg=yellow'
+        return '  VISUAL BLOCK '
+    elseif (curr_mode ==# 'i')
+        exe 'hi! StatusLine ctermbg=darkgreen'
+        return '  INSERT '
+    else
+        exe 'hi! StatusLine ctermbg=lightred'
+        return ''
+    endif
+endfunction
+
+let g:branchname = system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
+function! GetGitBranchName()
+    let is_curr_dir_git_repo = (strlen(system("git branch 2>/dev/null | tr -d '\n'")) > 0) ? 1 : 0
+    return (is_curr_dir_git_repo && strlen(g:branchname) > 0) ? '  '.g:branchname.' ' : ''
+endfunction
+
+set statusline=
+" changes the statusline color based on vim mode
+set statusline+=%#StatusLine#%{ChangeStatuslineColor()}
+" prints git branch name
+set statusline+=%#StatusLineNC#%{GetGitBranchName()}
+" prints truncated global file path
+set statusline+=%#CursorLine#\ %.50F%m%=
+" prints file type
+set statusline+=%#StatusLine#\ \ \ %y
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Windows/Buffers
 " keeps window sizes equal after closing
@@ -111,55 +170,55 @@ nnoremap gb :e .<CR>
 
 " complicated way of deleting a buffer via command
 function! s:Bclose(bang, buffer)
-	if empty(a:buffer)
-		let btarget = bufnr('%')
-	elseif a:buffer =~ '^\d\+$'
-		let btarget = bufnr(str2nr(a:buffer))
-	else
-		let btarget = bufnr(a:buffer)
-	endif
-	if btarget < 0
-		return
-	endif
+    if empty(a:buffer)
+        let btarget = bufnr('%')
+    elseif a:buffer =~ '^\d\+$'
+        let btarget = bufnr(str2nr(a:buffer))
+    else
+        let btarget = bufnr(a:buffer)
+    endif
+    if btarget < 0
+        return
+    endif
 
     " todo: this shouldn't print out anything
-	if empty(a:bang) && getbufvar(btarget, '&modified')
-		echohl ErrorMsg
-		echomsg 'No write since last change for buffer '.btarget.' (use :Bclose!)'
-		echohl NONE
-		return
-	endif
-	" Numbers of windows that view target buffer which we will delete.
-	let wnums = filter(range(1, winnr('$')), 'winbufnr(v:val) == btarget')
-	if len(wnums) > 1
-		execute 'close'
-		return
-	endif
-	let wcurrent = winnr()
-	for w in wnums
-		execute w.'wincmd w'
-		let prevbuf = bufnr('#')
-		if prevbuf > 0 && buflisted(prevbuf) && prevbuf != btarget
-			buffer #
-		else
-			bprevious
-		endif
-		if btarget == bufnr('%')
-			" Numbers of listed buffers which are not the target to be deleted.
-			let blisted = filter(range(1, bufnr('$')), 'buflisted(v:val) && v:val != btarget')
-			" Listed, not target, and not displayed.
-			let bhidden = filter(copy(blisted), 'bufwinnr(v:val) < 0')
-			" Take the first buffer, if any (could be more intelligent).
-			let bjump = (bhidden + blisted + [-1])[0]
-			if bjump > 0
-				execute 'buffer '.bjump
-			else
-				execute 'enew'.a:bang
-			endif
-		endif
-	endfor
-	execute 'bdelete'.a:bang.' '.btarget
-	execute wcurrent.'wincmd w'
+    if empty(a:bang) && getbufvar(btarget, '&modified')
+        echohl ErrorMsg
+        echomsg 'No write since last change for buffer '.btarget.' (use :Bclose!)'
+        echohl NONE
+        return
+    endif
+    " Numbers of windows that view target buffer which we will delete.
+    let wnums = filter(range(1, winnr('$')), 'winbufnr(v:val) == btarget')
+    if len(wnums) > 1
+        execute 'close'
+        return
+    endif
+    let wcurrent = winnr()
+    for w in wnums
+        execute w.'wincmd w'
+        let prevbuf = bufnr('#')
+        if prevbuf > 0 && buflisted(prevbuf) && prevbuf != btarget
+            buffer #
+        else
+            bprevious
+        endif
+        if btarget == bufnr('%')
+            " Numbers of listed buffers which are not the target to be deleted.
+            let blisted = filter(range(1, bufnr('$')), 'buflisted(v:val) && v:val != btarget')
+            " Listed, not target, and not displayed.
+            let bhidden = filter(copy(blisted), 'bufwinnr(v:val) < 0')
+            " Take the first buffer, if any (could be more intelligent).
+            let bjump = (bhidden + blisted + [-1])[0]
+            if bjump > 0
+                execute 'buffer '.bjump
+            else
+                execute 'enew'.a:bang
+            endif
+        endif
+    endfor
+    execute 'bdelete'.a:bang.' '.btarget
+    execute wcurrent.'wincmd w'
 endfunction
 command! -bang -complete=buffer -nargs=? Bclose call <SID>Bclose(<q-bang>, <q-args>)
 nnoremap <silent> gd :Bclose<CR>
@@ -224,11 +283,11 @@ function! s:replace(line1, line2, ...) abort
     let invalidity = 0
     if !exists('s:command_available')
         if !executable(g:command)
-            invalidity = 1
+            let invalidity = 1
         endif
         let s:command_available = 1
     else
-        invalidity = 0
+        let invalidity = 0
     endif
 
     if invalidity == 1
@@ -242,7 +301,6 @@ function! s:replace(line1, line2, ...) abort
     let format_success = v:shell_error == 0 && formatted !~# '^YAML:\d\+:\d\+: error: unknown key '
 
     if ! (format_success)
-        " todo: shouldn't show error message, only flash the statusbar red
         call s:error_message(formatted)
         return
     endif
