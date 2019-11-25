@@ -2,23 +2,23 @@
 
 DOTFILES_DIR="${HOME}/.dotfiles"
 FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc .profile"
-OLD_DOTFILES_DIR=${DOTFILES_DIR}/OldDotFiles
+OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles"
 
-# todo: need to figure out the latest version of random dir...
-if [[ -d ${OLD_DOTFILES_DIR} ]]; then
 
-    echo "Removing all dotfiles within your home directory..."
+if [[ -d "${OLD_DOTFILES_DIR}" ]]; then
+
+    # find the directory with _last in OldDotFiles
+    LAST_DOTFILES="$(ls ${OLD_DOTFILES_DIR} | grep "_last")"
+
     for file in ${FILES}; do
     	rm -rf ${HOME}/${file}
     done
     				
-    echo "Reverting back to your previous settings..."
-    for file in ${OLD_DOTFILES_DIR}; do
-    	mv ${OLD_DOTFILES_DIR}/${file} ${HOME}/${file}
+    for file in ${LAST_DOTFILES}; do
+    	mv ${LAST_DOTFILES}/${file} ${HOME}/${file}
     done
     
     cd ${HOME}
     rm -rf ${DOTFILES_DIR}
-    echo "Uninstall complete!"
 fi
 
