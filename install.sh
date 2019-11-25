@@ -2,6 +2,7 @@
 
 DOTFILES_DIR="${HOME}/.dotfiles"
 FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc .profile"
+OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles"
 
 # save any dotfiles in the above list that were detected in the home directory
 if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
@@ -9,9 +10,10 @@ if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
 fi
 
 # if we've already run the install script before, rename the _last set of OldDotFiles
-LAST_DOTFILES_DIR="$(ls ${DOTFILES_DIR} | grep "_last")"
-if [[ -z "${LAST_DOTFILES_DIR}" ]]; then
-    mv ${LAST_DOTFILES_DIR} "$(echo ${LAST_DOTFILES_DIR} | cut -d'_' -f 1)"
+LAST_DOTFILES_DIR="$(ls "${OLD_DOTFILES_DIR}" | grep "_last")"
+if [[ ! -z "${LAST_DOTFILES_DIR}" ]]; then
+    mv "${OLD_DOTFILES_DIR}/${LAST_DOTFILES_DIR}" \
+        "${OLD_DOTFILES_DIR}/$(echo ${LAST_DOTFILES_DIR} | cut -d'_' -f 1)" 
 fi
 
 CURR_OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles/${RANDOM}_last"
