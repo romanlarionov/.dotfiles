@@ -1,9 +1,10 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .ssh .clang-format .globalrc .inputrc"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc"
 OLD_DOTFILES_DIR=${DOTFILES_DIR}/OldDotFiles
 
+# todo: need to figure out the latest version of random dir...
 if [[ -d ${OLD_DOTFILES_DIR} ]]; then
 
     echo "Removing all dotfiles within your home directory..."

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .ssh .clang-format .globalrc .inputrc"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc"
 
 if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
     mkdir ${DOTFILES_DIR}/OldDotFiles
@@ -23,12 +23,11 @@ done
 
 if [[ "$(lsb_release -si 2>/dev/null)" == "Ubuntu" ]]; then
     sudo apt-get install -q -y cmake wget curl clang-format cscope xfonts-utils
-fi
 
-if [[ "${uname}" == "Darwin" ]]; then
+elif [[ "${uname}" == "Darwin" ]]; then
     if [[ $(command -v brew) == "" ]]; then
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        brew install git brew-cask cmake wget vim global ctags cscope ag
+        brew install brew-cask cmake wget vim global ctags cscope ag
         brew linkapps
     else
         brew update
