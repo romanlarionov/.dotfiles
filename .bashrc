@@ -14,9 +14,24 @@ if [[ -d "${HOME}/.dotfiles" ]]; then
 fi
 
 # Functions
-rgrep() { grep -irn "$1" "$2" --color=auto; }
-rfind() { find "$2" -name "$1"; }
+rgrep()
+{
+    grep -irnI "$1" "$2" --color=auto --exclude-dir={build,.git,node_modules};
+}
 
+rfind()
+{
+    find "$2" -name "$1";
+}
+
+# todo: make function that looks for a file recursively in current dir and opens it in vim, if unique
+#       this could be cool with vsbuild script, where I can add an option to open a list of vim
+#       buffers on the line where the error is located for each error..
+# todo: think of a better name
+
+# todo: it seems like this crashes my google cloud linux box... for some reason.
+#       sftp wouldn't work, but ssh would. stack overflow said its cuz the bashrc
+#       was outputting too much.. 
 setup_ssh_agent()
 {
     SSH_AGENT_TIMEOUT=9000 # 2.5 hours
@@ -60,11 +75,14 @@ g()
 open()
 {
     if [[ "$OSTYPE" == "msys" ]]; then
+        # NOTE: Mintty doesn't play nice with spaces in dir paths. nothing I can do..
         explorer.exe "${@////\\}" # replace slashes with backslashes (for windows)
     else
         open "$@"
     fi
 }
+
+
 
 # Aliases
 alias ls="ls -G --color=auto"
@@ -72,7 +90,7 @@ alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
-alias grep="grep -i --color=auto"
+alias grep="grep -iI --color=auto"
 alias ebrc="vim ${HOME}/.bashrc"
 alias sbrc="source ${HOME}/.bashrc > /dev/null"
 alias p3="python3"

@@ -1,0 +1,149 @@
+#!python
+#
+# Script for command line compilation via the MSVC compiler on Windows.
+# Uses the MSBuild.exe executable (provided alongside Visual Studio).
+#
+# Usage:
+#   vsbuild <solution path>
+#
+
+import subprocess
+import argparse
+import os
+import mmap
+import re
+
+# tries to find a path to the requested version of MSBuild.exe
+# if not found, tries to look for other installed versions
+def find_msbuild(version):
+
+    msbuild_path_dict = {
+        17: r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe",
+        15: r"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
+    }
+
+    # if a specific version is requested
+    if version in msbuild_path_dict and os.path.exists(msbuild_path_dict[version]):
+        return (version, msbuild_path_dict[version])
+
+    # try looking for others if we don't find it
+    for (key, val) in msbuild_path_dict.items():
+        if os.path.exists(val):
+            return (key, val)
+    
+    return (0, "")
+
+# parses provided solution file for version number info
+def detect_solution_version(solution_path):
+    with open(solution_path, 'rb', 0) as file:
+        # open 2048 bytes just to be sure
+        mm = mmap.mmap(file.fileno(), 2048, access=mmap.ACCESS_READ)
+        mm.readline()
+        line = mm.readline().decode("utf-8").split()
+        line = [int(i) for i in line if i.isdigit()]
+
+        if not line:
+            return 0
+
+        return line[0]
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
+    parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
+
+    # todo: this doesn't seem to accept the command line input
+    parser.add_argument('-v', '--version', type=int, choices=["15", "17"], default=15, help='version of visual studio')
+    parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
+    parser.add_argument('solution_path', help='path to the VS solution file')
+
+    return parser.parse_args()
+
+def red(text):
+    print('\033[31m', text, '\033[0m', sep='')
+
+def green(text):
+    print('\033[32m', text, '\033[0m', sep='')
+
+def yellow(text):
+    print('\033[33m', text, '\033[0m', sep='')
+
+def main():
+
+    args = parse_args()
+
+    solution_version = detect_solution_version(args.solution_path)
+    (version, msbuild) = find_msbuild(solution_version)
+
+    if version is 0:
+        red("Couldn't find path to MSBuild.exe. Is it installed in a default location?")
+        exit()
+
+    if version is not solution_version:
+        yellow("Couldn't find path to version " + str(solution_version) + " of MSBuild.exe")
+        yellow("Defaulting to version " + str(version))
+
+    command = [msbuild]
+    command.append(args.solution_path)
+    command.append("/maxcpucount")  # use all cores for building
+    command.append("/v:q")  # verbose = quiet
+    command.append("/p:Configuration=" + ("Release", "Debug")[args.debug])
+    command.append("/p:Platform=" + args.arch)
+    command.append("/p:PlatformToolset=" + ("v141", "v140")[version == 15])
+    command.append("/p:WarningLevel=0")
+
+    # todo: maybe add option to see warnings?
+
+    if args.rebuild:
+        command.append("/t:rebuild")
+
+    print("================================================")
+    print("Solution Path: \t\t" + args.solution_path)
+    print("Target Platform: \t" + args.arch)
+    print("Configuration: \t\t" + ("Release", "Debug")[args.debug])
+    print("Visual Studio Version: \t" + str(version))
+    print("================================================")
+
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    # suppress first few outputs from msbuild
+    nextline = process.stdout.readline()
+    nextline = process.stdout.readline()
+    nextline = process.stdout.readline()
+
+    # loop through each line of output from the compiler and detect if its worth printing
+    count = 0
+    while True:
+        nextline = process.stdout.readline().decode("utf-8")
+        is_valid_message = nextline and (nextline.isspace() is False) and ("warning C" not in nextline)
+
+        # first thing is get rid of printing the .vcxproj that each line maps to
+
+        if is_valid_message:
+            count += 1
+            # strips the ending details about which .vcxproj for error
+            nextline = nextline[:nextline.rfind("[")]
+
+            # strips global file path for file in question
+            nextline = re.search('((\w|\d|\_|\-)*(\\(?=.(?!\\))+)*\.).*', nextline)
+            nextline = nextline.group(0)
+
+            # TODO: maybe think about printing something in the error message in color
+            # TODO: maybe add wrapping inside ''. or something else...
+
+            print(nextline)
+
+        if process.poll() is not None:
+            break
+
+    if process.returncode is not 0:
+        print("================================================")
+        print("Total errors: " + str(count))
+        red("Build Failed!")
+    else:
+        green("Build Successful!")
+
+if __name__ == "__main__":
+    main()
+

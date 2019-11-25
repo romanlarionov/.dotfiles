@@ -27,11 +27,6 @@ autocmd FileType help wincmd L
 autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl 
  \ set filetype=glsl
 
-" automatically center cursorline to center of screen
-autocmd WinEnter * :execute "normal \<S-M>"
-autocmd BufEnter * :execute "normal \<S-M>"
-autocmd TabEnter * :execute "normal \<S-M>"
-
 " todo: CTRL-Backspace (and CTRL-Delete) should delete a tabs worth of spaces
 
 let s:on_windows = has('win32') || has('win64')
@@ -55,6 +50,10 @@ set tabstop=4
 set shiftwidth=4
 set smarttab
 set smartindent
+
+" tab in visual mode indents
+vnoremap <TAB> >
+vnoremap <S-TAB> <
 
 nnoremap < <<
 nnoremap > >>
@@ -84,7 +83,7 @@ highlight CursorLine cterm=none ctermbg=darkgray
 highlight comment cterm=none ctermfg=darkgreen
 
 set hlsearch
-highlight IncSearch cterm=none ctermbg=red
+highlight IncSearch cterm=none ctermbg=yellow
 highlight Search cterm=none ctermbg=yellow
 highlight Visual cterm=none ctermfg=yellow
 highlight Folded cterm=bold ctermfg=yellow
@@ -94,7 +93,7 @@ highlight LineNr cterm=none ctermfg=blue
 highlight StatusLine cterm=none ctermfg=black ctermbg=darkblue
 highlight StatusLineNC cterm=none ctermfg=black ctermbg=darkblue
 
-highlight Pmenu cterm=none ctermbg=darkblue ctermfg=red
+highlight Pmenu cterm=none ctermbg=darkblue ctermfg=black
 highlight PmenuSel cterm=none ctermbg=blue ctermfg=black
 
 " todo: need to fix vimdiff colors. current colors are unusable
@@ -103,9 +102,9 @@ highlight PmenuSel cterm=none ctermbg=blue ctermfg=black
 set laststatus=2
 
 " changes the statusbar git branch color depending on if there are any unstaged changes detected
+let g:has_unstanged_git_changes = (strlen(system("git status 2>/dev/null | grep 'Changes not staged for commit'")) > 0) ? 1 : 0
 function! ChangeStatuslineGitColor()
-    let has_unstanged_git_changes = (strlen(system("git status 2>/dev/null | grep 'Changes not staged for commit'")) > 0) ? 1 : 0
-    if (has_unstanged_git_changes)
+    if (g:has_unstanged_git_changes)
         exe 'hi! StatusLineNC ctermbg=yellow'
     else
         exe 'hi! StatusLineNC ctermbg=green'
@@ -134,17 +133,18 @@ function! ChangeStatuslineColor()
     endif
 endfunction
 
+" todo: this should be recalculated per buffer
 let g:branchname = system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
-function! GetGitBranchName()
-    let is_curr_dir_git_repo = (strlen(system("git branch 2>/dev/null | tr -d '\n'")) > 0) ? 1 : 0
-    return (is_curr_dir_git_repo && strlen(g:branchname) > 0) ? '  '.g:branchname.' ' : ''
-endfunction
 
 set statusline=
 " changes the statusline color based on vim mode
 set statusline+=%#StatusLine#%{ChangeStatuslineColor()}
+
 " prints git branch name
-set statusline+=%#StatusLineNC#%{GetGitBranchName()}
+if (strlen(g:branchname) > 0)
+    set statusline+=%#StatusLineNC#%{'\ \ '.g:branchname.'\ '}
+endif
+
 " prints truncated global file path
 set statusline+=%#CursorLine#\ %.50F%m%=
 " prints file type

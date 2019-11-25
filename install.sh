@@ -1,18 +1,21 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .tmux.conf .clang-format .globalrc .inputrc"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .ssh .clang-format .globalrc .inputrc"
 
 if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
     mkdir ${DOTFILES_DIR}/OldDotFiles
-
-    echo "Caching old dotfiles files..."
-    for file in ${FILES}; do
-        if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
-            mv ${HOME}/${file} ${DOTFILES_DIR}/OldDotFiles
-        fi
-    done
 fi
+
+CURR_OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles/${RANDOM}"
+echo "Caching old dotfiles files to ${CURR_OLD_DOTFILES_DIR}"
+mkdir ${CURR_OLD_DOTFILES_DIR}
+
+for file in ${FILES}; do
+    if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
+        mv ${HOME}/${file} ${CURR_OLD_DOTFILES_DIR}
+    fi
+done
 
 for file in ${FILES}; do
     ln -s ${DOTFILES_DIR}/${file} ${HOME}/${file} &> /dev/null
