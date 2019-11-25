@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc .profile"
 OLD_DOTFILES_DIR=${DOTFILES_DIR}/OldDotFiles
 
 # todo: need to figure out the latest version of random dir...
