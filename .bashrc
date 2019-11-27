@@ -1,4 +1,12 @@
 
+# set the contents of the printout on each command
+
+FIRST_PART="\[\033]0;$PWD\007\]\n\[\033[32m\]\u"
+DIR_PART="\[\033[33m\]\w"
+GIT_PART='\[\033[36m\]`__git_ps1`'
+
+PS1="${FIRST_PART} ${DIR_PART}${GIT_PART}\[\033[0m\]\n> "
+
 if [[ -f "${HOME}/.bashrc.local" ]]; then
     source ${HOME}/.bashrc.local
 fi

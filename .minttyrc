@@ -14,3 +14,7 @@ ClipShortcuts=no
 WindowShortcuts=no
 SwitchShortcuts=no
 CursorBlinks=yes
+AllowBlinking=yes
+Locale=C
+Charset=UTF-8
+ConfirmExit=no
