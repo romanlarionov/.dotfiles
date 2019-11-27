@@ -34,19 +34,20 @@ $if mode=emacs
     # movement
     "\e[1;5D": backward-word    # Ctrl-Left
     "\e[1;5C": forward-word     # Ctrl-Right
-    "\e[1;5A": previous-history # Ctrl-Up
-    "\e[1;5B": next-history     # Ctrl-Down
+    "\eOA": history-search-backward # Up
+    "\eOB": history-search-forward # Down
     "\e[4~": end-of-line        # End Key
     "\e[3~": delete-char        # Delete Key
     "\e[1~": beginning-of-line  # Home Key
+    
     
     "\e[15~": re-read-init-file # Function Key 5
     
     "\e[3;5~": kill-word       # Ctrl-Delete
     "\C-_": backward-kill-word # Ctrl-Backspace
 
-    "\C-P": previous-history   # Ctrl-P
-    "\C-N": next-history       # Ctrl-N
+    "\C-P": history-search-backward # Ctrl-P
+    "\C-N": history-search-forward # Ctrl-N
 
 #    $if term=msys
 #      "\e[7~": beginning-of-line      # Home Key

@@ -3,19 +3,14 @@ if [[ -f "${HOME}/.bashrc.local" ]]; then
     source ${HOME}/.bashrc.local
 fi
 
-if [[ -d "${HOME}/.dotfiles" ]]; then
-    # colors break sftp/scp
-    if [[ "${SSH_TTY}" ]]; then
-        # Setup terminal colors
-        BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
-        [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
-    fi
-fi
-
 # Functions
 rgrep()
 {
-    grep -irnI "$1" "$2" --color=auto --exclude-dir={build,.git,node_modules};
+    TARGET_DIR="${2}"
+    if [[ -z "${TARGET_DIR}" ]]; then
+        TARGET_DIR="."
+    fi
+    grep -irnI "${1}" "${TARGET_DIR}" --color=auto --exclude-dir={build,.git,node_modules};
 }
 
 rfind()

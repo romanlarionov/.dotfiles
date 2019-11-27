@@ -16,13 +16,25 @@ fi
 
 PATH="${HOME}/bin:${HOME}/.local/bin:$PATH"
 
-if [ -d "${HOME}/.dotfiles" ]; then
-    if [ ${PATH} != *".dotfiles/scripts"* ]; then
+if [[ -d "${HOME}/.dotfiles" ]]; then
+    if [[ ${PATH} != *".dotfiles/scripts"* ]]; then
         PATH="${HOME}/.dotfiles/scripts:${PATH}"
+    fi
+
+    # colors break sftp/scp
+    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+        if [[ -n "${SSH_TTY}" ]]; then
+            # Setup terminal colors
+            BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
+            [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
+        fi
+    else
+        BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
+        [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
     fi
 fi
 
-if [ -z "${ROMANS_PATH}" ]; then
+if [[ ! -z "${ROMANS_PATH}" ]]; then
     PATH="${ROMANS_PATH}:${PATH}"
 fi
 
