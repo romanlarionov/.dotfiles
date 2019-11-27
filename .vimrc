@@ -29,6 +29,11 @@ autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.fra
 
 " todo: CTRL-Backspace (and CTRL-Delete) should delete a tabs worth of spaces
 
+"autocmd VimEnter * exe zz
+
+" remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
+set viminfo='50,%10,
+
 let s:on_windows = has('win32') || has('win64')
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Search
@@ -71,24 +76,24 @@ set foldmethod=manual
 " fold matching brace
 nnoremap <C-M> zf%<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Git
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Colors
 syntax enable
 color torte
 
 set cursorline
 highlight clear CursorLine
-highlight Cursor cterm=none ctermbg=lightgray
+highlight Cursor cterm=none ctermbg=white ctermfg=black
 highlight CursorLine cterm=none ctermbg=darkgray
-highlight comment cterm=none ctermfg=darkgreen
+highlight Comment cterm=none ctermfg=darkgreen
 
 set hlsearch
-highlight IncSearch cterm=none ctermbg=yellow
-highlight Search cterm=none ctermbg=yellow
+highlight IncSearch cterm=none ctermbg=black ctermfg=yellow
+highlight Search cterm=none ctermbg=yellow ctermfg=black
 highlight Visual cterm=none ctermfg=yellow
 highlight Folded cterm=bold ctermfg=yellow
 
 highlight LineNr cterm=none ctermfg=blue
+highlight TabLine cterm=none ctermbg=darkgray ctermfg=black
 
 highlight StatusLine cterm=none ctermfg=black ctermbg=darkblue
 highlight StatusLineNC cterm=none ctermfg=black ctermbg=darkblue
@@ -146,7 +151,7 @@ if (strlen(g:branchname) > 0)
 endif
 
 " prints truncated global file path
-set statusline+=%#CursorLine#\ %.50F%m%=
+set statusline+=%#TabLine#\ %{expand('%:~:.')}%m%=
 " prints file type
 set statusline+=%#StatusLine#\ \ \ %y
 

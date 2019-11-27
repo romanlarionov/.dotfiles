@@ -39,7 +39,7 @@ done
 if [[ "$(lsb_release -si 2>/dev/null)" == "Ubuntu" ]]; then
     sudo apt-get install -q -y cmake wget curl clang-format cscope xfonts-utils
 
-elif [[ "${uname}" == "Darwin" ]]; then
+elif [[ "$(uname)" == "Darwin" ]]; then
     if [[ $(command -v brew) == "" ]]; then
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         brew install brew-cask cmake wget vim global ctags cscope ag
@@ -47,5 +47,10 @@ elif [[ "${uname}" == "Darwin" ]]; then
     else
         brew update
     fi
+fi
+
+# install python packages
+if [[ ! -z "$(command pip 2>/dev/null)" ]]; then
+    pip install argparse Pillow numpy scipy matplotlib &>/dev/null
 fi
 
