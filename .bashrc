@@ -1,17 +1,23 @@
 
-# set the contents of the printout on each command
-
-FIRST_PART="\[\033]0;$PWD\007\]\n\[\033[32m\]\u"
-DIR_PART="\[\033[33m\]\w"
-GIT_PART='\[\033[36m\]`__git_ps1`'
-
-PS1="${FIRST_PART} ${DIR_PART}${GIT_PART}\[\033[0m\]\n> "
-
 if [[ -f "${HOME}/.bashrc.local" ]]; then
     source ${HOME}/.bashrc.local
 fi
 
-# Functions
+# set the contents of the printout on each command
+parse_git_branch()
+{
+    BRANCH_NAME=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+    if [[ ! -z ${BRANCH_NAME} ]]; then
+        HAS_UNSTAGED=$(git status 2>/dev/null | grep 'Changes not staged for commit')
+        [[ -z ${HAS_UNSTAGED} ]] && BGCOL="\e[42m" FGCOL="\e[32m" || BGCOL="\e[43m" FGCOL="\e[33m"
+        printf "${BGCOL}\e[30m ${BRANCH_NAME} \e[0m${FGCOL}\e[0m"
+    else
+        printf ""
+    fi
+}
+
+PS1="\u@\h \e[44m\e[30m \w \e[40m\e[34m\$(parse_git_branch)\e[0m "
+
 rgrep()
 {
     TARGET_DIR="${2}"
@@ -25,10 +31,6 @@ rfind()
 {
     find "$2" -name "$1";
 }
-
-# todo: make function that looks for a file recursively in current dir and opens it in vim, if unique
-#       this could be cool with vsbuild script, where I can add an option to open a list of vim
-#       buffers on the line where the error is located for each error..
 
 setup_ssh_agent()
 {
