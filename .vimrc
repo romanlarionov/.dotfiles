@@ -81,7 +81,7 @@ color torte
 set cursorline
 highlight clear CursorLine
 highlight Cursor       cterm=none ctermbg=white     ctermfg=black
-highlight CursorLine   cterm=none ctermbg=darkgray
+highlight CursorLine   cterm=none 
 highlight Comment      cterm=none                   ctermfg=darkgreen
 
 set hlsearch
