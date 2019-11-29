@@ -3,20 +3,24 @@ if [[ -f "${HOME}/.bashrc.local" ]]; then
     source ${HOME}/.bashrc.local
 fi
 
-# set the contents of the printout on each command
-parse_git_branch()
+print_ssh_ps1()
+{
+    if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
+        printf "\e[31m@$(hostname)\e[0m"
+    fi
+}
+
+print_git_branch_ps1()
 {
     BRANCH_NAME=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
     if [[ ! -z ${BRANCH_NAME} ]]; then
         HAS_UNSTAGED=$(git status 2>/dev/null | grep 'Changes not staged for commit')
-        [[ -z ${HAS_UNSTAGED} ]] && BGCOL="\e[42m" FGCOL="\e[32m" || BGCOL="\e[43m" FGCOL="\e[33m"
-        printf "${BGCOL}\e[30m ${BRANCH_NAME} \e[0m${FGCOL}\e[0m"
-    else
-        printf ""
+        [[ -z ${HAS_UNSTAGED} ]] && BGCOL="\e[42m" || BGCOL="\e[43m"
+        printf "${BGCOL}\e[30m ${BRANCH_NAME} \e[0m"
     fi
 }
 
-PS1="\u@\h \e[44m\e[30m \w \e[40m\e[34m\$(parse_git_branch)\e[0m "
+PS1="\u\$(print_ssh_ps1) \e[44m\e[30m \w \$(print_git_branch_ps1)\e[0m "
 
 rgrep()
 {

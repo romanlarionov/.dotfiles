@@ -29,10 +29,8 @@ autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.fra
 
 " todo: CTRL-Backspace (and CTRL-Delete) should delete a tabs worth of spaces
 
-"autocmd VimEnter * exe zz
-
 " remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
-set viminfo='50,%10,
+set viminfo='50,%10,f0
 
 let s:on_windows = has('win32') || has('win64')
 
@@ -82,31 +80,35 @@ color torte
 
 set cursorline
 highlight clear CursorLine
-highlight Cursor cterm=none ctermbg=white ctermfg=black
-highlight CursorLine cterm=none ctermbg=darkgray
-highlight Comment cterm=none ctermfg=darkgreen
+highlight Cursor       cterm=none ctermbg=white     ctermfg=black
+highlight CursorLine   cterm=none ctermbg=darkgray
+highlight Comment      cterm=none                   ctermfg=darkgreen
 
 set hlsearch
-highlight IncSearch cterm=none ctermbg=black ctermfg=yellow
-highlight Search cterm=none ctermbg=yellow ctermfg=black
-highlight Visual cterm=none ctermfg=yellow
-highlight Folded cterm=bold ctermfg=yellow
+highlight IncSearch    cterm=none ctermbg=black     ctermfg=yellow
+highlight Search       cterm=none ctermbg=yellow    ctermfg=black
+highlight Visual       cterm=none                   ctermfg=yellow
+highlight Folded       cterm=bold                   ctermfg=yellow
 
-highlight LineNr cterm=none ctermfg=blue
-highlight TabLine cterm=none ctermbg=darkgray ctermfg=black
+highlight LineNr       cterm=none                   ctermfg=blue
+highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=black
 
-highlight StatusLine cterm=none ctermfg=black ctermbg=darkblue
-highlight StatusLineNC cterm=none ctermfg=black ctermbg=darkblue
+highlight StatusLine   cterm=none ctermbg=darkblue  ctermfg=black
+highlight StatusLineNC cterm=none ctermbg=darkblue  ctermfg=black
 
-highlight Pmenu cterm=none ctermbg=darkblue ctermfg=black
-highlight PmenuSel cterm=none ctermbg=blue ctermfg=black
+highlight Pmenu        cterm=none ctermbg=darkgreen ctermfg=black
+highlight PmenuSel     cterm=none ctermbg=blue      ctermfg=black
 
-" todo: need to fix vimdiff colors. current colors are unusable
+highlight DiffAdd      cterm=none ctermbg=darkgray ctermfg=darkgreen
+highlight DiffChange   cterm=none ctermbg=darkgray ctermfg=darkgreen
+highlight DiffDelete   cterm=none ctermbg=darkgray ctermfg=darkred  
+highlight DiffText     cterm=none ctermbg=darkgray ctermfg=darkred
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Statusline
 set laststatus=2
 
 " changes the statusbar git branch color depending on if there are any unstaged changes detected
+" todo: this checks the current directory's status, not the requested directory
 let g:has_unstanged_git_changes = (strlen(system("git status 2>/dev/null | grep 'Changes not staged for commit'")) > 0) ? 1 : 0
 function! ChangeStatuslineGitColor()
     if (g:has_unstanged_git_changes)
@@ -115,6 +117,7 @@ function! ChangeStatuslineGitColor()
         exe 'hi! StatusLineNC ctermbg=green'
     endif
 endfunction
+
 autocmd VimEnter * :call ChangeStatuslineGitColor()
 
 " changes statusline color depending on vim mode
@@ -126,14 +129,13 @@ function! ChangeStatuslineColor()
     elseif (curr_mode =~# '\v(v|V)')
         exe 'hi! StatusLine ctermbg=yellow'
         return '  VISUAL '
-    elseif (curr_mode =~# '\v(v|V)')
+    elseif (curr_mode =~# '')
         exe 'hi! StatusLine ctermbg=yellow'
-        return '  VISUAL BLOCK '
+        return '  VBLOCK '
     elseif (curr_mode ==# 'i')
         exe 'hi! StatusLine ctermbg=darkgreen'
         return '  INSERT '
     else
-        exe 'hi! StatusLine ctermbg=lightred'
         return ''
     endif
 endfunction
@@ -186,7 +188,6 @@ function! s:Bclose(bang, buffer)
         return
     endif
 
-    " todo: this shouldn't print out anything
     if empty(a:bang) && getbufvar(btarget, '&modified')
         echohl ErrorMsg
         echomsg 'No write since last change for buffer '.btarget.' (use :Bclose!)'
