@@ -39,6 +39,17 @@ set incsearch
 set fileignorecase
 set ignorecase
 
+" fuzzy finding
+set wildmenu
+set wildignorecase
+set wildmode=full,list:full
+set wildignore+=*.o,*.jpg,*.obj,*.mtl,*.png,*.docx,*.exe
+set wildignore+=node_modules/*,build/*,.git/*
+
+nnoremap <C-F> :find *
+set path+=**,.
+
+
 " opens autocompete popup with the tab/shift-tab keys in smart way
 inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
 inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-P>" : "<TAB>"
@@ -62,7 +73,6 @@ nnoremap < <<
 nnoremap > >>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Formatting
-" todo: checkout what else I can do with :h fo-table
 set formatoptions+=ro
 
 " print matching curly brace
@@ -79,8 +89,7 @@ syntax enable
 color torte
 
 set cursorline
-highlight clear CursorLine
-highlight Cursor       cterm=none ctermbg=white     ctermfg=black
+highlight Cursor       cterm=none ctermbg=red ctermfg=black
 highlight CursorLine   cterm=none 
 highlight Comment      cterm=none                   ctermfg=darkgreen
 
@@ -94,31 +103,18 @@ highlight LineNr       cterm=none                   ctermfg=blue
 highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=black
 
 highlight StatusLine   cterm=none ctermbg=darkblue  ctermfg=black
-highlight StatusLineNC cterm=none ctermbg=darkblue  ctermfg=black
+highlight StatusLineNC cterm=none ctermbg=darkred   ctermfg=black
 
 highlight Pmenu        cterm=none ctermbg=darkgreen ctermfg=black
 highlight PmenuSel     cterm=none ctermbg=blue      ctermfg=black
 
-highlight DiffAdd      cterm=none ctermbg=darkgray ctermfg=darkgreen
-highlight DiffChange   cterm=none ctermbg=darkgray ctermfg=darkgreen
-highlight DiffDelete   cterm=none ctermbg=darkgray ctermfg=darkred  
-highlight DiffText     cterm=none ctermbg=darkgray ctermfg=darkred
+highlight DiffAdd      cterm=none ctermbg=darkgray  ctermfg=darkgreen
+highlight DiffChange   cterm=none ctermbg=darkgray  ctermfg=darkgreen
+highlight DiffDelete   cterm=none ctermbg=darkgray  ctermfg=darkred  
+highlight DiffText     cterm=none ctermbg=darkgray  ctermfg=darkred
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Statusline
 set laststatus=2
-
-" changes the statusbar git branch color depending on if there are any unstaged changes detected
-" todo: this checks the current directory's status, not the requested directory
-let g:has_unstanged_git_changes = (strlen(system("git status 2>/dev/null | grep 'Changes not staged for commit'")) > 0) ? 1 : 0
-function! ChangeStatuslineGitColor()
-    if (g:has_unstanged_git_changes)
-        exe 'hi! StatusLineNC ctermbg=yellow'
-    else
-        exe 'hi! StatusLineNC ctermbg=green'
-    endif
-endfunction
-
-autocmd VimEnter * :call ChangeStatuslineGitColor()
 
 " changes statusline color depending on vim mode
 function! ChangeStatuslineColor()
@@ -140,18 +136,9 @@ function! ChangeStatuslineColor()
     endif
 endfunction
 
-" todo: this should be recalculated per buffer
-let g:branchname = system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
-
 set statusline=
 " changes the statusline color based on vim mode
 set statusline+=%#StatusLine#%{ChangeStatuslineColor()}
-
-" prints git branch name
-if (strlen(g:branchname) > 0)
-    set statusline+=%#StatusLineNC#%{'\ \ '.g:branchname.'\ '}
-endif
-
 " prints truncated global file path
 set statusline+=%#TabLine#\ %{expand('%:~:.')}%m%=
 " prints file type
