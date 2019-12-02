@@ -6,7 +6,7 @@ fi
 print_ssh_ps1()
 {
     if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
-        printf "\e[31m@$(hostname)\e[0m"
+        printf "\[\e[31m\]@$(hostname)\[\e[0m\]"
     fi
 }
 
@@ -20,7 +20,7 @@ print_git_branch_ps1()
     fi
 }
 
-PS1="\u\$(print_ssh_ps1) \e[44m\e[30m \w \$(print_git_branch_ps1)\e[0m "
+PS1="\[ \u\]\[\$(print_ssh_ps1)\] \[\e[44m\e[30m\] \[\w\] \[\$(print_git_branch_ps1)\]\[\e[0m\] "
 
 rgrep()
 {
@@ -96,4 +96,5 @@ alias grep="grep -iI --color=auto"
 alias ebrc="vim ${HOME}/.bashrc"
 alias sbrc="source ${HOME}/.bashrc > /dev/null"
 alias p3="python3"
+alias diff="diff -Bd -U 5 --color=auto"
 

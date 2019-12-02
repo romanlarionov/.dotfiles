@@ -11,6 +11,7 @@ set completion-ignore-case on
 set disable-completion off
 
 set history-preserve-point on
+set horizontal-scroll-mode off
 
 # disable/enable 8bit input
 set input-meta on

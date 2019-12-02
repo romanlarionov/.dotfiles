@@ -61,7 +61,7 @@ IndentWrappedFunctionNames: false
 JavaScriptQuotes: Double
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 2
-NamespaceIndentation: None
+NamespaceIndentation: Inner
 PointerAlignment: Left
 ReflowComments:  true
 SortIncludes:    true
