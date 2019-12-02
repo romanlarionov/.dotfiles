@@ -6,7 +6,7 @@ fi
 print_ssh_ps1()
 {
     if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
-        printf "\[\e[31m\]@$(hostname)\[\e[0m\]"
+        echo -ne "\001\e[31m\002@$(hostname)\001\e[0m\002"
     fi
 }
 
@@ -16,11 +16,11 @@ print_git_branch_ps1()
     if [[ ! -z ${BRANCH_NAME} ]]; then
         HAS_UNSTAGED=$(git status 2>/dev/null | grep 'Changes not staged for commit')
         [[ -z ${HAS_UNSTAGED} ]] && BGCOL="\e[42m" || BGCOL="\e[43m"
-        printf "${BGCOL}\e[30m ${BRANCH_NAME} \e[0m"
+        echo -ne "\001${BGCOL}\e[30m\002 ${BRANCH_NAME} \001\e[0m\002"
     fi
 }
 
-PS1="\[ \u\]\[\$(print_ssh_ps1)\] \[\e[44m\e[30m\] \[\w\] \[\$(print_git_branch_ps1)\]\[\e[0m\] "
+PS1=" \u\$(print_ssh_ps1) \[\e[44m\e[30m\] \w \$(print_git_branch_ps1)\[\e[0m\] "
 
 rgrep()
 {
