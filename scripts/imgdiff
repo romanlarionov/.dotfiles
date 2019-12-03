@@ -1,0 +1,205 @@
+#!python
+#
+# Image diff tool. Performs naive pixel comparison to identify if two images are identical.
+#
+# Usage:
+#     imgdiff <golden_image> <comparison_image> [--present]
+
+import sys
+import datetime
+import numpy as np
+import scipy.ndimage
+from scipy import signal
+from PIL import Image
+import matplotlib.pyplot as plt
+
+def convolveGaussian2D(image, gaussianKernel1D):
+    result = scipy.ndimage.filters.correlate1d(image, gaussianKernel1D, axis=0)
+    result = scipy.ndimage.filters.correlate1d(result, gaussianKernel1D, axis=1)
+    return result
+
+def generate1DGaussianKernel(gaussianKernelWidth=11, gaussianKernelSigma=1.5):
+    gaussianKernel1D = np.ndarray((gaussianKernelWidth))
+    norm_mu = int(gaussianKernelWidth / 2)
+
+    for i in range(gaussianKernelWidth):
+        gaussianKernel1D[i] = (np.exp(-(((i - norm_mu) ** 2)) / (2 * (gaussianKernelSigma ** 2))))
+    return gaussianKernel1D / np.sum(gaussianKernel1D)
+
+# Returns a linearized numpy array of type uint8
+def loadImage(filename):
+    img = Image.open(filename, "r")
+    img.verify()
+    img = Image.open(filename, "r")
+    output = np.asarray(img, dtype=np.uint8)
+    #output = np.asarray(img, dtype=np.float32)
+    img.close()
+    return (output, img.mode)
+
+def saveImage(img, mode, name):
+    pilImg = Image.fromarray(img, mode)
+    pilImg.save(name, "PNG")
+    pilImg.close()
+
+def diffImage(golden, distorted):
+    diff = np.absolute(np.subtract(golden, distorted))
+    return (diff, np.count_nonzero(diff) / float(np.prod(golden.shape)))
+
+# Calculates the Mean Squared Error between two grayscale images
+# (the closer the output is to 0, the better)
+def MSE(golden, distorted):
+    assert len(golden.shape) <= 2
+    # note: need to cast to float, else risk overflow
+    mse = np.sum((golden.astype("float") - distorted.astype("float")) ** 2)
+    return np.sum(mse) / float(np.prod(golden.shape))
+
+def RMSE(golden, distorted):
+    return np.sqrt(MSE(golden, distorted))
+
+# Calculates the Peak Signal-to-Noise Ratio between two grayscale images
+# Output is expressed in decibels
+def PSNR(golden, distorted):
+    mse = MSE(golden, distorted)
+    if mse < 1e-20:
+        return np.inf
+    return 10.0 * np.log10((255 * 255) / mse)
+
+# Calculates the SSIM of a spatially local window between the ground truth and distorted images.
+# (PLACEHOLDER: this calculates the SSIM for sliding window around the point (x,y) in the images.
+#  Thus, this function will output a scalar quantity that maps to the point (x,y). This can be 
+#  called multiple times for each (x,y) pair to produce an SSIM-map which is the same resolution
+#  as the original input images, which can then be averaged for a final score)
+#
+# This returns an SSIM-map (which is the same resolution as the input images)
+def SSIM(golden, distorted):
+    # note: need to cast to float, else risk overflow
+    golden = golden.astype("float")
+    distorted = distorted.astype("float")
+
+    # Magic constants defined in the paper (can be modified/experiemented with, but sticking with what author suggests)
+    L   = 255
+    K_1 = 0.01
+    K_2 = 0.03
+    C_1 = (K_1 * L) ** 2
+    C_2 = (K_2 * L) ** 2
+    C_3 = C_2 / 2.0
+
+    # This index optimizes for 3 types of (mutually invariant) image features:
+    # (i.e. changes in any of these categories does not affect the others)
+    # 1) luminance
+    # 2) contrast
+    # 3) structural
+
+    gaussianKernel1D       = generate1DGaussianKernel()
+    mu_golden              = convolveGaussian2D(golden, gaussianKernel1D)
+    mu_distorted           = convolveGaussian2D(distorted, gaussianKernel1D)
+
+    mu_golden_squared      = mu_golden ** 2
+    mu_distorted_squared   = mu_distorted ** 2
+    mu_golden_distorted    = mu_golden * mu_distorted
+
+    variance_golden        = convolveGaussian2D(golden ** 2, gaussianKernel1D) - mu_golden_squared
+    variance_distorted     = convolveGaussian2D(distorted ** 2, gaussianKernel1D) - mu_distorted_squared
+    sigma_golden_distorted = convolveGaussian2D(golden * distorted, gaussianKernel1D) - mu_golden_distorted
+
+    # calculate ssim numerator/denominator component-wise
+    ssimNumerator   = ((2 * mu_golden_distorted + C_1) * (2 * sigma_golden_distorted + C_2))
+    ssimDenominator = ((mu_golden_squared + mu_distorted_squared + C_1) * (variance_golden + variance_distorted + C_2))
+
+    # return SSIM map
+    return (ssimNumerator / ssimDenominator)
+
+# Calculates the average SSIM value over an SSIM-map between the ground truth and distorted images.
+def MSSIM(golden, distorted):
+    return np.sum(SSIM(golden, distorted)) / float(np.prod(golden.shape))
+
+def CWSSIM(golden, distorted):
+    K = 0.01
+    widths = np.arange(1, 31)
+    
+    # convert to continuous signals
+    sig1 = golden.ravel()
+    sig2 = distorted.ravel()
+
+    # Convolution
+    cwtmatr1 = signal.cwt(sig1, signal.ricker, widths)
+    cwtmatr2 = signal.cwt(sig2, signal.ricker, widths)
+
+    # Compute the first term
+    c1c2 = np.multiply(abs(cwtmatr1), abs(cwtmatr2))
+    c1_2 = np.square(abs(cwtmatr1))
+    c2_2 = np.square(abs(cwtmatr2))
+    num_ssim_1 = 2 * np.sum(c1c2, axis=0) + K
+    den_ssim_1 = np.sum(c1_2, axis=0) + np.sum(c2_2, axis=0) + K
+    
+    c1c2_conj = np.multiply(cwtmatr1, np.conjugate(cwtmatr2))
+    num_ssim_2 = 2 * np.abs(np.sum(c1c2_conj, axis=0)) + K
+    den_ssim_2 = 2 * np.sum(np.abs(c1c2_conj), axis=0) + K
+    
+    ssim_map = (num_ssim_1 / den_ssim_1) * (num_ssim_2 / den_ssim_2)
+    return np.sum(ssim_map) / float(np.prod(golden.shape))
+
+def main(argv):
+    present = False
+
+    length = len(argv)
+    if length < 3:
+        print("Usage:")
+        print("    imgdiff <golden_image> <comparison_image> [--present]")
+        return
+    
+    if length > 3 and "--present" in argv[3]:
+        present = True
+
+    (golden, mode) = loadImage(argv[1])
+    (distorted, mode) = loadImage(argv[2])
+
+    # doesn't make much sense to support mismatched image extents
+    if golden.shape != distorted.shape:
+        print("Input images must be same resolution")
+        return
+
+    both_are_grayscale = (len(golden.shape) <= 2) and (len(distorted.shape) <= 2)
+
+    if both_are_grayscale:
+        mse  = MSE(golden, distorted)
+        rmse = RMSE(golden, distorted)
+        psnr = PSNR(golden, distorted)
+        mssim = MSSIM(golden, distorted)
+        cwssim = CWSSIM(golden, distorted)
+
+    (diff, percentDifference) = diffImage(golden, distorted)
+
+    if present and both_are_grayscale:
+        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 4), sharex=True, sharey=True)
+        ax = axes.ravel()
+        label = 'MSE: {:.2f}, RMSE: {:.2f}, PSNR: {:.2f}, MSSIM: {:.2f}, CWSSIM: {:.2f}'
+        ax[0].imshow(golden, cmap=plt.cm.gray, vmin=0, vmax=255)
+        ax[0].set_title('Golden')
+        
+        ax[1].imshow(distorted, cmap=plt.cm.gray, vmin=0, vmax=255)
+        ax[1].set_xlabel(label.format(mse, rmse, psnr, mssim, cwssim))
+        ax[1].set_title('Distorted')
+        
+        ax[2].imshow(diff, cmap=plt.cm.gray, vmin=0, vmax=255)
+        ax[2].set_title('Diff')
+        
+        plt.tight_layout()
+        plt.show()
+    else:
+        if percentDifference != 0:
+            if both_are_grayscale:
+                print("MSE: {0:.2f}".format(mse))
+                print("RMSE: {0:.2f}".format(rmse))
+                print("PSNR: {0:.2f}".format(psnr))
+                print("MSSIM: {0:.5f}".format(mssim))
+                print("CWSSIM: {0:.5f}".format(cwssim))
+
+            print("Percent pixels differing: {0:.2f}%".format(percentDifference * 100))
+            output_image_name = "diff-" + str(abs(hash(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")))) + ".png"
+            print("Output to: " + output_image_name)
+            saveImage(diff, mode, output_image_name)
+
+if __name__ == "__main__":
+    main(sys.argv)
+
