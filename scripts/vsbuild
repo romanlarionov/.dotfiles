@@ -13,28 +13,25 @@ import os
 import mmap
 import re
 
-# tries to find a path to the requested version of MSBuild.exe
-# if not found, tries to look for other installed versions
+msbuild_path_dict = {
+    17: r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe",
+    15: r"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
+}
+
 def find_msbuild(version):
-
-    msbuild_path_dict = {
-        17: r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe",
-        15: r"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
-    }
-
-    # if a specific version is requested
     if version in msbuild_path_dict and os.path.exists(msbuild_path_dict[version]):
         return (version, msbuild_path_dict[version])
 
-    # try looking for others if we don't find it
+    return (0, "")
+
+def auto_find_msbuild(version):
     for (key, val) in msbuild_path_dict.items():
         if os.path.exists(val):
             return (key, val)
     
     return (0, "")
 
-# parses provided solution file for version number info
-def detect_solution_version(solution_path):
+def parse_solution_version(solution_path):
     with open(solution_path, 'rb', 0) as file:
         # open 2048 bytes just to be sure
         mm = mmap.mmap(file.fileno(), 2048, access=mmap.ACCESS_READ)
@@ -52,11 +49,9 @@ def parse_args():
 
     parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
     parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
-
-    # todo: this doesn't seem to accept the command line input
-    parser.add_argument('-v', '--version', type=int, choices=["15", "17"], default=15, help='version of visual studio')
+    parser.add_argument('-v', '--version', type=int, choices=[15, 17], help='version of visual studio')
     parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
-    parser.add_argument('solution_path', help='path to the VS solution file')
+    parser.add_argument('solution_path', help='path to VS solution file')
 
     return parser.parse_args()
 
@@ -70,19 +65,22 @@ def yellow(text):
     print('\033[33m', text, '\033[0m', sep='')
 
 def main():
-
     args = parse_args()
 
-    solution_version = detect_solution_version(args.solution_path)
-    (version, msbuild) = find_msbuild(solution_version)
+    if not args.version:
+        solution_version = parse_solution_version(args.solution_path)
+        (found_version, msbuild) = find_msbuild(solution_version)
 
-    if version is 0:
-        red("Couldn't find path to MSBuild.exe. Is it installed in a default location?")
-        exit()
-
-    if version is not solution_version:
-        yellow("Couldn't find path to version " + str(solution_version) + " of MSBuild.exe")
-        yellow("Defaulting to version " + str(version))
+        if found_version == 0:
+            (found_version, msbuild) = auto_find_msbuild(solution_version)
+            yellow("Couldn't find path to version " + str(solution_version) + " of MSBuild.exe")
+            yellow("Defaulting to version " + str(found_version))
+    else:
+        (found_version, msbuild) = find_msbuild(args.version)
+        if found_version is 0:
+            red("Couldn't find path to MSBuild.exe for version: " + str(args.version))
+            red("MSBuild.exe search path: " + msbuild_path_dict[args.version])
+            exit()
 
     command = [msbuild]
     command.append(args.solution_path)
@@ -90,10 +88,8 @@ def main():
     command.append("/v:q")  # verbose = quiet
     command.append("/p:Configuration=" + ("Release", "Debug")[args.debug])
     command.append("/p:Platform=" + args.arch)
-    command.append("/p:PlatformToolset=" + ("v141", "v140")[version == 15])
+    command.append("/p:PlatformToolset=" + ("v141", "v140")[found_version == 15])
     command.append("/p:WarningLevel=0")
-
-    # todo: maybe add option to see warnings?
 
     if args.rebuild:
         command.append("/t:rebuild")
@@ -102,7 +98,7 @@ def main():
     print("Solution Path: \t\t" + args.solution_path)
     print("Target Platform: \t" + args.arch)
     print("Configuration: \t\t" + ("Release", "Debug")[args.debug])
-    print("Visual Studio Version: \t" + str(version))
+    print("Visual Studio Version: \t" + str(found_version))
     print("================================================")
 
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -130,7 +126,7 @@ def main():
             nextline = nextline.group(0)
 
             # TODO: maybe think about printing something in the error message in color
-            # TODO: maybe add wrapping inside ''. or something else...
+            # TODO: maybe add text wrapping
 
             print(nextline)
 
