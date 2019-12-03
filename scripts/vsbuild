@@ -137,7 +137,7 @@ def main():
         if process.poll() is not None:
             break
 
-    if process.returncode is not 0:
+    if process.returncode != 0:
         print("================================================")
         print("Total errors: " + str(count))
         red("Build Failed!")

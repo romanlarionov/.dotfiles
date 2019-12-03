@@ -89,9 +89,10 @@ syntax enable
 color torte
 
 set cursorline
-highlight Cursor       cterm=none ctermbg=red ctermfg=black
+highlight Cursor       cterm=none ctermbg=red       ctermfg=black
 highlight CursorLine   cterm=none 
 highlight Comment      cterm=none                   ctermfg=darkgreen
+highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
 
 set hlsearch
 highlight IncSearch    cterm=none ctermbg=black     ctermfg=yellow

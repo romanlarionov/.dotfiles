@@ -28,7 +28,7 @@ rgrep()
     if [[ -z "${TARGET_DIR}" ]]; then
         TARGET_DIR="."
     fi
-    grep -irnI "${1}" "${TARGET_DIR}" --color=auto --exclude-dir={build,.git,node_modules};
+    grep -irnI "${1}" "${TARGET_DIR}" --color=always --exclude-dir={build,.git,node_modules};
 }
 
 rfind()
@@ -39,41 +39,31 @@ rfind()
 setup_ssh_agent()
 {
     SSH_AGENT_TIMEOUT=9000 # 2.5 hours
-    ENV="${HOME}/.ssh/agent.env"
+    SSH_ENV="${HOME}/.ssh/agent.env"
 
     # setup environment
-    test -f "${ENV}" && . "${ENV}" >| /dev/null;
+    test -r "${SSH_ENV}" && \
+        eval "$(<${SSH_ENV})" >/dev/null;
 
-    # AGENT_RUN_STATE: 0=agent running w/ key; 1=agent w/o key; 2= agent not running
-    AGENT_RUN_STATE=$(ssh-add -l >| /dev/null 2>&1; echo ${?})
+    AGENT_RUN_STATE=$(ssh-add -l >/dev/null 2>&1; echo ${?})
 
     if [ ! "${SSH_AUTH_SOCK}" ] || [ ${AGENT_RUN_STATE} = 2 ]; then
-        # start agent
-        (umask 077; ssh-agent >| "${ENV}")
-        . "${ENV}" >| /dev/null;
+        (umask 066; ssh-agent > "${SSH_ENV}")
+        eval "$(<${SSH_ENV})" >/dev/null;
 
         # assumes name of key is id_rsa
-        ssh-add -q -t ${SSH_AGENT_TIMEOUT} >| /dev/null
-    elif [ "${SSH_AUTH_SOCK}" ] && [ ${AGENT_RUN_STATE} = 1 ]; then
-        ssh-add -q -t ${SSH_AGENT_TIMEOUT} >| /dev/null
+        ssh-add -q -t ${SSH_AGENT_TIMEOUT} >/dev/null
+    elif [ ! "${SSH_AUTH_SOCK}" ] || [ ${AGENT_RUN_STATE} = 1 ]; then
+        ssh-add -q -t ${SSH_AGENT_TIMEOUT} >/dev/null
     fi
-
-    unset ${ENV}
 }
 
 # If running a git command for the first time, setup ssh-agent
 g()
 {
     # todo: need to only run when git would normally request a password (not on git status)
-    # todo: if a new terminal window is openned (with ssh-agent process still running in the background),
-    #       SSH_AGENT_PID might not be set, so the else branch here is taken when it shouldn't
-    if ps -p "${SSH_AGENT_PID}" &>/dev/null
-    then
-        git "${@}"
-    else
-        setup_ssh_agent
-        git "${@}"
-    fi
+    setup_ssh_agent
+    git "${@}"
 }
 
 open()
@@ -86,15 +76,18 @@ open()
     fi
 }
 
-# Aliases
-alias ls="ls -G --color=auto"
+alias ls="ls -G --color=always"
 alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
-alias grep="grep -iI --color=auto"
+alias grep="grep -iI --color=always"
 alias ebrc="vim ${HOME}/.bashrc"
 alias sbrc="source ${HOME}/.bashrc > /dev/null"
 alias p3="python3"
-alias diff="diff -Bd -U 5 --color=auto"
+alias diff="diff -Bd -U 5 --color=always"
+
+if [[ ! -z $(which mintty.exe 2>/dev/null) ]]; then
+    alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
+fi
 
