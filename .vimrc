@@ -29,6 +29,8 @@ autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.fra
 
 " todo: CTRL-Backspace (and CTRL-Delete) should delete a tabs worth of spaces
 
+autocmd BufEnter * norm zz
+
 " remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
 set viminfo='50,%10,f0
 
@@ -48,7 +50,6 @@ set wildignore+=node_modules/*,build/*,.git/*
 
 nnoremap <C-F> :find *
 set path+=**,.
-
 
 " opens autocompete popup with the tab/shift-tab keys in smart way
 inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
