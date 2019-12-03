@@ -1,0 +1,19 @@
+#!python
+#
+# Converts an RGB(A) image to grayscale.
+#
+# Usage:
+#     rgb2gray <img>
+
+import sys
+from PIL import Image
+
+if len(sys.argv) != 2:
+    print("Usage:")
+    print("    rgb2gray <img>")
+    exit()
+
+(filename, extension) = sys.argv[1].rstrip().split('.')
+
+img = Image.open(filename + "." + extension).convert('L')
+img.save(filename + "-gray." + extension, extension)
