@@ -102,7 +102,8 @@ highlight Visual       cterm=none                   ctermfg=yellow
 highlight Folded       cterm=bold                   ctermfg=yellow
 
 highlight LineNr       cterm=none                   ctermfg=blue
-highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=black
+highlight CursorLineNr cterm=none                   ctermfg=yellow
+highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=white
 
 highlight StatusLine   cterm=none ctermbg=darkblue  ctermfg=black
 highlight StatusLineNC cterm=none ctermbg=darkred   ctermfg=black
