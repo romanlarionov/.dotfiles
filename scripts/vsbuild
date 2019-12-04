@@ -67,6 +67,9 @@ def yellow(text):
 def main():
     args = parse_args()
 
+    # todo: print better output if solution path is invalid
+    # todo: automatically interprut if x64/win32
+
     if not args.version:
         solution_version = parse_solution_version(args.solution_path)
         (found_version, msbuild) = find_msbuild(solution_version)

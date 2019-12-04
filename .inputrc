@@ -41,14 +41,15 @@ $if mode=emacs
     "\e[3~": delete-char        # Delete Key
     "\e[1~": beginning-of-line  # Home Key
     
+    "\e[1;5A": history-search-backward 
     
     "\e[15~": re-read-init-file # Function Key 5
     
     "\e[3;5~": kill-word       # Ctrl-Delete
     "\C-_": backward-kill-word # Ctrl-Backspace
 
-    "\C-P": history-search-backward # Ctrl-P
-    "\C-N": history-search-forward # Ctrl-N
+    "\C-P": "\eOA\C-E" # Ctrl-P
+    "\C-N": "\eOB\C-E" # Ctrl-N
 
 #    $if term=msys
 #      "\e[7~": beginning-of-line      # Home Key

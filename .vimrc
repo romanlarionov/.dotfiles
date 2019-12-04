@@ -31,6 +31,7 @@ autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.fra
 
 autocmd BufEnter * norm zz
 
+" TODO: remember folds
 " remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
 set viminfo='50,%10,f0
 
