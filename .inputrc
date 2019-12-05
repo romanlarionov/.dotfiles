@@ -48,8 +48,10 @@ $if mode=emacs
     "\e[3;5~": kill-word       # Ctrl-Delete
     "\C-_": backward-kill-word # Ctrl-Backspace
 
-    "\C-P": "\eOA\C-E" # Ctrl-P
-    "\C-N": "\eOB\C-E" # Ctrl-N
+    "\C-P": history-search-backward # Ctrl-P
+    "\C-N": history-search-forward  # Ctrl-N
+
+    "\C-W":  # Ctrl-W
 
 #    $if term=msys
 #      "\e[7~": beginning-of-line      # Home Key

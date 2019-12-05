@@ -5,9 +5,6 @@ set number
 set noswapfile
 set mousehide
 
-" allow backspace to go to previous line
-set backspace=2
-
 if exists(":mouse")
     set mouse=i
 endif
@@ -29,13 +26,43 @@ autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.fra
 
 " todo: CTRL-Backspace (and CTRL-Delete) should delete a tabs worth of spaces
 
-autocmd BufEnter * norm zz
-
-" TODO: remember folds
-" remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
-set viminfo='50,%10,f0
+" redraw with the cursorline in the middle of the screen
+autocmd BufReadPost * norm zz
 
 let s:on_windows = has('win32') || has('win64')
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Sessions
+function! SaveSession()
+    if g:session_dir != "" && g:session_file != ""
+        if !isdirectory(g:session_dir)
+            execute 'silent !mkdir -p ' g:session_dir
+        endif
+        execute "mksession! " . g:session_file
+    endif
+endfunction
+
+function! LoadSession()
+    " if starting vim without referencing a file (no arguments)
+    if argc() == 0
+        let g:session_dir = $HOME . "/.vim/sessions" . getcwd()
+        let g:session_file = g:session_dir . "/Session.vim"
+        if (filereadable(g:session_file))
+            execute 'source ' g:session_file
+        endif
+    else
+        let g:sessionfile = ""
+        let g:sessiondir = ""
+    endif
+endfunction
+
+autocmd VimEnter * nested :call LoadSession()
+autocmd VimLeavePre * :call SaveSession()
+
+" what to save into session file
+set sessionoptions=buffers,curdir,folds,winpos,winsize
+
+" remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
+set viminfo='50,%10,f0
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Search
 set incsearch
@@ -46,11 +73,15 @@ set ignorecase
 set wildmenu
 set wildignorecase
 set wildmode=full,list:full
+" TODO: this doesn't seem to work
 set wildignore+=*.o,*.jpg,*.obj,*.mtl,*.png,*.docx,*.exe
-set wildignore+=node_modules/*,build/*,.git/*
+set wildignore+=node_modules/*,build/*,.git/*,deps/*
 
+" Ctrl-F starts fuzzy finding files
 nnoremap <C-F> :find *
-set path+=**,.
+
+" sets path vim searches with 'find' to the current dir + recursively downwards
+set path=.,,**
 
 " opens autocompete popup with the tab/shift-tab keys in smart way
 inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
@@ -66,6 +97,9 @@ set tabstop=4
 set shiftwidth=4
 set smarttab
 set smartindent
+
+" allow backspace to go to previous line
+set backspace=2
 
 " tab in visual mode indents
 vnoremap <TAB> >
@@ -120,6 +154,7 @@ highlight DiffText     cterm=none ctermbg=darkgray  ctermfg=darkred
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Statusline
 set laststatus=2
 
+" TODO: this has some redraw timing issues
 " changes statusline color depending on vim mode
 function! ChangeStatuslineColor()
     let curr_mode=mode()
@@ -138,6 +173,7 @@ function! ChangeStatuslineColor()
     else
         return ''
     endif
+    redrawstatus!
 endfunction
 
 set statusline=
@@ -155,8 +191,11 @@ set equalalways
 " tab switches windows
 nnoremap <Tab> <C-W>w
 
-" creates new vertical split (todo: can I make it so it doesn't first draw the copied buffer?)
-nnoremap gv :vsp<CR><C-W>w:e .<CR>
+set splitright
+
+" creates new vertical split
+" TODO: if there exists loaded buffers, this should load the previous one, not the file browser
+nnoremap gv :vsp .<CR>
 
 " close active window (if not last one)
 nnoremap q :close<CR>

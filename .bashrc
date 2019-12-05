@@ -28,7 +28,7 @@ rgrep()
     if [[ -z "${TARGET_DIR}" ]]; then
         TARGET_DIR="."
     fi
-    grep -irnI "${1}" "${TARGET_DIR}" --color=always --exclude-dir={build,.git,node_modules};
+    grep -irnI "${1}" "${TARGET_DIR}" --color=always --exclude-dir={build,.git,node_modules,deps,assets};
 }
 
 rfind()
@@ -90,4 +90,7 @@ alias diff="diff -Bd -U 5 --color=always"
 if [[ ! -z $(which mintty.exe 2>/dev/null) ]]; then
     alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
 fi
+
+export HISTSIZE=100000
+export HISTFILESIZE=100000
 
