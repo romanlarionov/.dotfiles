@@ -33,7 +33,7 @@ let s:on_windows = has('win32') || has('win64')
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Sessions
 function! SaveSession()
-    if g:session_dir != "" && g:session_file != ""
+    if g:session_dir != '' && g:session_file != ''
         if !isdirectory(g:session_dir)
             execute 'silent !mkdir -p ' g:session_dir
         endif
@@ -73,9 +73,8 @@ set ignorecase
 set wildmenu
 set wildignorecase
 set wildmode=full,list:full
-" TODO: this doesn't seem to work
 set wildignore+=*.o,*.jpg,*.obj,*.mtl,*.png,*.docx,*.exe
-set wildignore+=node_modules/*,build/*,.git/*,deps/*
+set wildignore+=*/node_modules/*,*/build/*,*/.git/*,*/deps/*
 
 " Ctrl-F starts fuzzy finding files
 nnoremap <C-F> :find *
@@ -84,6 +83,7 @@ nnoremap <C-F> :find *
 set path=.,,**
 
 " opens autocompete popup with the tab/shift-tab keys in smart way
+" TODO: this fails on visual studio
 inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
 inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-P>" : "<TAB>"
 
@@ -117,6 +117,8 @@ inoremap {<CR> {<CR>}<Esc>ko
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Folds
 set foldmethod=manual
 
+" TODO: folds sometimes fucks up
+"
 " fold matching brace
 nnoremap <C-M> zf%<CR>
 

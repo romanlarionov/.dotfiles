@@ -14,8 +14,8 @@ import mmap
 import re
 
 msbuild_path_dict = {
-    17: r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe",
-    15: r"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
+    15: r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe",
+    14: r"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
 }
 
 def find_msbuild(version):
@@ -33,9 +33,9 @@ def auto_find_msbuild(version):
 
 def parse_solution_version(solution_path):
     with open(solution_path, 'rb', 0) as file:
-        # open 2048 bytes just to be sure
-        mm = mmap.mmap(file.fileno(), 2048, access=mmap.ACCESS_READ)
-        mm.readline()
+        mm = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+        line = mm.readline().decode("utf-8").split()
+        line = mm.readline().decode("utf-8").split()
         line = mm.readline().decode("utf-8").split()
         line = [int(i) for i in line if i.isdigit()]
 
@@ -49,7 +49,7 @@ def parse_args():
 
     parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
     parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
-    parser.add_argument('-v', '--version', type=int, choices=[15, 17], help='version of visual studio')
+    parser.add_argument('-v', '--version', type=int, choices=[14, 15], help='version of visual studio')
     parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
     parser.add_argument('solution_path', help='path to VS solution file')
 
@@ -91,7 +91,7 @@ def main():
     command.append("/v:q")  # verbose = quiet
     command.append("/p:Configuration=" + ("Release", "Debug")[args.debug])
     command.append("/p:Platform=" + args.arch)
-    command.append("/p:PlatformToolset=" + ("v141", "v140")[found_version == 15])
+    command.append("/p:PlatformToolset=" + ("v141", "v140")[found_version == 14])
     command.append("/p:WarningLevel=0")
 
     if args.rebuild:
