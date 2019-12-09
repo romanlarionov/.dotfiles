@@ -32,8 +32,10 @@ autocmd BufReadPost * norm zz
 let s:on_windows = has('win32') || has('win64')
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Sessions
+let g:session_file = ""
+let g:session_dir = ""
 function! SaveSession()
-    if g:session_dir != '' && g:session_file != ''
+    if g:session_dir != "" && g:session_file != ""
         if !isdirectory(g:session_dir)
             execute 'silent !mkdir -p ' g:session_dir
         endif
@@ -49,9 +51,6 @@ function! LoadSession()
         if (filereadable(g:session_file))
             execute 'source ' g:session_file
         endif
-    else
-        let g:sessionfile = ""
-        let g:sessiondir = ""
     endif
 endfunction
 
