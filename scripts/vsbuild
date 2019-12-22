@@ -48,6 +48,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
+    parser.add_argument('-w', '--warnings', action="store_true", default=False, help='compile with warnings enabled')
     parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
     parser.add_argument('-v', '--version', type=int, choices=[14, 15], help='version of visual studio')
     parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
@@ -67,8 +68,11 @@ def yellow(text):
 def main():
     args = parse_args()
 
-    # todo: print better output if solution path is invalid
     # todo: automatically interprut if x64/win32
+
+    if not os.path.isfile(args.solution_path):
+        red("Not valid solution path: " + args.solution_path)
+        exit()
 
     if not args.version:
         solution_version = parse_solution_version(args.solution_path)
@@ -76,8 +80,12 @@ def main():
 
         if found_version == 0:
             (found_version, msbuild) = auto_find_msbuild(solution_version)
-            yellow("Couldn't find path to version " + str(solution_version) + " of MSBuild.exe")
-            yellow("Defaulting to version " + str(found_version))
+            if found_version == 0:
+                red("Couldn't find path to any version of MSBuild.exe")
+                exit()
+            else:
+                yellow("Couldn't find path to version " + str(solution_version) + " of MSBuild.exe")
+                yellow("Defaulting to version " + str(found_version))
     else:
         (found_version, msbuild) = find_msbuild(args.version)
         if found_version == 0:
@@ -92,7 +100,6 @@ def main():
     command.append("/p:Configuration=" + ("Release", "Debug")[args.debug])
     command.append("/p:Platform=" + args.arch)
     command.append("/p:PlatformToolset=" + ("v141", "v140")[found_version == 14])
-    command.append("/p:WarningLevel=0")
 
     if args.rebuild:
         command.append("/t:rebuild")
@@ -102,7 +109,7 @@ def main():
     print("Target Platform: \t" + args.arch)
     print("Configuration: \t\t" + ("Release", "Debug")[args.debug])
     print("Visual Studio Version: \t" + str(found_version))
-    print("================================================")
+    print("================================================", flush=True)
 
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -115,9 +122,10 @@ def main():
     count = 0
     while True:
         nextline = process.stdout.readline().decode("utf-8")
-        is_valid_message = nextline and (nextline.isspace() is False) and ("warning C" not in nextline)
+        is_valid_message = nextline and (nextline.isspace() is False)
 
-        # first thing is get rid of printing the .vcxproj that each line maps to
+        if not args.warnings:
+            is_valid_message = is_valid_message and ("warning C" not in nextline)
 
         if is_valid_message:
             count += 1
@@ -128,7 +136,6 @@ def main():
             nextline = re.search('((\w|\d|\_|\-)*(\\(?=.(?!\\))+)*\.).*', nextline)
             nextline = nextline.group(0)
 
-            # TODO: maybe think about printing something in the error message in color
             # TODO: maybe add text wrapping
 
             print(nextline)

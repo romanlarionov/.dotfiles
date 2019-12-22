@@ -1,5 +1,4 @@
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Misc
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Misc
 set nocompatible
 set number
 set noswapfile
@@ -31,7 +30,8 @@ autocmd BufReadPost * norm zz
 
 let s:on_windows = has('win32') || has('win64')
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Sessions
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Sessions
 let g:session_file = ""
 let g:session_dir = ""
 function! SaveSession()
@@ -63,7 +63,8 @@ set sessionoptions=buffers,curdir,folds,winpos,winsize
 " remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
 set viminfo='50,%10,f0
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Search
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Search
 set incsearch
 set fileignorecase
 set ignorecase
@@ -82,14 +83,14 @@ nnoremap <C-F> :find *
 set path=.,,**
 
 " opens autocompete popup with the tab/shift-tab keys in smart way
-" TODO: this fails on visual studio
 inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
 inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-P>" : "<TAB>"
 
 " which buffers to search for autocomplete via TAB
-set complete=w,.,b
+set complete=w,.,b,u
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Indentation
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Indentation
 set autoindent
 set expandtab
 set tabstop=4
@@ -107,21 +108,23 @@ vnoremap <S-TAB> <
 nnoremap < <<
 nnoremap > >>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Formatting
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Formatting
 set formatoptions+=ro
 
 " print matching curly brace
 inoremap {<CR> {<CR>}<Esc>ko
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Folds
-set foldmethod=manual
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Folds
+autocmd Syntax * setlocal foldmethod=syntax
+autocmd Syntax vim setlocal foldmethod=manual
 
-" TODO: folds sometimes fucks up
-"
 " fold matching brace
 nnoremap <C-M> zf%<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Colors
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Colors
 syntax enable
 color torte
 
@@ -135,7 +138,7 @@ set hlsearch
 highlight IncSearch    cterm=none ctermbg=black     ctermfg=yellow
 highlight Search       cterm=none ctermbg=yellow    ctermfg=black
 highlight Visual       cterm=none                   ctermfg=yellow
-highlight Folded       cterm=bold                   ctermfg=yellow
+highlight Folded       cterm=bold ctermbg=none      ctermfg=yellow
 
 highlight LineNr       cterm=none                   ctermfg=blue
 highlight CursorLineNr cterm=none                   ctermfg=yellow
@@ -152,7 +155,8 @@ highlight DiffChange   cterm=none ctermbg=darkgray  ctermfg=darkgreen
 highlight DiffDelete   cterm=none ctermbg=darkgray  ctermfg=darkred  
 highlight DiffText     cterm=none ctermbg=darkgray  ctermfg=darkred
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Statusline
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Statusline
 set laststatus=2
 
 " TODO: this has some redraw timing issues
@@ -185,7 +189,8 @@ set statusline+=%#TabLine#\ %{expand('%:~:.')}%m%=
 " prints file type
 set statusline+=%#StatusLine#\ \ \ %y
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Windows/Buffers
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Windows/Buffers
 " keeps window sizes equal after closing
 set equalalways
 
@@ -260,7 +265,8 @@ endfunction
 command! -bang -complete=buffer -nargs=? Bclose call <SID>Bclose(<q-bang>, <q-args>)
 nnoremap <silent> gd :Bclose<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Clang Format
+"}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Clang Format
 " all taken and adapated from here: https://github.com/rhysd/vim-clang-format
 
 " todo: should be command to echo the chosen .clang-format file's path
@@ -357,3 +363,4 @@ endfunction
 command! -range=% -nargs=0 ClangFormat call s:replace(<line1>, <line2>)
 nnoremap <silent> <C-K> :ClangFormat<CR>
 
+"}
