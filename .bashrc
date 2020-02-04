@@ -33,7 +33,11 @@ rgrep()
 
 rfind()
 {
-    find "$2" -name "$1";
+    TARGET_DIR="${2}"
+    if [[ -z "${TARGET_DIR}" ]]; then
+        TARGET_DIR="."
+    fi
+    find "${TARGET_DIR}" -iname "${1}";
 }
 
 setup_ssh_agent()
