@@ -90,6 +90,12 @@ inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\
 set complete=w,.,b,u
 
 "}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Movement
+
+nnoremap <S-K> <C-U>
+nnoremap <S-J> <C-D>
+
+"}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Indentation
 set autoindent
 set expandtab
@@ -130,7 +136,7 @@ color torte
 
 set cursorline
 highlight Cursor       cterm=none ctermbg=red       ctermfg=black
-highlight CursorLine   cterm=none 
+highlight CursorLine   cterm=none
 highlight Comment      cterm=none                   ctermfg=darkgreen
 highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
 
@@ -143,6 +149,7 @@ highlight Folded       cterm=bold ctermbg=none      ctermfg=yellow
 highlight LineNr       cterm=none                   ctermfg=blue
 highlight CursorLineNr cterm=none                   ctermfg=yellow
 highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=white
+highlight VertSplit    cterm=none ctermbg=black     ctermfg=darkgray
 
 highlight StatusLine   cterm=none ctermbg=darkblue  ctermfg=black
 highlight StatusLineNC cterm=none ctermbg=darkred   ctermfg=black
