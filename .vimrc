@@ -151,6 +151,8 @@ nnoremap <C-M> zf%<CR>
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Colors
 syntax enable
+syntax sync minlines=64
+
 color torte
 set synmaxcol=256
 
@@ -230,13 +232,15 @@ set statusline=%!MyStatusBar()
 " keeps window sizes equal after closing
 set equalalways
 
+" always place a vertical split to the right
+set splitright
+
 " todo: if I have a buffer loaded and I open a new window, it should load the
 " first available.
 
 " tab switches windows
 nnoremap <Tab> <C-W>w
-
-set splitright
+nnoremap <S-Tab> <C-W><S-w>
 
 " creates new vertical split
 " TODO: if there exists loaded buffers, this should load the previous one, not the file browser
@@ -249,6 +253,11 @@ nnoremap q :close<CR>
 nnoremap gn :bnext<CR>
 nnoremap gp :bprev<CR>
 nnoremap gb :e .<CR>
+
+" netrw file browser settings
+let g:netrw_banner=0
+let g:netrw_dirhistmax=25
+let g:netrw_liststyle=3
 
 " complicated way of deleting a buffer via command
 function! s:Bclose(bang, buffer)
