@@ -16,17 +16,26 @@ if exists(":termsize")
     set termsize=10x999
 endif
 
-" use vertical split for help
-autocmd FileType help wincmd L
+" set the character for vertical separating column between windows
+set fillchars+=vert:│
 
-" understand glsl files
-autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl 
- \ set filetype=glsl
+augroup misc_group
+    autocmd!
 
-" todo: CTRL-Backspace (and CTRL-Delete) should delete a tabs worth of spaces
+    " use vertical split for help
+    autocmd FileType help wincmd L
 
-" redraw with the cursorline in the middle of the screen
-autocmd BufReadPost * norm zz
+    " understand glsl files
+    autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl 
+     \ set filetype=glsl
+
+    " redraw with the cursorline in the middle of the screen
+    autocmd BufWinEnter * norm zz
+
+    " automatically makes split windows equal size after resizing app or font
+    autocmd VimResized * if &equalalways | wincmd = | endif
+
+augroup END
 
 let s:on_windows = has('win32') || has('win64')
 
@@ -54,8 +63,11 @@ function! LoadSession()
     endif
 endfunction
 
-autocmd VimEnter * nested :call LoadSession()
-autocmd VimLeavePre * :call SaveSession()
+augroup session_group
+    autocmd!
+    autocmd VimEnter * nested :call LoadSession()
+    autocmd VimLeavePre * :call SaveSession()
+augroup END
 
 " what to save into session file
 set sessionoptions=buffers,curdir,folds,winpos,winsize
@@ -118,13 +130,20 @@ nnoremap > >>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Formatting
 set formatoptions+=ro
 
+" TODO: this breaks in some cases
 " print matching curly brace
 inoremap {<CR> {<CR>}<Esc>ko
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Folds
-autocmd Syntax * setlocal foldmethod=syntax
-autocmd Syntax vim setlocal foldmethod=manual
+augroup session_group
+    autocmd!
+    autocmd Syntax * setlocal foldmethod=syntax
+    autocmd Syntax vim setlocal foldmethod=manual
+augroup END
+
+" TODO: if I press 'right' on a folded line, it should expand. I need to do
+" '$' currently
 
 " fold matching brace
 nnoremap <C-M> zf%<CR>
@@ -133,10 +152,9 @@ nnoremap <C-M> zf%<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Colors
 syntax enable
 color torte
+set synmaxcol=256
 
-set cursorline
 highlight Cursor       cterm=none ctermbg=red       ctermfg=black
-highlight CursorLine   cterm=none
 highlight Comment      cterm=none                   ctermfg=darkgreen
 highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
 
@@ -152,7 +170,7 @@ highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=white
 highlight VertSplit    cterm=none ctermbg=black     ctermfg=darkgray
 
 highlight StatusLine   cterm=none ctermbg=darkblue  ctermfg=black
-highlight StatusLineNC cterm=none ctermbg=darkred   ctermfg=black
+highlight StatusLineNC cterm=none ctermbg=darkblue ctermfg=black
 
 highlight Pmenu        cterm=none ctermbg=darkgreen ctermfg=black
 highlight PmenuSel     cterm=none ctermbg=blue      ctermfg=black
@@ -165,41 +183,55 @@ highlight DiffText     cterm=none ctermbg=darkgray  ctermfg=darkred
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Statusline
 set laststatus=2
+set lazyredraw
 
-" TODO: this has some redraw timing issues
-" changes statusline color depending on vim mode
-function! ChangeStatuslineColor()
+augroup statusline_group
+    autocmd!
+    autocmd VimEnter * redrawstatus!
+    autocmd InsertEnter * redrawstatus!
+    autocmd InsertLeave * redrawstatus!
+augroup END
+
+function! MyStatusBar()
+    redrawstatus!
+
     let curr_mode=mode()
     if (curr_mode =~# '\v(n|no)')
-        exe 'hi! StatusLine ctermbg=darkblue'
-        return '  NORMAL '
+        exe 'hi StatusLine ctermbg=darkblue'
+        let mode_text="  NORMAL "
     elseif (curr_mode =~# '\v(v|V)')
-        exe 'hi! StatusLine ctermbg=yellow'
-        return '  VISUAL '
+        exe 'hi StatusLine ctermbg=yellow'
+        let mode_text="  VISUAL "
     elseif (curr_mode =~# '')
-        exe 'hi! StatusLine ctermbg=yellow'
-        return '  VBLOCK '
+        exe 'hi StatusLine ctermbg=yellow'
+        let mode_text="  VBLOCK "
     elseif (curr_mode ==# 'i')
-        exe 'hi! StatusLine ctermbg=darkgreen'
-        return '  INSERT '
+        exe 'hi StatusLine ctermbg=darkgreen'
+        let mode_text="  INSERT "
     else
-        return ''
+        exe 'hi StatusLine ctermbg=lightyellow'
+        let mode_text="  SEARCH "
     endif
-    redrawstatus!
+
+    " changes the statusline color based on vim mode
+    let sl_mode="%" . mode_text
+    " prints truncated global file path
+    let sl_path="%#TabLine#\ %{expand('%:~:.')}%m%= "
+    " prints file type
+    let sl_type="%##\ \ \ %y"
+
+    return sl_mode . sl_path . sl_type
 endfunction
 
-set statusline=
-" changes the statusline color based on vim mode
-set statusline+=%#StatusLine#%{ChangeStatuslineColor()}
-" prints truncated global file path
-set statusline+=%#TabLine#\ %{expand('%:~:.')}%m%=
-" prints file type
-set statusline+=%#StatusLine#\ \ \ %y
+set statusline=%!MyStatusBar()
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Windows/Buffers
 " keeps window sizes equal after closing
 set equalalways
+
+" todo: if I have a buffer loaded and I open a new window, it should load the
+" first available.
 
 " tab switches windows
 nnoremap <Tab> <C-W>w
