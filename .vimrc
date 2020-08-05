@@ -130,20 +130,13 @@ nnoremap > >>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Formatting
 set formatoptions+=ro
 
-" TODO: this breaks in some cases
-" print matching curly brace
-inoremap {<CR> {<CR>}<Esc>ko
+" print matching braces
+inoremap { {<CR>}<Esc>ko<TAB>
+inoremap ( ()<Esc>i
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Folds
-augroup session_group
-    autocmd!
-    autocmd Syntax * setlocal foldmethod=syntax
-    autocmd Syntax vim setlocal foldmethod=manual
-augroup END
-
-" TODO: if I press 'right' on a folded line, it should expand. I need to do
-" '$' currently
+set foldopen=hor,search,undo
 
 " fold matching brace
 nnoremap <C-M> zf%<CR>
@@ -155,12 +148,12 @@ syntax sync minlines=64
 
 color torte
 set synmaxcol=256
+set hlsearch
 
 highlight Cursor       cterm=none ctermbg=red       ctermfg=black
 highlight Comment      cterm=none                   ctermfg=darkgreen
 highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
 
-set hlsearch
 highlight IncSearch    cterm=none ctermbg=black     ctermfg=yellow
 highlight Search       cterm=none ctermbg=yellow    ctermfg=black
 highlight Visual       cterm=none                   ctermfg=yellow
@@ -234,9 +227,6 @@ set equalalways
 
 " always place a vertical split to the right
 set splitright
-
-" todo: if I have a buffer loaded and I open a new window, it should load the
-" first available.
 
 " tab switches windows
 nnoremap <Tab> <C-W>w
