@@ -25,11 +25,11 @@ if [[ -d "${HOME}/.dotfiles" ]]; then
     if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
         if [[ -n "${SSH_TTY}" ]]; then
             # Setup terminal colors
-            BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
+            BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.sh"
             [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
         fi
     else
-        BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.dark.sh"
+        BASE16_SHELL="${HOME}/.dotfiles/base16-eighties.sh"
         [[ -s ${BASE16_SHELL} ]] && source ${BASE16_SHELL}
     fi
 fi

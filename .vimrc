@@ -117,7 +117,7 @@ set smarttab
 set smartindent
 
 " allow backspace to go to previous line
-set backspace=2
+set backspace=indent,eol,start
 
 " tab in visual mode indents
 vnoremap <TAB> >
@@ -146,17 +146,15 @@ nnoremap <C-M> zf%<CR>
 syntax enable
 syntax sync minlines=64
 
-color torte
 set synmaxcol=256
 set hlsearch
 
-highlight Cursor       cterm=none ctermbg=red       ctermfg=black
 highlight Comment      cterm=none                   ctermfg=darkgreen
 highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
 
-highlight IncSearch    cterm=none ctermbg=black     ctermfg=yellow
+highlight IncSearch    cterm=none ctermbg=darkgray  ctermfg=yellow
 highlight Search       cterm=none ctermbg=yellow    ctermfg=black
-highlight Visual       cterm=none                   ctermfg=yellow
+highlight Visual       cterm=none ctermbg=yellow    ctermfg=black
 highlight Folded       cterm=bold ctermbg=none      ctermfg=yellow
 
 highlight LineNr       cterm=none                   ctermfg=blue

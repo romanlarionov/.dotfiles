@@ -1,26 +1,45 @@
 
-if [[ -f "${HOME}/.bashrc.local" ]]; then
-    source ${HOME}/.bashrc.local
+if [[ ! -z "$(cat /proc/version | grep -Ei "*Microsoft*" 2>/dev/null)" ]]; then
+    export IS_WSL=1
 fi
 
 print_ssh_ps1()
 {
     if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
-        echo -ne "\001\e[31m\002@$(hostname)\001\e[0m\002"
+        printf -- "\e[31m@$(hostname)\e[0m"
     fi
 }
 
 print_git_branch_ps1()
 {
     BRANCH_NAME=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+
     if [[ ! -z ${BRANCH_NAME} ]]; then
-        HAS_UNSTAGED=$(git status 2>/dev/null | grep 'Changes not staged for commit')
-        [[ -z ${HAS_UNSTAGED} ]] && BGCOL="\e[42m" || BGCOL="\e[43m"
-        echo -ne "\001${BGCOL}\e[30m\002 ${BRANCH_NAME} \001\e[0m\002"
+        local HAS_UNSTAGED=$(git status 2>/dev/null | grep 'Changes not staged for commit')
+
+        if [[ -z "${HAS_UNSTAGED}" ]]; then
+            local BGCOL="\e[42;30m"
+        else
+            local BGCOL="\e[43;30m"
+        fi
+
+        printf -- "${BGCOL} ${BRANCH_NAME} \e[0m"
     fi
 }
 
-PS1=" \u\$(print_ssh_ps1) \[\e[44m\e[30m\] \w \$(print_git_branch_ps1)\[\e[0m\] "
+PS1='\[\e]0;\007\]'                 # set window title
+PS1="$PS1 "                         # <space>
+PS1="$PS1\u"                        # user
+PS1="$PS1 "                         # <space>
+PS1="$PS1\[\e[44;30m\]"             # change to blue background, black foreground
+PS1="$PS1 "                         # <space>
+PS1="$PS1\w"                        # current working directory
+PS1="$PS1 "                         # <space>
+PS1="$PS1\[\e[0m\]"                 # change to blue background, black foreground
+PS1="$PS1\$(print_git_branch_ps1)"  # bash function
+PS1="$PS1\[\e[0m\]"                 # clear color
+PS1="$PS1 "                         # <space>
+export PS1
 
 rgrep()
 {
@@ -42,6 +61,7 @@ rfind()
 
 setup_ssh_agent()
 {
+    mkdir -p ${HOME}/.ssh
     SSH_AGENT_TIMEOUT=9000 # 2.5 hours
     SSH_ENV="${HOME}/.ssh/agent.env"
 
@@ -72,7 +92,7 @@ g()
 
 open()
 {
-    if [[ "$OSTYPE" == "msys" ]]; then
+    if [[ "$OSTYPE" == "msys" || ! -z "$IS_WSL" ]]; then
         # NOTE: Mintty doesn't play nice with spaces in dir paths. nothing I can do..
         explorer.exe "${@////\\}" # replace slashes with backslashes (for windows)
     else
@@ -80,7 +100,7 @@ open()
     fi
 }
 
-alias ls="ls -G --color=always"
+alias ls="ls -h -G --color=always"
 alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
@@ -95,6 +115,11 @@ if [[ ! -z $(which mintty.exe 2>/dev/null) ]]; then
     alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
 fi
 
+export TERM=xterm-256color
 export HISTSIZE=100000
 export HISTFILESIZE=100000
+
+if [[ -f "${HOME}/.bashrc.local" ]]; then
+    source ${HOME}/.bashrc.local
+fi
 
