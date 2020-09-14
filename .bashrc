@@ -43,11 +43,14 @@ export PS1
 
 rgrep()
 {
-    TARGET_DIR="${2}"
-    if [[ -z "${TARGET_DIR}" ]]; then
-        TARGET_DIR="."
+    TARGET_DIR_REGEX="${2}"
+    if [[ -z "${TARGET_DIR_REGEX}" ]]; then
+        TARGET_DIR_REGEX="."
     fi
-    grep -irnI "${1}" "${TARGET_DIR}" --color=always --exclude-dir={build,.git,node_modules,deps,assets};
+
+    TARGET_DIR=(${TARGET_DIR_REGEX//\*/ })
+    egrep -irnI --include="*${TARGET_DIR[1]}" "*${1}*" "${TARGET_DIR[0]}" \
+        --color=auto --exclude-dir={build,.git,node_modules,deps,assets};
 }
 
 rfind()
@@ -56,7 +59,7 @@ rfind()
     if [[ -z "${TARGET_DIR}" ]]; then
         TARGET_DIR="."
     fi
-    find "${TARGET_DIR}" -iname "${1}";
+    find "${TARGET_DIR}" -iname "*${1}*";
 }
 
 setup_ssh_agent()
@@ -100,16 +103,16 @@ open()
     fi
 }
 
-alias ls="ls -h -G --color=always"
+alias ls="ls -h -G --color=auto"
 alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
-alias grep="grep -iI --color=always"
+alias grep="grep -iI --color=auto"
 alias ebrc="vim ${HOME}/.bashrc"
 alias sbrc="source ${HOME}/.bashrc > /dev/null"
 alias p3="python3"
-alias diff="diff -Bd -U 5 --color=always"
+alias diff="diff -Bd -U 5 --color=auto"
 
 if [[ ! -z $(which mintty.exe 2>/dev/null) ]]; then
     alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'

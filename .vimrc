@@ -88,6 +88,19 @@ set wildmode=full,list:full
 set wildignore+=*.o,*.jpg,*.obj,*.mtl,*.png,*.docx,*.exe
 set wildignore+=*/node_modules/*,*/build/*,*/.git/*,*/deps/*
 
+" add ~/.tags directory when searching for a tag
+set tags+=~/.tags/tags.agc
+
+" treat tag paths as global
+set notagrelative
+
+" TODO: look into 'popup'
+
+" TODO: need some way of specifying (for tags) that I want to follow the tag in a separate window.
+" basically, I want it to show up to the right of the screen so I can keeyp looking at where I was just at.
+
+" TODO: need to have computer local vim options
+
 " Ctrl-F starts fuzzy finding files
 nnoremap <C-F> :find *
 
@@ -95,6 +108,7 @@ nnoremap <C-F> :find *
 set path=.,,**
 
 " opens autocompete popup with the tab/shift-tab keys in smart way
+" TODO: this screws up the visual studio plugin for some reason
 inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
 inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-P>" : "<TAB>"
 
@@ -130,9 +144,13 @@ nnoremap > >>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Formatting
 set formatoptions+=ro
 
+" TODO: these should be smarter and context dependent
 " print matching braces
-inoremap { {<CR>}<Esc>ko<TAB>
+inoremap { {}<Esc>i
 inoremap ( ()<Esc>i
+inoremap [ []<Esc>i
+inoremap " ""<Esc>i
+inoremap ' ''<Esc>i
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Folds
@@ -256,6 +274,7 @@ function! s:Bclose(bang, buffer)
     else
         let btarget = bufnr(a:buffer)
     endif
+
     if btarget < 0
         return
     endif
@@ -266,21 +285,26 @@ function! s:Bclose(bang, buffer)
         echohl NONE
         return
     endif
+
     " Numbers of windows that view target buffer which we will delete.
     let wnums = filter(range(1, winnr('$')), 'winbufnr(v:val) == btarget')
     if len(wnums) > 1
         execute 'close'
         return
     endif
+
     let wcurrent = winnr()
+
     for w in wnums
         execute w.'wincmd w'
         let prevbuf = bufnr('#')
+
         if prevbuf > 0 && buflisted(prevbuf) && prevbuf != btarget
             buffer #
         else
             bprevious
         endif
+
         if btarget == bufnr('%')
             " Numbers of listed buffers which are not the target to be deleted.
             let blisted = filter(range(1, bufnr('$')), 'buflisted(v:val) && v:val != btarget')
@@ -295,9 +319,11 @@ function! s:Bclose(bang, buffer)
             endif
         endif
     endfor
+
     execute 'bdelete'.a:bang.' '.btarget
     execute wcurrent.'wincmd w'
 endfunction
+
 command! -bang -complete=buffer -nargs=? Bclose call <SID>Bclose(<q-bang>, <q-args>)
 nnoremap <silent> gd :Bclose<CR>
 
@@ -305,24 +331,14 @@ nnoremap <silent> gd :Bclose<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Clang Format
 " all taken and adapated from here: https://github.com/rhysd/vim-clang-format
 
-" todo: should be command to echo the chosen .clang-format file's path
-" todo: make sure clang format is located on the system already, else print not found
-" todo: surround this entire block by a check if the shell command 'clang-format'
+" TODO: should only allow calling this if we're in a c++/.h file
+" TODO: should be command to echo the chosen .clang-format file's path
+" TODO: make sure clang format is located on the system already, else print not found
+" TODO: surround this entire block by a check if the shell command 'clang-format'
 "       exists plus make sure that a .clang-format file can be found
 
 " if we don't find the .clang-format file
 "if ! (findfile('.clang-format', fnameescape(expand('%:p:h')).';') != '')
-
-function! s:error_message(result) abort
-    echoerr 'clang-format has failed to format.'
-    if a:result =~# '^YAML:\d\+:\d\+: error: unknown key '
-        echohl ErrorMsg
-        for l in split(a:result, "\n")[0:1]
-            echomsg l
-        endfor
-        echohl None
-    endif
-endfunction
 
 function! s:shellescape(str) abort
     if s:on_windows && (&shell =~? 'cmd\.exe')
@@ -342,45 +358,46 @@ endfunction
 let g:command = get(g:, 'command', 'clang-format')
 
 function! s:format(line1, line2) abort
-    let args = printf(' -lines=%d:%d', a:line1, a:line2)
 
-    " todo: this should error if .clang-format file not found
+endfunction
+
+function! s:replace(line1, line2, ...) abort
+    if !exists('s:command_available')
+        if !executable(g:command)
+            echoerr "clang-format is not found. check g:command."
+            return
+        endif
+        let s:command_available = 1
+    endif
+
+    " save our position in the file
+    let pos_save = a:0 >= 1 ? a:1 : getpos('.')
+
+    " construct the shell command w/ args
+    let args = printf(' -lines=%d:%d', a:line1, a:line2)
     let args .= ' -style=file '
+
     let filename = expand('%')
     if filename !=# ''
         let args .= printf('-assume-filename=%s ', s:shellescape(escape(filename, " \t")))
     endif
+
     let clang_format = printf('%s %s --', s:shellescape(g:command), args)
     let source = join(getline(1, '$'), "\n")
 
-    return system(clang_format, source)
-endfunction
+    " actually execute the shell command
+    let formatted = system(clang_format, source)
 
-function! s:replace(line1, line2, ...) abort
-    " verify command
-
-    let invalidity = 0
-    if !exists('s:command_available')
-        if !executable(g:command)
-            let invalidity = 1
-        endif
-        let s:command_available = 1
-    else
-        let invalidity = 0
-    endif
-
-    if invalidity == 1
-        echoerr "clang-format is not found. check g:command."
-    elseif invalidity == 2
-        echoerr 'clang-format 3.3 or earlier is not supported for the lack of aruguments'
-    endif
-
-    let pos_save = a:0 >= 1 ? a:1 : getpos('.')
-    let formatted = s:format(a:line1, a:line2)
     let format_success = v:shell_error == 0 && formatted !~# '^YAML:\d\+:\d\+: error: unknown key '
-
     if ! (format_success)
-        call s:error_message(formatted)
+        echoerr 'clang-format has failed to format.'
+        if a:result =~# '^YAML:\d\+:\d\+: error: unknown key '
+            echohl ErrorMsg
+            for l in split(a:formatted, "\n")[0:1]
+                echomsg l
+            endfor
+            echohl None
+        endif
         return
     endif
 
@@ -391,6 +408,7 @@ function! s:replace(line1, line2, ...) abort
     if line('$') > len(splitted)
         execute len(splitted) .',$delete' '_'
     endif
+
     call setline(1, splitted)
     call winrestview(winview)
     call setpos('.', pos_save)

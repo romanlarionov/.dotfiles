@@ -18,6 +18,7 @@ fi
 
 CURR_OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles/${RANDOM}_last"
 mkdir ${CURR_OLD_DOTFILES_DIR}
+mkdir -p ${HOME}/.ssh
 
 for file in ${FILES}; do
     if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
@@ -44,8 +45,6 @@ elif [[ "$(uname)" == "Darwin" ]]; then
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         brew install brew-cask cmake wget vim global ctags cscope ag
         brew linkapps
-    else
-        brew update
     fi
 fi
 
