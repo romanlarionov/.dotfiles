@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc .bash_profile"
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc .bash_profile .ctags"
 OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles"
 
 # save any dotfiles in the above list that were detected in the home directory
@@ -19,6 +19,7 @@ fi
 CURR_OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles/${RANDOM}_last"
 mkdir ${CURR_OLD_DOTFILES_DIR}
 mkdir -p ${HOME}/.ssh
+mkdir -p ${HOME}/.tags
 
 for file in ${FILES}; do
     if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
