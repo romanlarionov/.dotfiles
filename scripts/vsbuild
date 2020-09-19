@@ -13,23 +13,33 @@ import os
 import mmap
 import re
 
+# TODO: probably want a better way of differentiating between tiers
 msbuild_path_dict = {
-    15: r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe",
-    14: r"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
+    15: {
+        r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\amd64\MSBuild.exe",
+        r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe"
+    },
+    14: {
+        r"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
+    }
 }
 
 def find_msbuild(version):
-    if version in msbuild_path_dict and os.path.exists(msbuild_path_dict[version]):
-        return (version, msbuild_path_dict[version])
+    if version in msbuild_path_dict:
+        for iter_path in msbuild_path_dict[version]:
+            # TODO: have way of specifying paid tier if multiple installed?
+            if os.path.exists(tier_path):
+                return (True, version, tier_path)
 
-    return (0, "")
+    return (False, 0, "")
 
 def auto_find_msbuild(version):
     for (key, val) in msbuild_path_dict.items():
-        if os.path.exists(val):
-            return (key, val)
+        for tier_path in val:
+            if os.path.exists(tier_path):
+                return (True, key, val)
     
-    return (0, "")
+    return (False, 0, "")
 
 def parse_solution_version(solution_path):
     with open(solution_path, 'rb', 0) as file:
@@ -48,9 +58,9 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
-    parser.add_argument('-w', '--warnings', action="store_true", default=False, help='compile with warnings enabled')
+    parser.add_argument('-w', '--warnings', action="store_true", default=False, help='enable showing warning messages')
     parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
-    parser.add_argument('-v', '--version', type=int, choices=[14, 15], help='version of visual studio')
+    parser.add_argument('-v', '--version', type=int, choices=[14, 15], default=15, help='version of visual studio')
     parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
     parser.add_argument('solution_path', help='path to VS solution file')
 
@@ -76,19 +86,19 @@ def main():
 
     if not args.version:
         solution_version = parse_solution_version(args.solution_path)
-        (found_version, msbuild) = find_msbuild(solution_version)
+        (found, found_version, msbuild) = find_msbuild(solution_version)
 
-        if found_version == 0:
-            (found_version, msbuild) = auto_find_msbuild(solution_version)
-            if found_version == 0:
+        if found:
+            (found, found_version, msbuild) = auto_find_msbuild(solution_version)
+            if not found:
                 red("Couldn't find path to any version of MSBuild.exe")
                 exit()
             else:
                 yellow("Couldn't find path to version " + str(solution_version) + " of MSBuild.exe")
                 yellow("Defaulting to version " + str(found_version))
     else:
-        (found_version, msbuild) = find_msbuild(args.version)
-        if found_version == 0:
+        (found, found_version, msbuild) = find_msbuild(args.version)
+        if not found:
             red("Couldn't find path to MSBuild.exe for version: " + str(args.version))
             red("MSBuild.exe search path: " + msbuild_path_dict[args.version])
             exit()
@@ -98,8 +108,11 @@ def main():
     command.append("/maxcpucount")  # use all cores for building
     command.append("/v:q")  # verbose = quiet
     command.append("/p:Configuration=" + ("Release", "Debug")[args.debug])
-    command.append("/p:Platform=" + args.arch)
-    command.append("/p:PlatformToolset=" + ("v141", "v140")[found_version == 14])
+
+    # TODO: would be nice to specify custom Platform here somehow...
+    # would probably need to parse the solution file for the platform name...
+    #command.append("/p:Platform=" + args.arch)
+    #command.append("/p:PlatformToolset=" + ("v141", "v140")[found_version == 14])
 
     if args.rebuild:
         command.append("/t:rebuild")
@@ -134,11 +147,10 @@ def main():
 
             # strips global file path for file in question
             nextline = re.search('((\w|\d|\_|\-)*(\\(?=.(?!\\))+)*\.).*', nextline)
-            nextline = nextline.group(0)
 
-            # TODO: maybe add text wrapping
-
-            print(nextline)
+            if nextline != None:
+                # TODO: maybe add text wrapping
+                print(nextline)
 
         if process.poll() is not None:
             break

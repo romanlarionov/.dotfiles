@@ -14,6 +14,11 @@ if [ -n "${BASH_VERSION}" ]; then
     fi
 fi
 
+if [[ -z "${ROMANS_TAGS_PATH}" ]]; then
+    mkdir -p $HOME/.tags
+    export ROMANS_TAGS_PATH="$HOME/.tags"
+fi
+
 PATH="${HOME}/bin:${HOME}/.local/bin:$PATH"
 
 if [[ -d "${HOME}/.dotfiles" ]]; then

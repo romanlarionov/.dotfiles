@@ -1,23 +1,39 @@
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Misc
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Misc
+"{
+
+let skip_defaults_vim = 1
+
 set nocompatible
 set number
 set noswapfile
-set mousehide
+set novisualbell
+set belloff=all
 
-if exists(":mouse")
-    set mouse=i
-endif
-
-if exists(":belloff")
-    set belloff=all
-endif
+" copies all yank commands to clipboard
+set clipboard=unnamed
 
 if exists(":termsize")
     set termsize=10x999
 endif
 
+" TODO: look through :options
+
 " set the character for vertical separating column between windows
 set fillchars+=vert:│
+
+" detect if a build script is detected and map it to Ctrl-B
+function! BuildProject()
+    let g:build_script = ".build.sh"
+    if !exists('s:build_script_available')
+        if g:build_script == "" || !filereadable(g:build_script)
+            echoerr 'Could not find ./.build.sh'
+            return
+        endif
+        let s:build_script_available = 1
+    endif
+
+    execute '!./' . g:build_script
+endfunction
 
 augroup misc_group
     autocmd!
@@ -26,21 +42,27 @@ augroup misc_group
     autocmd FileType help wincmd L
 
     " understand glsl files
-    autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl 
-     \ set filetype=glsl
+    autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl \ 
+        set filetype=glsl
 
     " redraw with the cursorline in the middle of the screen
-    autocmd BufWinEnter * norm zz
+    autocmd BufEnter,WinEnter,WinNew,VimResized *,*.* norm zz
 
     " automatically makes split windows equal size after resizing app or font
     autocmd VimResized * if &equalalways | wincmd = | endif
 
 augroup END
 
+" TODO: find way to detect if in visual studio
 let s:on_windows = has('win32') || has('win64')
 
+" TODO: find out if there's a way to add empty 'padding' lines before the first line of code if you press 'zz' towards the top of the file.
+" This works for the bottom of the file. meaning if you type 'shft-g' followed by 'zz', it will still bring the last line to the middle of the screen.
+
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Sessions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Sessions
+"{
+
 let g:session_file = ""
 let g:session_dir = ""
 function! SaveSession()
@@ -51,6 +73,9 @@ function! SaveSession()
         execute "mksession! " . g:session_file
     endif
 endfunction
+
+" TODO: should automatically create tags and put them into the session directory...
+" whether that's somethign that happens all the time is a good question'
 
 function! LoadSession()
     " if starting vim without referencing a file (no arguments)
@@ -72,11 +97,13 @@ augroup END
 " what to save into session file
 set sessionoptions=buffers,curdir,folds,winpos,winsize
 
-" remember the list of open buffers the last time vim was open (saved in ~/.viminfo)
-set viminfo='50,%10,f0
+" disable writing to ~/.viminfo on exit in favor of sessions
+set viminfo=""
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Search
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Search
+"{
+
 set incsearch
 set fileignorecase
 set ignorecase
@@ -86,10 +113,11 @@ set wildmenu
 set wildignorecase
 set wildmode=full,list:full
 set wildignore+=*.o,*.jpg,*.obj,*.mtl,*.png,*.docx,*.exe
-set wildignore+=*/node_modules/*,*/build/*,*/.git/*,*/deps/*
+set wildignore+=*/node_modules/*,*/build/*,*/.git/*,*/deps/*,*Debug/*,*Release/*
 
 " add ~/.tags directory when searching for a tag
-set tags+=~/.tags/tags.agc
+set tags+=~/.tags/*
+set tags+=$ROMANS_TAGS_PATH
 
 " treat tag paths as global
 set notagrelative
@@ -98,31 +126,50 @@ set notagrelative
 
 " TODO: need some way of specifying (for tags) that I want to follow the tag in a separate window.
 " basically, I want it to show up to the right of the screen so I can keeyp looking at where I was just at.
+" ^^ can look up 'window-tag'
 
-" TODO: need to have computer local vim options
+" TODO: look into 'preview-popup' and more specifically ':ptag'
 
 " Ctrl-F starts fuzzy finding files
 nnoremap <C-F> :find *
+
+" TODO: when I use :find, I would like it to search through my loaded buffers. Need to write a function I think:
+" https://vi.stackexchange.com/questions/2904/how-to-show-search-results-for-all-open-buffers
 
 " sets path vim searches with 'find' to the current dir + recursively downwards
 set path=.,,**
 
 " opens autocompete popup with the tab/shift-tab keys in smart way
 " TODO: this screws up the visual studio plugin for some reason
-inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
-inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-P>" : "<TAB>"
+"inoremap <expr> <TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-N>" : "<TAB>"
+"inoremap <expr> <S-TAB> matchstr(getline('.'), '\%' . (col('.')-1) . 'c.') =~ '\S' ? "<C-P>" : "<TAB>"
 
 " which buffers to search for autocomplete via TAB
-set complete=w,.,b,u
+set complete=w,.,b,u,t
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Movement
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Movement
+"{
+
+set nomousefocus
+set mousehide
+set scrolloff=5
+
+if has("mouse")
+    set mouse=n
+endif
+
+" keep cursor location the same when using the scroll wheel
+nnoremap <ScrollWheelUp> 3<C-U>
+nnoremap <ScrollWheelDown> 3<C-D>
 
 nnoremap <S-K> <C-U>
 nnoremap <S-J> <C-D>
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Indentation
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Indentation
+"{
+
 set autoindent
 set expandtab
 set tabstop=4
@@ -133,6 +180,7 @@ set smartindent
 " allow backspace to go to previous line
 set backspace=indent,eol,start
 
+" TODO: can I make this not exit virtual mode?
 " tab in visual mode indents
 vnoremap <TAB> >
 vnoremap <S-TAB> <
@@ -141,31 +189,45 @@ nnoremap < <<
 nnoremap > >>
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Formatting
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Formatting
+"{
+
 set formatoptions+=ro
 
 " TODO: these should be smarter and context dependent
 " print matching braces
 inoremap { {}<Esc>i
-inoremap ( ()<Esc>i
-inoremap [ []<Esc>i
-inoremap " ""<Esc>i
-inoremap ' ''<Esc>i
+"inoremap ( ()<Esc>i
+"inoremap [ []<Esc>i
+"inoremap " ""<Esc>i
+"inoremap ' ''<Esc>i
 
-"}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Folds
 set foldopen=hor,search,undo
 
 " fold matching brace
 nnoremap <C-M> zf%<CR>
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Colors
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Colors
+"{
+
+" mintty identifies itself as xterm-compatible
+if &term =~ 'xterm-256color'
+    if &t_Co =~ 8
+        " Use at least 256 colors
+        set t_Co = 256
+    endif
+
+endif
+
 syntax enable
-syntax sync minlines=64
+syntax sync minlines=16 maxlines=64
 
 set synmaxcol=256
 set hlsearch
+
+" highlight matching braces
+set showmatch
 
 highlight Comment      cterm=none                   ctermfg=darkgreen
 highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
@@ -192,9 +254,14 @@ highlight DiffDelete   cterm=none ctermbg=darkgray  ctermfg=darkred
 highlight DiffText     cterm=none ctermbg=darkgray  ctermfg=darkred
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Statusline
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Statusline
+"{
+
 set laststatus=2
 set lazyredraw
+
+" don't print mode under statusline
+set noshowmode
 
 augroup statusline_group
     autocmd!
@@ -237,7 +304,9 @@ endfunction
 set statusline=%!MyStatusBar()
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Windows/Buffers
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Windows/Buffers
+"{
+
 " keeps window sizes equal after closing
 set equalalways
 
@@ -328,46 +397,34 @@ command! -bang -complete=buffer -nargs=? Bclose call <SID>Bclose(<q-bang>, <q-ar
 nnoremap <silent> gd :Bclose<CR>
 
 "}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" { Clang Format
-" all taken and adapated from here: https://github.com/rhysd/vim-clang-format
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Clang Format
+"{
 
-" TODO: should only allow calling this if we're in a c++/.h file
-" TODO: should be command to echo the chosen .clang-format file's path
-" TODO: make sure clang format is located on the system already, else print not found
-" TODO: surround this entire block by a check if the shell command 'clang-format'
-"       exists plus make sure that a .clang-format file can be found
-
-" if we don't find the .clang-format file
-"if ! (findfile('.clang-format', fnameescape(expand('%:p:h')).';') != '')
-
-function! s:shellescape(str) abort
-    if s:on_windows && (&shell =~? 'cmd\.exe')
-        " shellescape() surrounds input with single quote when 'shellslash' is on. But cmd.exe
-        " requires double quotes. Temporarily set it to 0.
-        let shellslash = &shellslash
-        set noshellslash
-        try
-            return shellescape(a:str)
-        finally
-            let &shellslash = shellslash
-        endtry
-    endif
-    return shellescape(a:str)
-endfunction
-
-let g:command = get(g:, 'command', 'clang-format')
-
-function! s:format(line1, line2) abort
-
+function! s:config_path() abort
+    return findfile('.clang-format', fnameescape(expand('%:p:h')).';')
 endfunction
 
 function! s:replace(line1, line2, ...) abort
     if !exists('s:command_available')
+        let g:command = get(g:, 'command', 'clang-format')
+
         if !executable(g:command)
-            echoerr "clang-format is not found. check g:command."
+            echoerr "The clang-format executable could not be found"
             return
         endif
+
         let s:command_available = 1
+    endif
+
+    let clang_format_config_path = printf("%s", s:config_path())
+    if (clang_format_config_path == '')
+        echoerr "Could not find a .clang-format config file in any parent directories."
+        return
+    endif
+
+    if !(&ft == 'c' || &ft == 'cpp')
+        echoerr "clang-format only works for C/C++."
+        return
     endif
 
     " save our position in the file
@@ -379,17 +436,17 @@ function! s:replace(line1, line2, ...) abort
 
     let filename = expand('%')
     if filename !=# ''
-        let args .= printf('-assume-filename=%s ', s:shellescape(escape(filename, " \t")))
+        let args .= printf('-assume-filename=%s ', shellescape(escape(filename, " \t")))
     endif
 
-    let clang_format = printf('%s %s --', s:shellescape(g:command), args)
+    let clang_format = printf('%s %s --', shellescape(g:command), args)
     let source = join(getline(1, '$'), "\n")
 
     " actually execute the shell command
     let formatted = system(clang_format, source)
 
     let format_success = v:shell_error == 0 && formatted !~# '^YAML:\d\+:\d\+: error: unknown key '
-    if ! (format_success)
+    if !(format_success)
         echoerr 'clang-format has failed to format.'
         if a:result =~# '^YAML:\d\+:\d\+: error: unknown key '
             echohl ErrorMsg
@@ -398,6 +455,7 @@ function! s:replace(line1, line2, ...) abort
             endfor
             echohl None
         endif
+
         return
     endif
 
@@ -414,6 +472,7 @@ function! s:replace(line1, line2, ...) abort
     call setpos('.', pos_save)
 endfunction
 
+command! -range=% -nargs=0 ClangFormatConfigPath call s:config_path()
 command! -range=% -nargs=0 ClangFormat call s:replace(<line1>, <line2>)
 nnoremap <silent> <C-K> :ClangFormat<CR>
 
