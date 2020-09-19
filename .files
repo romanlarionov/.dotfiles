@@ -1,0 +1,3 @@
+
+FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc .bash_profile .ctags"
+

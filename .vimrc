@@ -5,6 +5,7 @@ let skip_defaults_vim = 1
 
 set nocompatible
 set number
+set nospell
 set noswapfile
 set novisualbell
 set belloff=all
@@ -176,6 +177,7 @@ set tabstop=4
 set shiftwidth=4
 set smarttab
 set smartindent
+set shiftround
 
 " allow backspace to go to previous line
 set backspace=indent,eol,start
@@ -310,8 +312,16 @@ set statusline=%!MyStatusBar()
 " keeps window sizes equal after closing
 set equalalways
 
+" reloads a buffer when it's modified from outside of vim automatically
+set autoread
+
+" don't unload the buffer from memory when hidden
+set bufhidden=hide
+
 " always place a vertical split to the right
 set splitright
+set splitbelow
+set previewheight=14
 
 " tab switches windows
 nnoremap <Tab> <C-W>w
@@ -472,7 +482,7 @@ function! s:replace(line1, line2, ...) abort
     call setpos('.', pos_save)
 endfunction
 
-command! -range=% -nargs=0 ClangFormatConfigPath call s:config_path()
+command! -range=% -nargs=0 ClangFormatConfigPath echo s:config_path()
 command! -range=% -nargs=0 ClangFormat call s:replace(<line1>, <line2>)
 nnoremap <silent> <C-K> :ClangFormat<CR>
 

@@ -1,12 +1,22 @@
 #!/bin/bash
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-FILES=".bashrc .zshrc .vimrc .minttyrc .gitconfig .fonts .clang-format .globalrc .inputrc .bash_profile .ctags"
 OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles"
+source ${DOTFILES_DIR}/.files
 
-# save any dotfiles in the above list that were detected in the home directory
-if [[ ! -d ${DOTFILES_DIR}/OldDotFiles ]]; then
-    mkdir ${DOTFILES_DIR}/OldDotFiles
+mkdir -p ${DOTFILES_DIR}/OldDotFiles
+mkdir -p ${HOME}/.ssh
+mkdir -p ${HOME}/.tags
+
+# prevent installing if a difference was detected
+# only really applicable on git bash since it doesn't support symlinks
+if [[ ! -z "$(${DOTFILES_DIR}/check_diff.sh)" ]]; then
+    echo -n "A difference was found between dotfiles. Continue? (y/n)? "
+    read answer
+
+    if [[ "$answer" == "${answer#[Yy]}" ]]; then
+        exit
+    fi
 fi
 
 # if we've already run the install script before, rename the _last set of OldDotFiles
@@ -17,9 +27,8 @@ if [[ ! -z "${LAST_DOTFILES_DIR}" ]]; then
 fi
 
 CURR_OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles/${RANDOM}_last"
-mkdir ${CURR_OLD_DOTFILES_DIR}
-mkdir -p ${HOME}/.ssh
-mkdir -p ${HOME}/.tags
+mkdir -p ${CURR_OLD_DOTFILES_DIR}
+echo "Stored previous dotfiles here: ${CURR_OLD_DOTFILES_DIR}"
 
 for file in ${FILES}; do
     if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
@@ -28,6 +37,7 @@ for file in ${FILES}; do
         if [[ ! -L ${HOME}/${file} ]]; then
             mv ${HOME}/${file} ${CURR_OLD_DOTFILES_DIR}
         fi
+
     fi
 done
 
