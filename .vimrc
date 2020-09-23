@@ -66,8 +66,8 @@ let g:session_file = ""
 let g:session_dir = ""
 function! SaveSession()
     if g:session_dir != "" && g:session_file != ""
-        if !isdirectory(g:session_dir)
-            execute 'silent !mkdir -p ' g:session_dir
+        if !isdirectory(shellescape(g:session_dir))
+            execute 'silent !mkdir -p ' shellescape(g:session_dir)
         endif
         execute "mksession! " . g:session_file
     endif
@@ -121,8 +121,6 @@ set tags+=$ROMANS_TAGS_PATH
 " treat tag paths as global
 set notagrelative
 
-" TODO: look into 'popup'
-
 " TODO: need some way of specifying (for tags) that I want to follow the tag in a separate window.
 " basically, I want it to show up to the right of the screen so I can keeyp looking at where I was just at.
 " ^^ can look up 'window-tag'
@@ -159,8 +157,8 @@ if has("mouse")
 endif
 
 " keep cursor location the same when using the scroll wheel
-nnoremap <ScrollWheelUp> 3<C-U>
-nnoremap <ScrollWheelDown> 3<C-D>
+nnoremap <ScrollWheelUp> 3<C-U>:set scroll=0<CR>
+nnoremap <ScrollWheelDown> 3<C-D>:set scroll=0<CR>
 
 nnoremap <S-K> <C-U>
 nnoremap <S-J> <C-D>
@@ -326,7 +324,6 @@ nnoremap <Tab> <C-W>w
 nnoremap <S-Tab> <C-W><S-w>
 
 " creates new vertical split
-" TODO: if there exists loaded buffers, this should load the previous one, not the file browser
 nnoremap gv :vsp .<CR>
 
 " close active window (if not last one)

@@ -5,7 +5,7 @@
 #
 
 DOTFILES_DIR="${HOME}/.dotfiles"
-source ${DOTFILES_DIR}/.files
+source "${DOTFILES_DIR}/.files"
 
 for file in ${FILES}; do
     if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
@@ -13,8 +13,8 @@ for file in ${FILES}; do
         # only move the files if they aren't already symlinked to the .dotfiles dir
         if [[ ! -L ${HOME}/${file} ]]; then
 
-            if [[ ! -z "$(diff ${HOME}/${file} ${file})" ]]; then
-                diff -q ${HOME}/${file} ${DOTFILES_DIR}/${file}
+            if [[ -n "$(diff "${HOME}/${file}" "${file}")" ]]; then
+                diff -q "${HOME}/${file}" "${DOTFILES_DIR}/${file}"
             fi
         fi
     fi
