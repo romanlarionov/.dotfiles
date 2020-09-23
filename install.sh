@@ -30,6 +30,7 @@ CURR_OLD_DOTFILES_DIR="${DOTFILES_DIR}/OldDotFiles/${RANDOM}_last"
 mkdir -p ${CURR_OLD_DOTFILES_DIR}
 echo "Stored previous dotfiles here: ${CURR_OLD_DOTFILES_DIR}"
 
+# save all dotfiles currently in the home directory to $CURR_OLD_DOTFILES_DIR (unless they're symlinked)
 for file in ${FILES}; do
     if [[ -f  ${HOME}/${file} || -d ${HOME}/${file} ]]; then
 
@@ -37,17 +38,18 @@ for file in ${FILES}; do
         if [[ ! -L ${HOME}/${file} ]]; then
             mv ${HOME}/${file} ${CURR_OLD_DOTFILES_DIR}
         fi
-
     fi
 done
 
 # make symlinks for listed dotfiles
+# note: git bash currently doesn't support symlinks -_-
 for file in ${FILES}; do
     if [[ ! -L ${HOME}/${file} ]]; then
         ln -s ${DOTFILES_DIR}/${file} ${HOME}/${file} &> /dev/null
     fi
 done
 
+# install default utilities for this platform
 if [[ "$(lsb_release -si 2>/dev/null)" == "Ubuntu" ]]; then
     sudo apt-get install -q -y cmake wget curl clang-format cscope xfonts-utils
 
@@ -59,7 +61,6 @@ elif [[ "$(uname)" == "Darwin" ]]; then
     fi
 fi
 
-# install python packages
 if [[ ! -z "$(command pip 2>/dev/null)" ]]; then
     pip install argparse Pillow numpy scipy matplotlib &>/dev/null
 fi

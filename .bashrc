@@ -1,29 +1,28 @@
 
-if [[ ! -z "$(cat /proc/version | grep -Ei "*Microsoft*" 2>/dev/null)" ]]; then
-    export IS_WSL=1
-fi
-
 print_ssh_ps1()
 {
     if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
-        printf -- "\e[31m@$(hostname)\e[0m"
+        printf "\e[31m@%s\e[0m" "$(hostname)"
     fi
 }
 
 print_git_branch_ps1()
 {
-    BRANCH_NAME=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+    local BRANCH_NAME
+    BRANCH_NAME="$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
 
-    if [[ ! -z ${BRANCH_NAME} ]]; then
-        local HAS_UNSTAGED=$(git status 2>/dev/null | grep 'Changes not staged for commit')
+    if [[ -n "${BRANCH_NAME}" ]]; then
+        local HAS_UNSTAGED
+        HAS_UNSTAGED="$(git status 2>/dev/null | grep 'Changes not staged for commit')"
 
+        local BGCOL
         if [[ -z "${HAS_UNSTAGED}" ]]; then
-            local BGCOL="\e[42;30m"
+            BGCOL="\e[42;30m"
         else
-            local BGCOL="\e[43;30m"
+            BGCOL="\e[43;30m"
         fi
 
-        printf -- "${BGCOL} ${BRANCH_NAME} \e[0m"
+        printf "${BGCOL} %s \e[0m" ${BRANCH_NAME}
     fi
 }
 
@@ -43,18 +42,24 @@ export PS1
 
 rgrep()
 {
-    TARGET_DIR_REGEX="${2}"
-    if [[ -z "${TARGET_DIR_REGEX}" ]]; then
-        TARGET_DIR_REGEX="."
-    fi
+    local TARGET_DIR_REGEX
+    local TARGET_DIR
+    local S_DIR
+    
+    TARGET_DIR_REGEX=$(if [ -z "${2}" ]; then echo "./"; else echo "${2}"; fi)
+    IFS="*" read -r -a TARGET_DIR <<<"${TARGET_DIR_REGEX}"
+    S_DIR=$(if [ -z "${TARGET_DIR[0]}" ]; then echo "./"; else echo "${TARGET_DIR[0]}"; fi)
 
-    TARGET_DIR=(${TARGET_DIR_REGEX//\*/ })
-    egrep -irnI --include="*${TARGET_DIR[1]}" "*${1}*" "${TARGET_DIR[0]}" \
+    grep -irnI --include="*${TARGET_DIR[1]##*.}" "${1}" "${S_DIR}" \
         --color=auto --exclude-dir={build,.git,node_modules,deps,assets};
+
+    # https://stackoverflow.com/questions/11456403/stop-shell-wildcard-character-expansion
+    set +f
 }
 
 rfind()
 {
+    local TARGET_DIR
     TARGET_DIR="${2}"
     if [[ -z "${TARGET_DIR}" ]]; then
         TARGET_DIR="."
@@ -64,7 +69,7 @@ rfind()
 
 setup_ssh_agent()
 {
-    mkdir -p ${HOME}/.ssh
+    mkdir -p "${HOME}/.ssh"
     SSH_AGENT_TIMEOUT=9000 # 2.5 hours
     SSH_ENV="${HOME}/.ssh/agent.env"
 
@@ -95,7 +100,7 @@ g()
 
 open()
 {
-    if [[ "$OSTYPE" == "msys" || ! -z "$IS_WSL" ]]; then
+    if "$OSTYPE" == "msys" || grep ".*Microsoft.*" 2>/dev/null < /proc/version; then
         # NOTE: Mintty doesn't play nice with spaces in dir paths. nothing I can do..
         explorer.exe "${@////\\}" # replace slashes with backslashes (for windows)
     else
@@ -109,13 +114,14 @@ alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
 alias grep="grep -iI --color=auto"
-alias vim="vim --noplugin -u ${HOME}/.vimrc"
-alias ebrc="vim ${HOME}/.bashrc"
-alias sbrc="source ${HOME}/.bashrc > /dev/null"
+alias rgrep="set -f; rgrep "
+alias vim='vim --noplugin -u ${HOME}/.vimrc'
+alias ebrc='vim ${HOME}/.bashrc'
+alias sbrc='source ${HOME}/.bashrc > /dev/null'
 alias p3="python3"
 alias diff="diff -Bd -U 5 --color=auto"
 
-if [[ ! -z $(which mintty.exe 2>/dev/null) ]]; then
+if [[ -n $(which mintty.exe 2>/dev/null) ]]; then
     alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
 fi
 
@@ -124,6 +130,6 @@ export HISTSIZE=100000
 export HISTFILESIZE=100000
 
 if [[ -f "${HOME}/.bashrc.local" ]]; then
-    source ${HOME}/.bashrc.local
+    source "${HOME}/.bashrc.local"
 fi
 
