@@ -17,8 +17,6 @@ if exists(":termsize")
     set termsize=10x999
 endif
 
-" TODO: look through :options
-
 " set the character for vertical separating column between windows
 set fillchars+=vert:│
 

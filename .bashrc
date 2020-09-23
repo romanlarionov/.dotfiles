@@ -22,7 +22,7 @@ print_git_branch_ps1()
             BGCOL="\e[43;30m"
         fi
 
-        printf "${BGCOL} %s \e[0m" ${BRANCH_NAME}
+        printf "\x01${BGCOL}\x02 %s \x01\e[0m\x02" ${BRANCH_NAME}
     fi
 }
 
@@ -108,7 +108,14 @@ open()
     fi
 }
 
-alias ls="ls -h -G --color=auto"
+if [[ "${OSTYPE}" == "darwin"* ]]; then
+    LSCOLORS="Gxfxcxdxbxegedabagacad"
+    export LSCOLORS
+    alias ls="ls -h -G"
+else
+    alias ls="ls -h -G --color=auto"
+fi
+
 alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
