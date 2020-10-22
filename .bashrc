@@ -98,9 +98,9 @@ g()
     git "${@}"
 }
 
-open()
+ropen()
 {
-    if "$OSTYPE" == "msys" || grep ".*Microsoft.*" 2>/dev/null < /proc/version; then
+    if [[ "${OSTYPE}" == "msys" ]]; then
         # NOTE: Mintty doesn't play nice with spaces in dir paths. nothing I can do..
         explorer.exe "${@////\\}" # replace slashes with backslashes (for windows)
     else
