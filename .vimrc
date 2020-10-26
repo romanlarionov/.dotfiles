@@ -34,8 +34,13 @@ function! BuildProject()
     execute '!./' . g:build_script
 endfunction
 
+command! -range=% -nargs=0 BuildProject call BuildProject()
+nnoremap <silent> <C-B> :BuildProject<CR>
+
 augroup misc_group
     autocmd!
+
+    " TODO: netrw doesn't load on startup anymore...
 
     " use vertical split for help
     autocmd FileType help wincmd L
@@ -43,6 +48,8 @@ augroup misc_group
     " understand glsl files
     autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl \ 
         set filetype=glsl
+
+    autocmd BufNewFile,BufRead *.pssl set filetype=cpp
 
     " redraw with the cursorline in the middle of the screen
     autocmd BufEnter,WinEnter,WinNew,VimResized *,*.* norm zz
@@ -404,6 +411,10 @@ nnoremap <silent> gd :Bclose<CR>
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Clang Format
 "{
+
+" TODO: there seems to be a bug after I apply clang format for the formatting that vim understands
+" i.e. if I have folds (which understand the curly braces), vim has an understanding of that which
+" isn't updated after I replace the text with the clang format. I need to force a restart of vim to reset.
 
 function! s:config_path() abort
     return findfile('.clang-format', fnameescape(expand('%:p:h')).';')

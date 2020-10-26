@@ -42,6 +42,9 @@ export PS1
 
 rgrep()
 {
+    # TODO: need to change the line number format to: +<num> vs :<num>
+    # this is for each vim support to jump to the correct line number after
+    # a grep
     local TARGET_DIR_REGEX
     local TARGET_DIR
     local S_DIR
@@ -98,9 +101,23 @@ g()
     git "${@}"
 }
 
+tag()
+{
+    if [[ -z $(which mintty.exe 2>/dev/null) ]]; then
+        return
+    fi
+
+    local TARGET_DIR
+    TARGET_DIR="${@}"
+    if [[ -z "${TARGET_DIR}" ]]; then
+        TARGET_DIR="."
+    fi
+    find "${TARGET_DIR}" -type f -iregex '.*\.\(h\|hpp\|c\|cpp\|hxx\)$' | xargs -d '\n' ctags -a
+}
+
 ropen()
 {
-    if [[ "${OSTYPE}" == "msys" ]]; then
+    if [[ "${OSTYPE}" == *"msys"* ]]; then
         # NOTE: Mintty doesn't play nice with spaces in dir paths. nothing I can do..
         explorer.exe "${@////\\}" # replace slashes with backslashes (for windows)
     else
@@ -124,13 +141,17 @@ alias grep="grep -iI --color=auto"
 alias rgrep="set -f; rgrep "
 alias vim='vim --noplugin -u ${HOME}/.vimrc'
 alias ebrc='vim ${HOME}/.bashrc'
-alias sbrc='source ${HOME}/.bashrc > /dev/null'
+alias sbrc='source ${HOME}/.bashrc > /dev/null && cd -'
 alias p3="python3"
 alias diff="diff -Bd -U 5 --color=auto"
 
 if [[ -n $(which mintty.exe 2>/dev/null) ]]; then
     alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
 fi
+
+# TODO: add todo script
+# TODO: fix issue where git asks for password on term startup
+# TODO: fix issue of printing bashrc on term startup
 
 export TERM=xterm-256color
 export HISTSIZE=100000

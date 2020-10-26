@@ -26,7 +26,7 @@ msbuild_path_dict = {
 
 def find_msbuild(version):
     if version in msbuild_path_dict:
-        for iter_path in msbuild_path_dict[version]:
+        for tier_path in msbuild_path_dict[version]:
             # TODO: have way of specifying paid tier if multiple installed?
             if os.path.exists(tier_path):
                 return (True, version, tier_path)
@@ -106,6 +106,7 @@ def main():
     command = [msbuild]
     command.append(args.solution_path)
     command.append("/maxcpucount")  # use all cores for building
+    command.append("/nologo")
     command.append("/v:q")  # verbose = quiet
     command.append("/p:Configuration=" + ("Release", "Debug")[args.debug])
 
@@ -122,6 +123,7 @@ def main():
     print("Target Platform: \t" + args.arch)
     print("Configuration: \t\t" + ("Release", "Debug")[args.debug])
     print("Visual Studio Version: \t" + str(found_version))
+    print("cmd: " + ' '.join(command))
     print("================================================", flush=True)
 
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

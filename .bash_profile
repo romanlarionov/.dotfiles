@@ -15,7 +15,7 @@ if [ -n "${BASH_VERSION}" ]; then
 fi
 
 if [[ -z "${ROMANS_TAGS_PATH}" ]]; then
-    mkdir -p $HOME/.tags
+    mkdir -p "$HOME/.tags"
     export ROMANS_TAGS_PATH="$HOME/.tags"
 fi
 
