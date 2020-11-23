@@ -21,7 +21,6 @@ fi
 
 # if we've already run the install script before, rename the _last set of OldDotFiles
 LAST_DOTFILES_DIR="$(ls "${OLD_DOTFILES_DIR}" | grep '_last')"
-echo "$LAST_DOTFILES_DIR"
 if [[ -n "${LAST_DOTFILES_DIR}" ]]; then
     mv "${OLD_DOTFILES_DIR}/${LAST_DOTFILES_DIR}" \
         "${OLD_DOTFILES_DIR}/$(echo "${LAST_DOTFILES_DIR}" | cut -d'_' -f 1)"

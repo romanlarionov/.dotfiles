@@ -160,7 +160,7 @@ set mousehide
 set scrolloff=5
 
 if has("mouse")
-    set mouse=n
+    set mouse=a
 endif
 
 " keep cursor location the same when using the scroll wheel

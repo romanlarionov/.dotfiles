@@ -26,6 +26,12 @@ if [[ -d "${HOME}/.dotfiles" ]]; then
         PATH="${HOME}/.dotfiles/scripts:${PATH}"
     fi
 
+    if [[ "${OSTYPE}" == *"msys"* ]]; then
+        if [[ ${PATH} != *".dotfiles/bin/win"* ]]; then
+            PATH="${PATH}:${HOME}/.dotfiles/bin/win/"
+        fi
+    fi
+
     # colors break sftp/scp
     if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
         if [[ -n "${SSH_TTY}" ]]; then
@@ -43,3 +49,4 @@ if [[ ! -z "${ROMANS_PATH}" ]]; then
     PATH="${ROMANS_PATH}:${PATH}"
 fi
 
+export PATH

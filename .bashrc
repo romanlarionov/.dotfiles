@@ -29,6 +29,7 @@ print_git_branch_ps1()
 PS1='\[\e]0;\007\]'                 # set window title
 PS1="$PS1 "                         # <space>
 PS1="$PS1\u"                        # user
+PS1="$PS1\$(print_ssh_ps1)"         # bash function
 PS1="$PS1 "                         # <space>
 PS1="$PS1\[\e[44;30m\]"             # change to blue background, black foreground
 PS1="$PS1 "                         # <space>
@@ -77,8 +78,7 @@ setup_ssh_agent()
     SSH_ENV="${HOME}/.ssh/agent.env"
 
     # setup environment
-    test -r "${SSH_ENV}" && \
-        eval "$(<${SSH_ENV})" >/dev/null;
+    test -r "${SSH_ENV}" && eval "$(<${SSH_ENV})" >/dev/null;
 
     AGENT_RUN_STATE=$(ssh-add -l >/dev/null 2>&1; echo ${?})
 
@@ -152,6 +152,9 @@ fi
 # TODO: add todo script
 # TODO: fix issue where git asks for password on term startup
 # TODO: fix issue of printing bashrc on term startup
+
+# updates shell window size after each command
+shopt -s checkwinsize
 
 export TERM=xterm-256color
 export HISTSIZE=100000
