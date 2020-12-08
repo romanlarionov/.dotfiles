@@ -51,7 +51,7 @@ done
 
 # install default utilities for this platform
 if [[ "$(lsb_release -si 2>/dev/null)" == "Ubuntu" ]]; then
-    sudo apt-get install -q -y cmake wget curl clang-format cscope xfonts-utils
+    sudo apt-get install -q -y vim cmake wget curl clang-format cscope xfonts-utils
 
 elif [[ "$(uname)" == "Darwin" ]]; then
     if [[ $(command -v brew) == "" ]]; then
