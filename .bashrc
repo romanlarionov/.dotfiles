@@ -149,6 +149,10 @@ if [[ -n $(which mintty.exe 2>/dev/null) ]]; then
     alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
 fi
 
+# TODO: I seem to get an error with $(ls *) or $(rgrep *)... cannot remove '*': No such file or directory
+# TODO: sometimes rgrep fails to recurse if specifying file type. e.g. rgrep foo *.cpp
+# TODO: can I make the install script handle the .gitconfig better?
+# TODO: consider replacing path printout with just ';'. can print pwd in window header. footer?
 # TODO: add todo script
 # TODO: fix issue where git asks for password on term startup
 # TODO: fix issue of printing bashrc on term startup
@@ -157,8 +161,13 @@ fi
 shopt -s checkwinsize
 
 export TERM=xterm-256color
+
+# history stuffz
+shopt -s histappend
+HISTCONTROL=ignoredups:erasedups
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
 export HISTSIZE=100000
-export HISTFILESIZE=100000
+export HISTFILESIZE=${HISTSIZE}
 
 if [[ -f "${HOME}/.bashrc.local" ]]; then
     source "${HOME}/.bashrc.local"

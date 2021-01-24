@@ -78,7 +78,7 @@ def yellow(text):
 def main():
     args = parse_args()
 
-    # todo: automatically interprut if x64/win32
+    # TODO: automatically interprut if x64/win32
 
     if not os.path.isfile(args.solution_path):
         red("Not valid solution path: " + args.solution_path)
@@ -102,6 +102,9 @@ def main():
             red("Couldn't find path to MSBuild.exe for version: " + str(args.version))
             red("MSBuild.exe search path: " + msbuild_path_dict[args.version])
             exit()
+
+    # TODO: there should be an option to print out errors in a vim-consumable way
+    # (vim's jump-to-line syntax is: vim <filename> +<line number>)
 
     command = [msbuild]
     command.append(args.solution_path)
@@ -147,6 +150,7 @@ def main():
             # strips the ending details about which .vcxproj for error
             nextline = nextline[:nextline.rfind("[")]
 
+            # TODO: find regex that works for all inputs
             # strips global file path for file in question
             nextline = re.search('((\w|\d|\_|\-)*(\\(?=.(?!\\))+)*\.).*', nextline)
 
@@ -161,6 +165,7 @@ def main():
         print("================================================")
         print("Total errors: " + str(count))
         red("Build Failed!")
+        exit(1)
     else:
         green("Build Successful!")
 

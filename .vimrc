@@ -20,8 +20,8 @@ endif
 " set the character for vertical separating column between windows
 set fillchars+=vert:│
 
-" detect if a build script is detected and map it to Ctrl-B
-function! BuildProject()
+" detect if a local build script is present and execute it
+function! BuildProject(line1, ...) abort
     let g:build_script = ".build.sh"
     if !exists('s:build_script_available')
         if g:build_script == "" || !filereadable(g:build_script)
@@ -32,32 +32,52 @@ function! BuildProject()
     endif
 
     execute '!./' . g:build_script
+    let build_cmd = '!./' . g:build_script
+
+    " provide arguements if specified
+    if a:line1 != "--build"
+        let args = printf(' %s', a:line1)
+        let build_cmd .= args
+    endif
+
+    " TODO: can I redirect this process' stdout? So it just prints a message instead of suspending the
+    " screen? (I think this can be done by using system()... but I do want to see the output printed sometimes..)
+    execute build_cmd
 endfunction
 
-command! -range=% -nargs=0 BuildProject call BuildProject()
+command! -range=% -nargs=1 BuildProject call BuildProject(<f-args>)
 nnoremap <silent> <C-B> :BuildProject<CR>
 
 augroup misc_group
     autocmd!
 
     " TODO: netrw doesn't load on startup anymore...
+    " TODO: netrw (file tree) doesn't load on startup anymore...
+    " TODO: color matching for parens doesn't load on startup anymore...
 
+    " TODO: for some reason, the help menu starts showing up at the top sometimes...
     " use vertical split for help
     autocmd FileType help wincmd L
 
-    " understand glsl files
-    autocmd BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl \ 
-        set filetype=glsl
-
-    autocmd BufNewFile,BufRead *.pssl set filetype=cpp
+    " treat shader files like C++
+    autocmd BufNewFile,BufRead *.vs,*.fs,*.ps,*.comp,*.gs,*.vert,*.frag,*.pix,*.geom,*.tess,*.glsl,*.hlsl set filetype=cpp
 
     " redraw with the cursorline in the middle of the screen
     autocmd BufEnter,WinEnter,WinNew,VimResized *,*.* norm zz
 
+    " TODO: this doesn't seem to work for vimdiff
     " automatically makes split windows equal size after resizing app or font
     autocmd VimResized * if &equalalways | wincmd = | endif
 
 augroup END
+
+" source any local vim settings (if there are any)
+if !exists('s:local_settings_available')
+    if !empty(glob("$HOME/.vimrc.local"))
+        source $HOME/.vimrc.local
+    endif
+endif
+let s:local_settings_available = 1
 
 " TODO: find way to detect if in visual studio
 let s:on_windows = has('win32') || has('win64')
@@ -169,6 +189,10 @@ nnoremap <ScrollWheelDown> 3<C-D>:set scroll=0<CR>
 
 nnoremap <S-K> <C-U>
 nnoremap <S-J> <C-D>
+nnoremap <S-L> $
+nnoremap <S-H> ^
+vnoremap <S-L> $
+vnoremap <S-H> ^
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Indentation
@@ -421,6 +445,12 @@ function! s:config_path() abort
 endfunction
 
 function! s:replace(line1, line2, ...) abort
+
+    if !(&ft == 'c' || &ft == 'cpp')
+        echoerr "clang-format only works for C/C++."
+        return
+    endif
+
     if !exists('s:command_available')
         let g:command = get(g:, 'command', 'clang-format')
 
@@ -435,11 +465,6 @@ function! s:replace(line1, line2, ...) abort
     let clang_format_config_path = printf("%s", s:config_path())
     if (clang_format_config_path == '')
         echoerr "Could not find a .clang-format config file in any parent directories."
-        return
-    endif
-
-    if !(&ft == 'c' || &ft == 'cpp')
-        echoerr "clang-format only works for C/C++."
         return
     endif
 
