@@ -143,7 +143,11 @@ set wildignore+=*/node_modules/*,*/build/*,*/.git/*,*/deps/*,*Debug/*,*Release/*
 
 " add ~/.tags directory when searching for a tag
 set tags+=~/.tags/*
-set tags+=$ROMANS_TAGS_PATH
+"set tags+=$ROMANS_TAGS_PATH
+
+for tagfile in split(globpath('$HOME/.tags/', '*'), '\n')
+    let &tags .=',' . tagfile
+endfor
 
 " treat tag paths as global
 set notagrelative
