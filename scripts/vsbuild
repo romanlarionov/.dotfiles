@@ -131,11 +131,6 @@ def main():
 
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-    # suppress first few outputs from msbuild
-    nextline = process.stdout.readline()
-    nextline = process.stdout.readline()
-    nextline = process.stdout.readline()
-
     # loop through each line of output from the compiler and detect if its worth printing
     count = 0
     while True:
@@ -152,7 +147,7 @@ def main():
 
             # TODO: find regex that works for all inputs
             # strips global file path for file in question
-            nextline = re.search('((\w|\d|\_|\-)*(\\(?=.(?!\\))+)*\.).*', nextline)
+            #nextline = re.search('((\w|\d|\_|\-)*(\\(?=.(?!\\))+)*\.).*', nextline)
 
             if nextline != None:
                 # TODO: maybe add text wrapping

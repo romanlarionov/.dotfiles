@@ -31,7 +31,7 @@ function! BuildProject(line1, ...) abort
         let s:build_script_available = 1
     endif
 
-    execute '!./' . g:build_script
+    "execute '!./' . g:build_script
     let build_cmd = '!./' . g:build_script
 
     " provide arguements if specified
@@ -46,7 +46,9 @@ function! BuildProject(line1, ...) abort
 endfunction
 
 command! -range=% -nargs=1 BuildProject call BuildProject(<f-args>)
-nnoremap <silent> <C-B> :BuildProject<CR>
+nnoremap <silent> <C-B> :BuildProject --build<CR>
+nnoremap <silent> <F5> :BuildProject --start_debugging<CR>
+nnoremap <silent> <S-F5> :BuildProject --stop_debugging<CR>
 
 augroup misc_group
     autocmd!
@@ -256,6 +258,7 @@ endif
 syntax enable
 syntax sync minlines=16 maxlines=64
 
+set cursorline
 set synmaxcol=256
 set hlsearch
 
@@ -268,7 +271,7 @@ highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
 highlight IncSearch    cterm=none ctermbg=darkgray  ctermfg=yellow
 highlight Search       cterm=none ctermbg=yellow    ctermfg=black
 highlight Visual       cterm=none ctermbg=yellow    ctermfg=black
-highlight Folded       cterm=bold ctermbg=none      ctermfg=yellow
+highlight Folded       cterm=bold                   ctermfg=yellow
 
 highlight LineNr       cterm=none                   ctermfg=blue
 highlight CursorLineNr cterm=none                   ctermfg=yellow
@@ -276,7 +279,7 @@ highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=white
 highlight VertSplit    cterm=none ctermbg=black     ctermfg=darkgray
 
 highlight StatusLine   cterm=none ctermbg=darkblue  ctermfg=black
-highlight StatusLineNC cterm=none ctermbg=darkblue ctermfg=black
+highlight StatusLineNC cterm=none ctermbg=darkblue  ctermfg=black
 
 highlight Pmenu        cterm=none ctermbg=darkgreen ctermfg=black
 highlight PmenuSel     cterm=none ctermbg=blue      ctermfg=black

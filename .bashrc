@@ -44,8 +44,7 @@ export PS1
 rgrep()
 {
     # TODO: need to change the line number format to: +<num> vs :<num>
-    # this is for each vim support to jump to the correct line number after
-    # a grep
+    # this is for each vim support to jump to the correct line number after a grep
     local TARGET_DIR_REGEX
     local TARGET_DIR
     local S_DIR
@@ -55,7 +54,7 @@ rgrep()
     S_DIR=$(if [ -z "${TARGET_DIR[0]}" ]; then echo "./"; else echo "${TARGET_DIR[0]}"; fi)
 
     grep -irnI --include="*${TARGET_DIR[1]##*.}" "${1}" "${S_DIR}" \
-        --color=auto --exclude-dir={build,.git,node_modules,deps,assets};
+        --color=auto --exclude-dir={build,.git,node_modules,deps,assets,Debug,Release};
 
     # https://stackoverflow.com/questions/11456403/stop-shell-wildcard-character-expansion
     set +f
