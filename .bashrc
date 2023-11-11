@@ -1,66 +1,62 @@
 
-print_ssh_ps1()
+function print_ssh_ps1()
 {
     if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
         printf "\e[31m@%s\e[0m" "$(hostname)"
     fi
 }
 
-print_git_branch_ps1()
+function print_git_branch_ps1()
 {
     local BRANCH_NAME
     BRANCH_NAME="$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
 
     if [[ -n "${BRANCH_NAME}" ]]; then
-        local HAS_UNSTAGED
-        HAS_UNSTAGED="$(git status 2>/dev/null | grep 'Changes not staged for commit')"
-
         local BGCOL
-        if [[ -z "${HAS_UNSTAGED}" ]]; then
+        if [[ -z "$(git status 2>/dev/null | grep 'Changes not staged for commit')" ]]; then
             BGCOL="\e[42;30m"
         else
             BGCOL="\e[43;30m"
         fi
 
-        printf "\x01${BGCOL}\x02 %s \x01\e[0m\x02" ${BRANCH_NAME}
+        printf "\x01${BGCOL}\x02 ${BRANCH_NAME} \x01\e[0m\x02"
     fi
 }
 
-PS1='\[\e]0;\007\]'                 # set window title
-PS1="$PS1 "                         # <space>
-PS1="$PS1\u"                        # user
-PS1="$PS1\$(print_ssh_ps1)"         # bash function
-PS1="$PS1 "                         # <space>
-PS1="$PS1\[\e[44;30m\]"             # change to blue background, black foreground
-PS1="$PS1 "                         # <space>
-PS1="$PS1\w"                        # current working directory
-PS1="$PS1 "                         # <space>
-PS1="$PS1\[\e[0m\]"                 # change to blue background, black foreground
-PS1="$PS1\$(print_git_branch_ps1)"  # bash function
-PS1="$PS1\[\e[0m\]"                 # clear color
-PS1="$PS1 "                         # <space>
+PS1='\[\e]0;\007\]'                   # set window title
+PS1="${PS1} "                         # <space>
+PS1="${PS1}\u"                        # user
+PS1="${PS1}\$(print_ssh_ps1)"         # bash function
+PS1="${PS1} "                         # <space>
+PS1="${PS1}\[\e[44;30m\]"             # change to blue background, black foreground
+PS1="${PS1} "                         # <space>
+PS1="${PS1}\w"                        # current working directory
+PS1="${PS1} "                         # <space>
+PS1="${PS1}\[\e[0m\]"                 # change to blue background, black foreground
+PS1="${PS1}\$(print_git_branch_ps1)"  # bash function
+PS1="${PS1}\[\e[0m\]"                 # clear color
+PS1="${PS1} "                         # <space>
 export PS1
 
-rgrep()
+function rgrep()
 {
     # TODO: need to change the line number format to: +<num> vs :<num>
     # this is for each vim support to jump to the correct line number after a grep
     local TARGET_DIR_REGEX
     local TARGET_DIR
     local S_DIR
-    
-    TARGET_DIR_REGEX=$(if [ -z "${2}" ]; then echo "./"; else echo "${2}"; fi)
+
+    TARGET_DIR_REGEX=$(if [ -z "${2}" ]; then echo "."; else echo "${2}"; fi)
     IFS="*" read -r -a TARGET_DIR <<<"${TARGET_DIR_REGEX}"
-    S_DIR=$(if [ -z "${TARGET_DIR[0]}" ]; then echo "./"; else echo "${TARGET_DIR[0]}"; fi)
+    S_DIR=$(if [ -z "${TARGET_DIR[0]}" ]; then echo "."; else echo "${TARGET_DIR[0]}"; fi)
 
-    grep -irnI --include="*${TARGET_DIR[1]##*.}" "${1}" "${S_DIR}" \
-        --color=auto --exclude-dir={build,.git,node_modules,deps,assets,Debug,Release};
-
-    # https://stackoverflow.com/questions/11456403/stop-shell-wildcard-character-expansion
-    set +f
+    local GREP_OUT
+    GREP_OUT="$(script -q /dev/null grep -iInr --include="*${TARGET_DIR[1]##*.}" "${1}" "${S_DIR}" \
+        --color=auto --exclude-dir={build,.git,node_modules,deps,assets} | sed 's/\.\/*//')"
+    echo "${GREP_OUT}"
 }
 
-rfind()
+function rfind()
 {
     local TARGET_DIR
     TARGET_DIR="${2}"
@@ -70,7 +66,7 @@ rfind()
     find "${TARGET_DIR}" -iname "*${1}*";
 }
 
-setup_ssh_agent()
+function setup_ssh_agent()
 {
     mkdir -p "${HOME}/.ssh"
     SSH_AGENT_TIMEOUT=9000 # 2.5 hours
@@ -93,17 +89,19 @@ setup_ssh_agent()
 }
 
 # If running a git command for the first time, setup ssh-agent
-g()
+function g()
 {
-    # todo: need to only run when git would normally request a password (not on git status)
+    # TODO: need to only run when git would normally request a password (not on git status)
     setup_ssh_agent
     git "${@}"
 }
 
-tag()
+function tag()
 {
-    if [[ -z $(which mintty.exe 2>/dev/null) ]]; then
-        return
+    if [[ "${OSTYPE}" == *"msys"* ]]; then
+        if [[ -z $(which mintty.exe 2>/dev/null) ]]; then
+            return
+        fi
     fi
 
     local TARGET_DIR
@@ -114,7 +112,7 @@ tag()
     find "${TARGET_DIR}" -type f -iregex '.*\.\(h\|hpp\|c\|cpp\|hxx\)$' | xargs -d '\n' ctags -a
 }
 
-ropen()
+function ropen()
 {
     if [[ "${OSTYPE}" == *"msys"* ]]; then
         # NOTE: Mintty doesn't play nice with spaces in dir paths. nothing I can do..
@@ -136,37 +134,26 @@ alias la="ls -a"
 alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
-alias grep="grep -iI --color=auto"
-alias rgrep="set -f; rgrep "
+alias wc="wc -l"
+alias xgrep="xargs grep -iIr --color=auto"
+alias grep="grep -iI --color=auto -d skip"
 alias vim='vim --noplugin -u ${HOME}/.vimrc'
 alias ebrc='vim ${HOME}/.bashrc'
-alias sbrc='source ${HOME}/.bashrc > /dev/null && cd -'
-alias p3="python3"
+alias sbrc='cd . && source ${HOME}/.bashrc && cd - >/dev/null'
 alias diff="diff -Bd -U 5 --color=auto"
 
 if [[ -n $(which mintty.exe 2>/dev/null) ]]; then
     alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
 fi
 
-# TODO: I seem to get an error with $(ls *) or $(rgrep *)... cannot remove '*': No such file or directory
-# TODO: sometimes rgrep fails to recurse if specifying file type. e.g. rgrep foo *.cpp
-# TODO: can I make the install script handle the .gitconfig better?
-# TODO: consider replacing path printout with just ';'. can print pwd in window header. footer?
-# TODO: add todo script
-# TODO: fix issue where git asks for password on term startup
-# TODO: fix issue of printing bashrc on term startup
-
-# updates shell window size after each command
 shopt -s checkwinsize
-
-export TERM=xterm-256color
-
-# history stuffz
 shopt -s histappend
+
 HISTCONTROL=ignoredups:erasedups
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
 export HISTSIZE=100000
 export HISTFILESIZE=${HISTSIZE}
+export TERM=xterm-256color
 
 if [[ -f "${HOME}/.bashrc.local" ]]; then
     source "${HOME}/.bashrc.local"

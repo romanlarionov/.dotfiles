@@ -10,6 +10,9 @@ set noswapfile
 set novisualbell
 set belloff=all
 
+" save on focus lost
+autocmd FocusLost * nested silent! wall
+
 " copies all yank commands to clipboard
 set clipboard=unnamed
 
@@ -57,7 +60,6 @@ augroup misc_group
     " TODO: netrw (file tree) doesn't load on startup anymore...
     " TODO: color matching for parens doesn't load on startup anymore...
 
-    " TODO: for some reason, the help menu starts showing up at the top sometimes...
     " use vertical split for help
     autocmd FileType help wincmd L
 
@@ -163,6 +165,9 @@ set notagrelative
 " Ctrl-F starts fuzzy finding files
 nnoremap <C-F> :find *
 
+" '*' key won't match whole words
+nnoremap <silent> * g*
+
 " TODO: when I use :find, I would like it to search through my loaded buffers. Need to write a function I think:
 " https://vi.stackexchange.com/questions/2904/how-to-show-search-results-for-all-open-buffers
 
@@ -196,15 +201,16 @@ nnoremap <ScrollWheelDown> 3<C-D>:set scroll=0<CR>
 nnoremap <S-K> <C-U>
 nnoremap <S-J> <C-D>
 nnoremap <S-L> $
-nnoremap <S-H> ^
-vnoremap <S-L> $
-vnoremap <S-H> ^
+nnoremap <S-H> 0
+xnoremap <S-L> $
+xnoremap <S-H> ^
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Indentation
 "{
 
 set autoindent
+"set cindent
 set expandtab
 set tabstop=4
 set shiftwidth=4
@@ -215,13 +221,16 @@ set shiftround
 " allow backspace to go to previous line
 set backspace=indent,eol,start
 
-" TODO: can I make this not exit virtual mode?
-" tab in visual mode indents
-vnoremap <TAB> >
-vnoremap <S-TAB> <
-
 nnoremap < <<
 nnoremap > >>
+
+" tab indents whole line in visual mode
+xnoremap <TAB> >gv
+xnoremap <S-TAB> <gv
+
+" TODO: autoindent will move cursor to start of line when exiting insert mode
+" on a line with only whitespace. 'S' will enter insert mode with correct 
+" indent level but I'd like to just use 'i'.
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Formatting
@@ -229,13 +238,15 @@ nnoremap > >>
 
 set formatoptions+=ro
 
-" TODO: these should be smarter and context dependent
 " print matching braces
 inoremap { {}<Esc>i
-"inoremap ( ()<Esc>i
-"inoremap [ []<Esc>i
-"inoremap " ""<Esc>i
-"inoremap ' ''<Esc>i
+inoremap ( ()<Esc>i
+inoremap [ []<Esc>i
+inoremap " ""<Esc>i
+inoremap ' ''<Esc>i
+
+" opens curly braces with cursor in indented position between
+inoremap <expr> <cr> getline(".")[col(".")-2:col(".")-1]=="{}" ? "<cr><bs><esc>O" : "<cr>"
 
 set foldopen=hor,search,undo
 
@@ -268,13 +279,14 @@ set showmatch
 highlight Comment      cterm=none                   ctermfg=darkgreen
 highlight ErrorMsg     cterm=none ctermbg=darkred   ctermfg=black
 
-highlight IncSearch    cterm=none ctermbg=darkgray  ctermfg=yellow
-highlight Search       cterm=none ctermbg=yellow    ctermfg=black
-highlight Visual       cterm=none ctermbg=yellow    ctermfg=black
+highlight IncSearch    cterm=bold ctermbg=darkgray  ctermfg=yellow
+highlight Search       cterm=none ctermbg=darkgray  ctermfg=yellow
+highlight Visual       cterm=none ctermbg=darkgray
 highlight Folded       cterm=bold                   ctermfg=yellow
 
 highlight LineNr       cterm=none                   ctermfg=blue
-highlight CursorLineNr cterm=none                   ctermfg=yellow
+highlight CursorLine   cterm=none ctermbg=darkgray
+highlight CursorLineNr cterm=bold                   ctermfg=yellow
 highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=white
 highlight VertSplit    cterm=none ctermbg=black     ctermfg=darkgray
 
@@ -288,6 +300,10 @@ highlight DiffAdd      cterm=none ctermbg=darkgray  ctermfg=darkgreen
 highlight DiffChange   cterm=none ctermbg=darkgray  ctermfg=darkgreen
 highlight DiffDelete   cterm=none ctermbg=darkgray  ctermfg=darkred  
 highlight DiffText     cterm=none ctermbg=darkgray  ctermfg=darkred
+
+" insert mode sets line number highlight green
+autocmd InsertEnter    * highlight CursorLineNr ctermbg=green ctermfg=black
+autocmd InsertLeavePre * highlight CursorLineNr ctermbg=black ctermfg=yellow
 
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Statusline
@@ -356,6 +372,9 @@ set bufhidden=hide
 set splitright
 set splitbelow
 set previewheight=14
+
+" keep cursor position when switching between open buffers
+set nostartofline
 
 " tab switches windows
 nnoremap <Tab> <C-W>w

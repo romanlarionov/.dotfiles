@@ -51,17 +51,24 @@ done
 
 # install default utilities for this platform
 if [[ "$(lsb_release -si 2>/dev/null)" == "Ubuntu" ]]; then
-    sudo apt-get install -q -y vim cmake wget curl clang-format cscope xfonts-utils
+    sudo apt-get install -q -y vim cmake wget curl clang-format xfonts-utils
 
 elif [[ "$(uname)" == "Darwin" ]]; then
-    if [[ $(command -v brew) == "" ]]; then
-        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        brew install brew-cask cmake wget vim global ctags cscope ag
+    if [[ -z "$(command -v brew)" ]]; then
+        sudo xcodebuild -license accept
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ${HOME}/.bash_profile
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        brew install brew-cask cmake wget ctags python3
         brew linkapps
     fi
 fi
 
 if [[ -n "$(command pip 2>/dev/null)" ]]; then
     pip install argparse Pillow numpy scipy matplotlib &>/dev/null
+fi
+
+if [[ -n "$(command pip3 2>/dev/null)" ]]; then
+    pip3 install argparse Pillow numpy scipy matplotlib &>/dev/null
 fi
 
