@@ -9,10 +9,10 @@ function print_ssh_ps1()
 function print_git_branch_ps1()
 {
     local BRANCH_NAME
-    BRANCH_NAME="$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
+    BRANCH_NAME="$(git branch --show-current 2> /dev/null)"
 
     if [[ -n "${BRANCH_NAME}" ]]; then
-        local BGCOL
+        local BGCOL="\e[43;30m"
         if [[ -z "$(git status 2>/dev/null | grep 'Changes not staged for commit')" ]]; then
             BGCOL="\e[42;30m"
         else
@@ -28,11 +28,11 @@ PS1="${PS1} "                         # <space>
 PS1="${PS1}\u"                        # user
 PS1="${PS1}\$(print_ssh_ps1)"         # bash function
 PS1="${PS1} "                         # <space>
-PS1="${PS1}\[\e[44;30m\]"             # change to blue background, black foreground
+PS1="${PS1}\[\e[44;30m\]"             # begin blue background, black foreground
 PS1="${PS1} "                         # <space>
 PS1="${PS1}\w"                        # current working directory
 PS1="${PS1} "                         # <space>
-PS1="${PS1}\[\e[0m\]"                 # change to blue background, black foreground
+PS1="${PS1}\[\e[0m\]"                 # end blue background, black foreground
 PS1="${PS1}\$(print_git_branch_ps1)"  # bash function
 PS1="${PS1}\[\e[0m\]"                 # clear color
 PS1="${PS1} "                         # <space>
@@ -50,6 +50,7 @@ function rgrep()
     IFS="*" read -r -a TARGET_DIR <<<"${TARGET_DIR_REGEX}"
     S_DIR=$(if [ -z "${TARGET_DIR[0]}" ]; then echo "."; else echo "${TARGET_DIR[0]}"; fi)
 
+    # TODO: can't use 'script' as it isn't cross platform
     local GREP_OUT
     GREP_OUT="$(script -q /dev/null grep -iInr --include="*${TARGET_DIR[1]##*.}" "${1}" "${S_DIR}" \
         --color=auto --exclude-dir={build,.git,node_modules,deps,assets} | sed 's/\.\/*//')"
@@ -135,11 +136,15 @@ alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
 alias wc="wc -l"
+
+# TODO: the grep/find stuff is so complicated...
+# I'm sure there's something simpler I could do
+alias _grep_common="grep -iI --color=auto -d skip"
 alias xgrep="xargs grep -iIr --color=auto"
-alias grep="grep -iI --color=auto -d skip"
+#alias rgrep="ls | xargs grep -iIr --color=auto"
 alias vim='vim --noplugin -u ${HOME}/.vimrc'
-alias ebrc='vim ${HOME}/.bashrc'
-alias sbrc='cd . && source ${HOME}/.bashrc && cd - >/dev/null'
+alias edf='cd . && cd ${HOME}/.vim/sessions && vim && cd - >/dev/null'
+alias sdf='cd . && source ${HOME}/.bashrc && cd - >/dev/null'
 alias diff="diff -Bd -U 5 --color=auto"
 
 if [[ -n $(which mintty.exe 2>/dev/null) ]]; then

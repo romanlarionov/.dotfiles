@@ -38,8 +38,19 @@ if [[ -d "${HOME}/.dotfiles" ]]; then
     fi
 fi
 
-if [[ ! -z "${ROMANS_PATH}" ]]; then
+if [[ "${OSTYPE}" == *"darwin"* ]]; then
+    if [[ -n "$(command -v brew)" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+fi
+
+if [[ -s "${HOME}/.cargo/env" ]]; then
+    source "${HOME}/.cargo/env"
+fi
+
+if [[ -n "${ROMANS_PATH}" ]]; then
     PATH="${ROMANS_PATH}:${PATH}"
 fi
 
 export PATH
+
