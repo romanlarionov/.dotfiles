@@ -20,11 +20,15 @@
     co = checkout
     pl = pull --rebase origin
     ps = push origin
+    f = fetch
+    amend = commit --amend --reuse-message=HEAD
 [credential]
     helper = cache --timeout=18000 # 5 hours
 [help]
     autocorrect = 1
 [diff]
     tool = vimdiff
+    renames = copies
+    algorithm = patience
 [difftool]
     prompt = false

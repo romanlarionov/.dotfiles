@@ -39,7 +39,7 @@ if [[ -d "${HOME}/.dotfiles" ]]; then
 fi
 
 if [[ "${OSTYPE}" == *"darwin"* ]]; then
-    if [[ -n "$(command -v brew)" ]]; then
+    if [[ -z "$(command -v brew)" ]]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
 fi

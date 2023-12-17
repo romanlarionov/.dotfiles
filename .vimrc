@@ -285,7 +285,7 @@ highlight Visual       cterm=none ctermbg=darkgray
 highlight Folded       cterm=bold                   ctermfg=yellow
 
 highlight LineNr       cterm=none                   ctermfg=blue
-highlight CursorLine   cterm=none ctermbg=darkgray
+highlight CursorLine   cterm=none ctermbg=black
 highlight CursorLineNr cterm=bold                   ctermfg=yellow
 highlight TabLine      cterm=none ctermbg=darkgray  ctermfg=white
 highlight VertSplit    cterm=none ctermbg=black     ctermfg=darkgray
