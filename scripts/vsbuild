@@ -15,6 +15,9 @@ import re
 
 # TODO: probably want a better way of differentiating between tiers
 msbuild_path_dict = {
+    17: {
+        r"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\MSBuild.exe"
+    },
     15: {
         r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\amd64\MSBuild.exe",
         r"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MSBuild.exe"
@@ -60,7 +63,7 @@ def parse_args():
     parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
     parser.add_argument('-w', '--warnings', action="store_true", default=False, help='enable showing warning messages')
     parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
-    parser.add_argument('-v', '--version', type=int, choices=[14, 15], default=15, help='version of visual studio')
+    parser.add_argument('-v', '--version', type=int, choices=[14, 15, 17], default=17, help='version of visual studio')
     parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
     parser.add_argument('solution_path', help='path to VS solution file')
 
