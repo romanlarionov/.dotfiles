@@ -1,4 +1,4 @@
-BoldAsFont=-1
+BoldAsFont=yes
 ThemeFile=flat-ui
 Transparency=off
 OpaqueWhenFocused=no
@@ -20,3 +20,4 @@ Locale=en_US
 Charset=UTF-8
 ConfirmExit=no
 SuppressDEC=12
+ClicksPlaceCursor=yes

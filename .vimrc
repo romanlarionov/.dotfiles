@@ -240,10 +240,10 @@ set formatoptions+=ro
 
 " print matching braces
 inoremap { {}<Esc>i
-inoremap ( ()<Esc>i
-inoremap [ []<Esc>i
-inoremap " ""<Esc>i
-inoremap ' ''<Esc>i
+"inoremap ( ()<Esc>i
+"inoremap [ []<Esc>i
+"inoremap " ""<Esc>i
+"inoremap ' ''<Esc>i
 
 " opens curly braces with cursor in indented position between
 inoremap <expr> <cr> getline(".")[col(".")-2:col(".")-1]=="{}" ? "<cr><bs><esc>O" : "<cr>"
