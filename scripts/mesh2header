@@ -1,0 +1,188 @@
+#!python
+#
+# Script for command line dumping of mesh data into a standardized C++ consumable format.
+# This will parse a given mesh file {obj} and output a valid C++ header, which defines 
+# various buffers; with inline mesh data, including {positions, indices, prims}.
+#
+# Useful for quickly loading a mesh into a project without including a parser/loader.
+#
+# TODO: maybe include support for various bitdepth outputs if I find it necessary
+#
+# Usage:
+#   mesh2header <mesh filepath>
+#
+
+import os
+import argparse
+
+class OBJ:
+    def __init__(self, filename):
+        self.filename  = filename
+        self.positions = []
+        self.normals   = []
+        self.texcoords = []
+        self.indices   = []
+        self.vertexComponentCount = 3
+        self._texcoordOrdering = {}
+        self._normalOrdering = {}
+        
+    def parse(self, swapyz=False):
+        for line in open(self.filename, "r"):
+            if line.startswith('#'): continue
+            values = line.split()
+            if not values: continue
+
+            if values[0] == 'v':
+                v = map(float, values[1:4])
+                #if swapyz:
+                #    tmp = v[1]
+                #    v[1] = v[2]
+                #    v[2] = tmp
+                self.positions.append(v)
+
+            elif values[0] == 'vn':
+                v = map(float, values[1:4])
+                #if swapyz:
+                #    tmp = v[1]
+                #    v[1] = v[2]
+                #    v[2] = tmp
+                self.normals.append(v)
+            elif values[0] == 'vt':
+                self.texcoords.append(map(float, values[1:3]))
+
+            # TODO: keep track of the largest index seen so far and if
+            # it exceeds 2^16, then switch to uint32_t based indexing
+            elif values[0] == 'f':
+                face = []
+                for v in values[1:]:
+                    w = v.split('/')
+                    idx = int(w[0]) - 1 # OBJs are 1-indexed...
+                    face.append(idx)
+                    if len(w) >= 2 and len(w[1]) > 0:
+                        self._texcoordOrdering[idx] = int(w[1]) - 1
+                    if len(w) >= 3 and len(w[2]) > 0:
+                        self._normalOrdering[idx] = int(w[2]) - 1
+                self.indices.append(face)
+
+        # Some OBJ files have separate index values for texcoords/normals even though
+        # they map one-to-one with the position indices...
+        # This reorders the texcoord/normals buffers to match so there's only one index buffer.
+        #if self.normals != []:
+        if self.texcoords != []:
+            texcoords = []
+            for idx in range(len(self.positions)):
+                val = self.texcoords[self._texcoordOrdering[idx]]
+                texcoords.append(val)
+            self.texcoords = texcoords
+
+        self._attributes = [attr for attr in vars(self)
+                            if not attr.startswith("_")
+                            and isinstance(getattr(self, attr), list)
+                            and not self.getCount(attr) == "0"]
+
+    def getType(self, attr):
+        return 'uint32_t' if attr == 'indices' else 'float'
+
+    def getCount(self, attr):
+        return str(len(getattr(self, attr)))
+
+    def _serializeVertexAttribute(self, v, attr, suffix):
+        _map = getattr(self, attr)
+        _list = list(_map[v])
+        _list = [str(f) + suffix for f in _list] # append literal suffix to each number
+        return '    ' + ', '.join(map(str, _list)) + ','
+
+    def serialize_header(self, filename):
+        if os.path.isfile(filename + '.h'):
+            yellow("File already exists. Overriding.")
+        file = open(filename + '.h', "w")
+        meshName = filename
+        meshName = (meshName.split('/')[-1]) if '/' in meshName else meshName
+        meshName = (meshName.split('\\')[-1]) if '\\' in meshName else meshName
+
+        l = []
+        l.append("// Auto-generated file. Do not modify.")
+        l.append("#include <vector>\n")
+        l.append("namespace vv { namespace assets { namespace " + meshName + " {\n")
+        l.append("static struct " + meshName + "_ImportMesh {")
+        for attr in self._attributes:
+            l.append("    " + self.getType(attr) + " *m_" + attr + " = nullptr;")
+
+        posCount = self.getCount('positions')
+        stride = self.vertexComponentCount * 4
+        l.append("\n    const int m_vertexCount          = " + posCount + ";")
+        l.append("    const int m_primCount            = " + self.getCount('indices') + ";")
+        l.append("    const int m_indexCount           = " + str(int(self.getCount('indices')) * 3) + ";")
+        l.append("    const int m_vertexStrideBytes    = " + str(stride) + ";")
+        l.append("    const int m_vertexBufSizeBytes   = " + str(int(posCount) * stride) + ";")
+        l.append("    const int m_vertexBufSizeDwords  = " + str(int(posCount) * self.vertexComponentCount) + ";")
+        l.append("    const int m_vertexComponentCount = " + str(self.vertexComponentCount) + ";")
+        l.append("} inst;\n")
+
+        for attr in self._attributes:
+            l.append("extern const std::vector<" + self.getType(attr) + "> " + attr + ";")
+        l.append("\n} // namespace " + meshName)
+        l.append("} // namespace assets")
+        l.append("} // namespace vv")
+        file.writelines('\n'.join(l))
+        file.close()
+
+    def serialize_source(self, filename):
+        if os.path.isfile(filename + '.cpp'):
+            yellow("File already exists. Overriding.")
+        file = open(filename + '.cpp', "w")
+        meshName = filename
+        meshName = (meshName.split('/')[-1]) if '/' in meshName else meshName
+        meshName = (meshName.split('\\')[-1]) if '\\' in meshName else meshName
+
+        l = []
+        l.append("// Auto-generated file. Do not modify.")
+        l.append("#include \"" + meshName + ".h\"\n")
+        l.append("namespace vv { namespace assets { namespace " + meshName + " {\n")
+        for attr in self._attributes:
+            suffix = '' if attr == 'indices' else 'f'
+            count = self.getCount(attr)
+            l.append("// Vertex Attribute: " + attr + " (" + count + ")")
+            l.append("const static std::vector<" + self.getType(attr) + "> " + attr + " = {")
+            [ l.append(self._serializeVertexAttribute(v, attr, suffix))
+                for v in range(int(self.getCount(attr))) ]
+            l.append("};")
+            #l.append("static_assert(sizeof(" + attr + ") == ("
+            #         + count + " * 3 * sizeof(" + self.getType(attr) + ")));")
+            l.append("")
+
+        l.append("\n} // namespace " + meshName)
+        l.append("} // namespace assets")
+        l.append("} // namespace vv")
+        file.writelines('\n'.join(l))
+        file.close()
+
+    def serialize(self, meshName):
+        self.serialize_header(meshName)
+        self.serialize_source(meshName)
+
+def red(text):
+    print('\033[31m', text, '\033[0m', sep='')
+
+def yellow(text):
+    print('\033[33m', text, '\033[0m', sep='')
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file_path', help='path to obj file')
+    args = parser.parse_args()
+    if not os.path.isfile(args.file_path):
+        red("File not found: " + args.file_path)
+        return
+
+    filename, extension = os.path.splitext(args.file_path)
+    if extension != ".obj":
+        red("File format not supported: " + extension)
+        return
+
+    obj = OBJ(args.file_path)
+    obj.parse()
+    obj.serialize(filename)
+
+if __name__ == "__main__":
+    main()

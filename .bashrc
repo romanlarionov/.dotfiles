@@ -115,11 +115,28 @@ function tag()
 
 function ropen()
 {
+    local FILE_PATH
+    FILE_PATH="${@////\\}"
+    if [[ -z ${FILE_PATH} ]]; then
+        FILE_PATH="$(pwd)"
+        FILE_PATH="${FILE_PATH////\\}"
+    fi
+
     if [[ "${OSTYPE}" == *"msys"* ]]; then
-        # NOTE: Mintty doesn't play nice with spaces in dir paths. nothing I can do..
-        explorer.exe "${@////\\}" # replace slashes with backslashes (for windows)
+        # Replace slashes with backslashes.
+        # If the argument starts with "/c/" or "\c\", replace with "C:\".
+        explorer.exe $(echo ${FILE_PATH} | sed 's/\/c\//C:\\/' | sed 's/\\c\\/C:\\/')
     else
         open "${@}"
+    fi
+}
+
+function goog()
+{
+    if [[ "${OSTYPE}" == *"msys"* ]]; then
+        start "https://www.google.com/search?q=$(echo ${@} | sed 's/ /+/g')"
+    else
+        echo "TODO: fix me"
     fi
 }
 
@@ -146,10 +163,6 @@ alias vim='vim --noplugin -u ${HOME}/.vimrc'
 alias edf='cd . && cd ${HOME}/.vim/sessions && vim && cd - >/dev/null'
 alias sdf='cd . && source ${HOME}/.bashrc && cd - >/dev/null'
 alias diff="diff -Bd -U 5 --color=auto"
-
-if [[ -n $(which mintty.exe 2>/dev/null) ]]; then
-    alias mintty='$(mintty.exe --Border frame --exec "/usr/bin/bash" --login &)'
-fi
 
 shopt -s checkwinsize
 shopt -s histappend

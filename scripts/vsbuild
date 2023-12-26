@@ -59,14 +59,12 @@ def parse_solution_version(solution_path):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-
     parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
     parser.add_argument('-w', '--warnings', action="store_true", default=False, help='enable showing warning messages')
     parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
     parser.add_argument('-v', '--version', type=int, choices=[14, 15, 17], default=17, help='version of visual studio')
     parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
     parser.add_argument('solution_path', help='path to VS solution file')
-
     return parser.parse_args()
 
 def red(text):
@@ -104,7 +102,7 @@ def main():
         if not found:
             red("Couldn't find path to MSBuild.exe for version: " + str(args.version))
             red("MSBuild.exe search paths used: ")
-            [red("\t* " + path) for path in msbuild_path_dict[args.version])]
+            [red("\t* " + path) for path in msbuild_path_dict[args.version]]
             exit()
 
     # TODO: there should be an option to print out errors in a vim-consumable way
