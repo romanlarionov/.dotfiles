@@ -64,7 +64,7 @@ augroup misc_group
     autocmd FileType help wincmd L
 
     " treat shader files like C++
-    autocmd BufNewFile,BufRead *.vs,*.fs,*.ps,*.comp,*.gs,*.vert,*.frag,*.pix,*.geom,*.tess,*.glsl,*.hlsl set filetype=cpp
+    autocmd BufNewFile,BufRead *.vs,*.fs,*.ps,*.comp,*.gs,*.vert,*.frag,*.pix,*.geom,*.tess,*.glsl,*.hlsl,*.ush,*.usf set filetype=cpp
 
     " redraw with the cursorline in the middle of the screen
     autocmd BufEnter,WinEnter,WinNew,VimResized *,*.* norm zz

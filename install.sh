@@ -59,7 +59,7 @@ elif [[ "$(uname)" == "Darwin" ]]; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ${HOME}/.bash_profile
         eval "$(/opt/homebrew/bin/brew shellenv)"
-        brew install brew-cask cmake wget ctags python3
+        brew install brew-cask cmake wget ctags python3 ripgrep
         brew linkapps
     fi
 fi
