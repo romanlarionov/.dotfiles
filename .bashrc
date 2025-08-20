@@ -23,6 +23,11 @@ function print_git_branch_ps1()
     fi
 }
 
+function new_line()
+{
+    printf "\n "
+}
+
 PS1='\[\e]0;\007\]'                   # set window title
 PS1="${PS1} "                         # <space>
 PS1="${PS1}\u"                        # user
@@ -35,36 +40,18 @@ PS1="${PS1} "                         # <space>
 PS1="${PS1}\[\e[0m\]"                 # end blue background, black foreground
 PS1="${PS1}\$(print_git_branch_ps1)"  # bash function
 PS1="${PS1}\[\e[0m\]"                 # clear color
-PS1="${PS1} "                         # <space>
+PS1="${PS1}$(new_line)"               # <space>
+PS1="${PS1}"                          # <space>
 export PS1
-
-function rgrep()
-{
-    # TODO: need to change the line number format to: +<num> vs :<num>
-    # this is for each vim support to jump to the correct line number after a grep
-    local TARGET_DIR_REGEX
-    local TARGET_DIR
-    local S_DIR
-
-    TARGET_DIR_REGEX=$(if [ -z "${2}" ]; then echo "."; else echo "${2}"; fi)
-    IFS="*" read -r -a TARGET_DIR <<<"${TARGET_DIR_REGEX}"
-    S_DIR=$(if [ -z "${TARGET_DIR[0]}" ]; then echo "."; else echo "${TARGET_DIR[0]}"; fi)
-
-    # TODO: can't use 'script' as it isn't cross platform
-    local GREP_OUT
-    GREP_OUT="$(script -q /dev/null grep -iInr --include="*${TARGET_DIR[1]##*.}" "${1}" "${S_DIR}" \
-        --color=auto --exclude-dir={build,.git,node_modules,deps,assets} | sed 's/\.\/*//')"
-    echo "${GREP_OUT}"
-}
 
 function rfind()
 {
     local TARGET_DIR
-    TARGET_DIR="${2}"
-    if [[ -z "${TARGET_DIR}" ]]; then
-        TARGET_DIR="."
+    TARGET_DIR="."
+    if [[ -n "${2}" ]]; then
+        TARGET_DIR="${2}"
     fi
-    find "${TARGET_DIR}" -iname "*${1}*";
+    find "${TARGET_DIR}" -iname "*${1}*" | sed 's/\.\///' | rg -N "${1}"
 }
 
 function setup_ssh_agent()
@@ -82,10 +69,9 @@ function setup_ssh_agent()
         (umask 066; ssh-agent > "${SSH_ENV}")
         eval "$(<${SSH_ENV})" >/dev/null;
 
-        # assumes name of key is id_rsa
-        ssh-add -q -t ${SSH_AGENT_TIMEOUT} >/dev/null
+        ssh-add -q -t ${SSH_AGENT_TIMEOUT} -T ~/.ssh/github >/dev/null
     elif [ ! "${SSH_AUTH_SOCK}" ] || [ ${AGENT_RUN_STATE} = 1 ]; then
-        ssh-add -q -t ${SSH_AGENT_TIMEOUT} >/dev/null
+        ssh-add -q -t ${SSH_AGENT_TIMEOUT} -T ~/.ssh/github >/dev/null
     fi
 }
 
@@ -93,7 +79,7 @@ function setup_ssh_agent()
 function g()
 {
     # TODO: need to only run when git would normally request a password (not on git status)
-    setup_ssh_agent
+    #setup_ssh_agent
     git "${@}"
 }
 
@@ -110,7 +96,8 @@ function tag()
     if [[ -z "${TARGET_DIR}" ]]; then
         TARGET_DIR="."
     fi
-    find "${TARGET_DIR}" -type f -iregex '.*\.\(h\|hpp\|c\|cpp\|hxx\)$' | xargs -d '\n' ctags -a
+    find "${TARGET_DIR}" -type f -iregex '.*\.\(h\|hpp\|c\|cpp\|hxx\)$' | \
+        xargs -d '\n' ctags -a
 }
 
 function ropen()
@@ -140,6 +127,12 @@ function goog()
     fi
 }
 
+function github_ssh_keygen()
+{
+    ssh-keygen -t ed25519 -C "romanylarionov@gmail.com" -f ~/.ssh/github
+    setup_ssh_agent
+}
+
 if [[ "${OSTYPE}" == "darwin"* ]]; then
     LSCOLORS="Gxfxcxdxbxegedabagacad"
     export LSCOLORS
@@ -153,16 +146,12 @@ alias ll="ls -l"
 alias ..="cd .."
 alias ...="cd ../.."
 alias wc="wc -l"
-
-# TODO: the grep/find stuff is so complicated...
-# I'm sure there's something simpler I could do
-alias _grep_common="grep -iI --color=auto -d skip"
-alias xgrep="xargs grep -iIr --color=auto"
-#alias rgrep="ls | xargs grep -iIr --color=auto"
+alias rg="rg -in --trim"
 alias vim='vim --noplugin -u ${HOME}/.vimrc'
 alias edf='cd . && cd ${HOME}/.vim/sessions && vim && cd - >/dev/null'
 alias sdf='cd . && source ${HOME}/.bashrc && cd - >/dev/null'
 alias diff="diff -Bd -U 5 --color=auto"
+alias todo="vim ~/.todo"
 
 shopt -s checkwinsize
 shopt -s histappend

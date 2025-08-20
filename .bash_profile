@@ -52,5 +52,9 @@ if [[ -n "${ROMANS_PATH}" ]]; then
     PATH="${ROMANS_PATH}:${PATH}"
 fi
 
+eval $(ssh-agent -s)
+ssh-add ${HOME}/.ssh/github
+ssh-add ${HOME}/.ssh/github.old
+
 export PATH
 

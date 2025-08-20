@@ -9,11 +9,44 @@
 # TODO: maybe include support for various bitdepth outputs if I find it necessary
 #
 # Usage:
-#   mesh2header <mesh filepath>
+#   mesh2header <mesh filepath> [--aos]
 #
 
 import os
 import argparse
+
+class Index:
+    def __init__(self, posIdx: int, texcoordIdx: int = -1, normalIdx: int = -1):
+        self.posIdx = posIdx
+        self.texcoordIdx = texcoordIdx
+        self.normalIdx = normalIdx
+
+    def __repr__(self):
+        return (f"Index({self.posIdx}, {self.texcoordIdx}, {self.normalIdx})")
+
+    def __hash__(self):
+        return hash((self.posIdx, self.texcoordIdx, self.normalIdx))
+
+    def __eq__(self, other):
+        if not isinstance(other, Index):
+            return NotImplemented
+        return (self.posIdx == other.posIdx and 
+               self.texcoordIdx == other.texcoordIdx and 
+               self.normalIdx == other.normalIdx)
+
+    def isDuplicate(self, other) -> bool:
+        return (other.posIdx == self.posIdx and
+               (other.texcoordIdx != self.texcoordIdx or
+                other.normalIdx != self.normalIdx))
+
+class Face:
+    def __init__(self, v0: Index, v1: Index = None, v2: Index = None):
+        self.vertIndices = []
+        self.vertIndices.append(v0)
+        if v1 is not None:
+            self.vertIndices.append(v1)
+        if v2 is not None:
+            self.vertIndices.append(v2)
 
 class OBJ:
     def __init__(self, filename):
@@ -23,54 +56,91 @@ class OBJ:
         self.texcoords = []
         self.indices   = []
         self.vertexComponentCount = 3
+        self._faces     = []
         self._texcoordOrdering = {}
         self._normalOrdering = {}
+        #self._aos = aos
         
     def parse(self, swapyz=False):
+        uniqueIndices = {}
+        remappedIndices = {}
+
         for line in open(self.filename, "r"):
             if line.startswith('#'): continue
             values = line.split()
             if not values: continue
 
             if values[0] == 'v':
-                v = map(float, values[1:4])
-                #if swapyz:
-                #    tmp = v[1]
-                #    v[1] = v[2]
-                #    v[2] = tmp
+                v = list(map(float, values[1:4]))
                 self.positions.append(v)
-
             elif values[0] == 'vn':
-                v = map(float, values[1:4])
-                #if swapyz:
-                #    tmp = v[1]
-                #    v[1] = v[2]
-                #    v[2] = tmp
+                v = list(map(float, values[1:4]))
                 self.normals.append(v)
             elif values[0] == 'vt':
-                self.texcoords.append(map(float, values[1:3]))
-
-            # TODO: keep track of the largest index seen so far and if
-            # it exceeds 2^16, then switch to uint32_t based indexing
+                # only take 2 values even if more are present
+                v = list(map(float, values[1:3]))
+                self.texcoords.append(v)
             elif values[0] == 'f':
+                idxList = []
                 face = []
                 for v in values[1:]:
-                    w = v.split('/')
-                    idx = int(w[0]) - 1 # OBJs are 1-indexed...
-                    face.append(idx)
-                    if len(w) >= 2 and len(w[1]) > 0:
-                        self._texcoordOrdering[idx] = int(w[1]) - 1
-                    if len(w) >= 3 and len(w[2]) > 0:
-                        self._normalOrdering[idx] = int(w[2]) - 1
+                    w = [tmp - 1 for tmp in list(map(int, v.split('/')))]
+                    i = Index(*w)
+                    face.append(w[0])
+                    idxList.append(i)
+                    if w[0] not in uniqueIndices:
+                        uniqueIndices[w[0]] = []
+                    if i not in uniqueIndices[w[0]]:
+                        uniqueIndices[w[0]].append(i)
+                self._faces.append(Face(*idxList))
                 self.indices.append(face)
 
-        # Some OBJ files have separate index values for texcoords/normals even though
-        # they map one-to-one with the position indices...
-        # This reorders the texcoord/normals buffers to match so there's only one index buffer.
-        #if self.normals != []:
+        # Setup helper data structures for duplicating position data for when the
+        # texcoords can map to the same position multiple times. This can happen when the 
+        # texcoord index buffer assigns different uv values to the same vertex position.
+        #if self._aos:
+        for f in self._faces:
+            for vi in range(len(f.vertIndices)):
+                fidx = f.vertIndices[vi]
+                uidxList = uniqueIndices[fidx.posIdx]
+
+                # Check if we've already seen/created a new index for this duplicate
+                if fidx in remappedIndices:
+                    f.vertIndices[vi] = remappedIndices[fidx]
+                # this index has duplicates
+                elif len(uidxList) > 1 and fidx != uidxList[0]:
+                    # Create copy of position into position buffer
+                    self.positions.append(self.positions[fidx.posIdx])
+                    newPositionCount = len(self.positions)
+
+                    # Update helper data structures to remap duplicate to new index
+                    newIdx = Index(newPositionCount-1,fidx.texcoordIdx,fidx.normalIdx)
+                    remappedIndices[fidx] = newIdx
+                    f.vertIndices[vi] = newIdx
+                    uniqueIndices[fidx.posIdx].remove(fidx)
+
+        # Now that all the positions are unique, we can sort the texcoord/normal buffers 
+        # to the ordering that the position index buffer expects.
+        for f in self._faces:
+            face = []
+            for vi in range(len(f.vertIndices)):
+                fidx = f.vertIndices[vi]
+                if fidx.texcoordIdx != -1:
+                    self._texcoordOrdering[fidx.posIdx] = fidx.texcoordIdx
+                if fidx.normalIdx != -1:
+                    self._normalOrdering[fidx.posIdx] = fidx.normalIdx
+
+        positionCount = len(self.positions)
+        if self.normals != []:
+            normals = []
+            for idx in range(positionCount):
+                val = self.normals[self._normalOrdering[idx]]
+                normals.append(val)
+            self.normals = normals 
+
         if self.texcoords != []:
             texcoords = []
-            for idx in range(len(self.positions)):
+            for idx in range(positionCount):
                 val = self.texcoords[self._texcoordOrdering[idx]]
                 texcoords.append(val)
             self.texcoords = texcoords
@@ -81,16 +151,10 @@ class OBJ:
                             and not self.getCount(attr) == "0"]
 
     def getType(self, attr):
-        return 'uint32_t' if attr == 'indices' else 'float'
+        return 'unsigned int' if attr == 'indices' else 'float'
 
     def getCount(self, attr):
         return str(len(getattr(self, attr)))
-
-    def _serializeVertexAttribute(self, v, attr, suffix):
-        _map = getattr(self, attr)
-        _list = list(_map[v])
-        _list = [str(f) + suffix for f in _list] # append literal suffix to each number
-        return '    ' + ', '.join(map(str, _list)) + ','
 
     def serialize_header(self, filename):
         if os.path.isfile(filename + '.h'):
@@ -99,33 +163,48 @@ class OBJ:
         meshName = filename
         meshName = (meshName.split('/')[-1]) if '/' in meshName else meshName
         meshName = (meshName.split('\\')[-1]) if '\\' in meshName else meshName
+        meshName = meshName.capitalize()
+
+        stride = self.vertexComponentCount
+        vertexCount = self.getCount('positions')
+        #if aos:
+        if 'texcoords' in self._attributes:
+            stride += 2
+        if 'normals' in self._attributes:
+            stride += 3
+        stride = stride * 4
 
         l = []
         l.append("// Auto-generated file. Do not modify.")
         l.append("#include <vector>\n")
-        l.append("namespace vv { namespace assets { namespace " + meshName + " {\n")
-        l.append("static struct " + meshName + "_ImportMesh {")
-        for attr in self._attributes:
-            l.append("    " + self.getType(attr) + " *m_" + attr + " = nullptr;")
-
-        posCount = self.getCount('positions')
-        stride = self.vertexComponentCount * 4
-        l.append("\n    const int m_vertexCount          = " + posCount + ";")
-        l.append("    const int m_primCount            = " + self.getCount('indices') + ";")
-        l.append("    const int m_indexCount           = " + str(int(self.getCount('indices')) * 3) + ";")
+        l.append("namespace vv { namespace Assets { namespace " + meshName + " {\n")
+        l.append("static struct " + meshName + "_ImportMesh \n{")
+        l.append("    const int m_vertexCount          = " + vertexCount + ";")
+        l.append("    const int m_primCount            = " + self.getCount('_faces') + ";")
+        l.append("    const int m_indexCount           = " + str(int(self.getCount('_faces')) * 3) + ";")
         l.append("    const int m_vertexStrideBytes    = " + str(stride) + ";")
-        l.append("    const int m_vertexBufSizeBytes   = " + str(int(posCount) * stride) + ";")
-        l.append("    const int m_vertexBufSizeDwords  = " + str(int(posCount) * self.vertexComponentCount) + ";")
+        l.append("    const int m_vertexBufSizeBytes   = " + str(int(vertexCount) * stride) + ";")
+        l.append("    const int m_vertexBufSizeDwords  = " + str(int(int(vertexCount) * (stride / 4))) + ";")
         l.append("    const int m_vertexComponentCount = " + str(self.vertexComponentCount) + ";")
         l.append("} inst;\n")
 
-        for attr in self._attributes:
-            l.append("extern const std::vector<" + self.getType(attr) + "> " + attr + ";")
+        #if aos:
+        l.append("extern const std::vector<float> vertices;")
+        l.append("extern const std::vector<unsigned int> indices;")
+        #else:
+        #    for attr in self._attributes:
+        #        l.append("extern const std::vector<" + self.getType(attr) + "> " + attr + ";")
+
         l.append("\n} // namespace " + meshName)
-        l.append("} // namespace assets")
+        l.append("} // namespace Assets")
         l.append("} // namespace vv")
         file.writelines('\n'.join(l))
         file.close()
+
+    def _serializeVertexAttribute(self, v, _map, suffix):
+        _list = list(_map[v])
+        _list = [str(f) + suffix for f in _list] # append literal suffix to each number
+        return '    ' + ', '.join(map(str, _list)) + ','
 
     def serialize_source(self, filename):
         if os.path.isfile(filename + '.cpp'):
@@ -134,25 +213,47 @@ class OBJ:
         meshName = filename
         meshName = (meshName.split('/')[-1]) if '/' in meshName else meshName
         meshName = (meshName.split('\\')[-1]) if '\\' in meshName else meshName
+        meshName = meshName.capitalize()
 
         l = []
         l.append("// Auto-generated file. Do not modify.")
         l.append("#include \"" + meshName + ".h\"\n")
-        l.append("namespace vv { namespace assets { namespace " + meshName + " {\n")
-        for attr in self._attributes:
-            suffix = '' if attr == 'indices' else 'f'
-            count = self.getCount(attr)
-            l.append("// Vertex Attribute: " + attr + " (" + count + ")")
-            l.append("const static std::vector<" + self.getType(attr) + "> " + attr + " = {")
-            [ l.append(self._serializeVertexAttribute(v, attr, suffix))
-                for v in range(int(self.getCount(attr))) ]
-            l.append("};")
-            #l.append("static_assert(sizeof(" + attr + ") == ("
-            #         + count + " * 3 * sizeof(" + self.getType(attr) + ")));")
-            l.append("")
+        l.append("namespace vv { namespace Assets { namespace " + meshName + " {\n")
 
-        l.append("\n} // namespace " + meshName)
-        l.append("} // namespace assets")
+        #if aos:
+        count = self.getCount('positions')
+        l.append("// Vertices: (" + count + ")")
+        l.append("const static std::vector<float> vertices = {")
+        verts = getattr(self, 'positions')
+        if 'texcoords' in self._attributes:
+            verts = [verts[i] + getattr(self, 'texcoords')[i] for i in range(int(count))]
+        if 'normals' in self._attributes:
+            verts = [verts[i] + getattr(self, 'normals')[i] for i in range(int(count))]
+
+        [ l.append(self._serializeVertexAttribute(v, verts, 'f'))
+            for v in range(int(self.getCount('positions'))) ]
+        l.append("};\n")
+
+        l[-2] = l[-2][:-1] # Remove trailing comma after final element
+
+        l.append("const static std::vector<unsigned int> indices = {")
+        [ l.append(self._serializeVertexAttribute(v, self.indices, ''))
+            for v in range(int(self.getCount('indices'))) ]
+        l.append("};\n")
+
+        l[-2] = l[-2][:-1] # Remove trailing comma after final element
+
+        #else:
+        #    for attr in self._attributes:
+        #        suffix = '' if attr == 'indices' else 'f'
+        #        count = self.getCount(attr)
+        #        l.append("const static std::vector<" + self.getType(attr) + "> " + attr + " = {")
+        #        [ l.append(self._serializeVertexAttribute(v, getattr(self, attr), suffix))
+        #            for v in range(int(count)) ]
+        #        l.append("};\n")
+
+        l.append("} // namespace " + meshName)
+        l.append("} // namespace Assets")
         l.append("} // namespace vv")
         file.writelines('\n'.join(l))
         file.close()
@@ -170,6 +271,7 @@ def yellow(text):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('file_path', help='path to obj file')
+    #parser.add_argument('--aos', action="store_true", default=False, help='output header should interleave vertex data into Array of Structures format')
     args = parser.parse_args()
     if not os.path.isfile(args.file_path):
         red("File not found: " + args.file_path)

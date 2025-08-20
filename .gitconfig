@@ -22,6 +22,7 @@
     ps = push origin
     f = fetch
     amend = commit --amend --reuse-message=HEAD
+    undo = reset --soft HEAD^
 [credential]
     helper = cache --timeout=18000 # 5 hours
 [help]
@@ -33,7 +34,13 @@
 [difftool]
     prompt = false
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+[push]
+    default = upstream
+[gpg]
+    format = ssh
+[commit]
+    gpgsign = true

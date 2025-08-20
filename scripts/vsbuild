@@ -16,6 +16,7 @@ import re
 # TODO: probably want a better way of differentiating between tiers
 msbuild_path_dict = {
     17: {
+        r"C:\Program Files\Microsoft Visual Studio\2022\Professional\MSBuild\Current\Bin\amd64\MSBuild.exe",
         r"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\MSBuild.exe"
     },
     15: {
@@ -133,6 +134,9 @@ def main():
 
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+    # Assuming the build script is called from the project's root directory
+    project_parent_dir = os.sep.join(os.getcwd().split(os.sep)[0:-1]) + os.sep
+
     # loop through each line of output from the compiler and detect if its worth printing
     count = 0
     while True:
@@ -144,15 +148,14 @@ def main():
 
         if is_valid_message:
             count += 1
+
             # strips the ending details about which .vcxproj for error
             nextline = nextline[:nextline.rfind("[")]
 
-            # TODO: find regex that works for all inputs
             # strips global file path for file in question
-            #nextline = re.search('((\w|\d|\_|\-)*(\\(?=.(?!\\))+)*\.).*', nextline)
+            nextline = nextline.replace(project_parent_dir, "")
 
             if nextline != None:
-                # TODO: maybe add text wrapping
                 print(nextline)
 
         if process.poll() is not None:

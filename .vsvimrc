@@ -1,0 +1,3 @@
+
+let g:vsvim = 1
+source ~/.dotfiles/vimrc
