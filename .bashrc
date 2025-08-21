@@ -44,43 +44,60 @@ PS1="${PS1}$(new_line)"               # <space>
 PS1="${PS1}"                          # <space>
 export PS1
 
-function rfind()
-{
-    local TARGET_DIR
-    TARGET_DIR="."
-    if [[ -n "${2}" ]]; then
-        TARGET_DIR="${2}"
+SSH_AGENT_DIR="$HOME/.ssh-agent"
+mkdir -p "$SSH_AGENT_DIR"
+SSH_AGENT_FILE="$SSH_AGENT_DIR/agent.env"
+SSH_AGENT_TIMEOUT=7200 # Timeout in seconds
+
+# Load existing agent if available and not expired
+if [ -f "$SSH_AGENT_FILE" ]; then
+    source "$SSH_AGENT_FILE"
+    # Check if agent is alive and not expired
+    if ! kill -0 "$SSH_AGENT_PID" 2>/dev/null || \
+       [ $(( $(date +%s) - $SSH_AGENT_START )) -ge $SSH_AGENT_TIMEOUT ]; then
+        # Expired or dead, remove file
+        rm -f "$SSH_AGENT_FILE"
+        unset SSH_AGENT_PID SSH_AUTH_SOCK SSH_AGENT_START
     fi
-    find "${TARGET_DIR}" -iname "*${1}*" | sed 's/\.\///' | rg -N "${1}"
+fi
+
+start_ssh_agent()
+{
+    if [ -z "$SSH_AGENT_PID" ]; then
+        echo "Starting SSH agent..."
+        eval "$(ssh-agent -s)"
+        export SSH_AGENT_START=$(date +%s)
+
+        # Add signing key
+        if [ -f "$HOME/.ssh/github" ]; then
+            ssh-add "$HOME/.ssh/github"
+        fi
+
+        # Add auth key
+        if [ -f "$HOME/.ssh/github.old" ]; then
+            ssh-add "$HOME/.ssh/github.old"
+        fi
+
+        # Save environment for other terminals
+        echo "export SSH_AGENT_PID=$SSH_AGENT_PID" > "$SSH_AGENT_FILE"
+        echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$SSH_AGENT_FILE"
+        echo "export SSH_AGENT_START=$SSH_AGENT_START" >> "$SSH_AGENT_FILE"
+    fi
 }
 
-function setup_ssh_agent()
+# Override git to lazy-start agent for important commands
+git()
 {
-    mkdir -p "${HOME}/.ssh"
-    SSH_AGENT_TIMEOUT=9000 # 2.5 hours
-    SSH_ENV="${HOME}/.ssh/agent.env"
+    local important_cmds="commit cm push ps pull pl fetch rebase merge"
 
-    # setup environment
-    test -r "${SSH_ENV}" && eval "$(<${SSH_ENV})" >/dev/null;
+    local cmd="$1"
+    shift
 
-    AGENT_RUN_STATE=$(ssh-add -l >/dev/null 2>&1; echo ${?})
-
-    if [ ! "${SSH_AUTH_SOCK}" ] || [ ${AGENT_RUN_STATE} = 2 ]; then
-        (umask 066; ssh-agent > "${SSH_ENV}")
-        eval "$(<${SSH_ENV})" >/dev/null;
-
-        ssh-add -q -t ${SSH_AGENT_TIMEOUT} -T ~/.ssh/github >/dev/null
-    elif [ ! "${SSH_AUTH_SOCK}" ] || [ ${AGENT_RUN_STATE} = 1 ]; then
-        ssh-add -q -t ${SSH_AGENT_TIMEOUT} -T ~/.ssh/github >/dev/null
+    if [[ " $important_cmds " =~ " $cmd " ]]; then
+        start_ssh_agent
     fi
-}
 
-# If running a git command for the first time, setup ssh-agent
-function g()
-{
-    # TODO: need to only run when git would normally request a password (not on git status)
-    #setup_ssh_agent
-    git "${@}"
+    command git "$cmd" "$@"
 }
 
 function tag()
@@ -98,6 +115,16 @@ function tag()
     fi
     find "${TARGET_DIR}" -type f -iregex '.*\.\(h\|hpp\|c\|cpp\|hxx\)$' | \
         xargs -d '\n' ctags -a
+}
+
+function rfind()
+{
+    local TARGET_DIR
+    TARGET_DIR="."
+    if [[ -n "${2}" ]]; then
+        TARGET_DIR="${2}"
+    fi
+    find "${TARGET_DIR}" -iname "*${1}*" | sed 's/\.\///' | rg -N "${1}"
 }
 
 function ropen()
@@ -127,11 +154,6 @@ function goog()
     fi
 }
 
-function github_ssh_keygen()
-{
-    ssh-keygen -t ed25519 -C "romanylarionov@gmail.com" -f ~/.ssh/github
-    setup_ssh_agent
-}
 
 if [[ "${OSTYPE}" == "darwin"* ]]; then
     LSCOLORS="Gxfxcxdxbxegedabagacad"
@@ -147,11 +169,14 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias wc="wc -l"
 alias rg="rg -in --trim"
-alias vim='vim --noplugin -u ${HOME}/.vimrc'
+alias g="git"
+alias vim='vim -u ${HOME}/.vimrc'
 alias edf='cd . && cd ${HOME}/.vim/sessions && vim && cd - >/dev/null'
 alias sdf='cd . && source ${HOME}/.bashrc && cd - >/dev/null'
+alias cddf='cd ${HOME}/.dotfiles'
 alias diff="diff -Bd -U 5 --color=auto"
 alias todo="vim ~/.todo"
+alias github_ssh_keygen="ssh-keygen -t ed25519 -C "romanylarionov@gmail.com" -f ~/.ssh/github"
 
 shopt -s checkwinsize
 shopt -s histappend

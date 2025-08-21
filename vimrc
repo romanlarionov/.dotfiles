@@ -27,15 +27,23 @@ if g:vsvim == 0
     set belloff=all
 
     " keep cursor column the same after yanking then pasting a line above or below
-    function! Pcol(...) abort
-        let l:above = get(a:, 1, 0)
-        let l:col = virtcol('.')
-        execute 'normal!' l:above ? 'P' : 'p'
-        call cursor('.', l:col)
+    function! s:PasteLinewise(cmd) abort
+        " Only do this for linewise yanks
+        if getregtype('"') !=# 'V'
+          " If not linewise, just run normal p/P
+          execute 'normal!' a:cmd
+          return
+        endif
+        
+        let l:col = col('.') " Save current column
+        " Paste line
+        execute 'normal!' a:cmd
+        call cursor(line('.'), l:col) " Restore column
     endfunction
 
-    nnoremap <silent> p :call Pcol(0)<CR>
-    nnoremap <silent> P :call Pcol(1)<CR>
+    " Remap p and P in normal mode for linewise yanks
+    nnoremap <silent> p :call <SID>PasteLinewise('p')<CR>
+    nnoremap <silent> P :call <SID>PasteLinewise('P')<CR>
 
     " set the character for vertical separating column between windows
     set fillchars+=vert:│
@@ -51,7 +59,6 @@ if g:vsvim == 0
             let s:build_script_available = 1
         endif
 
-        "execute '!./' . g:build_script
         let build_cmd = '!./' . g:build_script
 
         " provide arguements if specified
@@ -60,8 +67,6 @@ if g:vsvim == 0
             let build_cmd .= args
         endif
 
-        " TODO: can I redirect this process' stdout? So it just prints a message instead of suspending the
-        " screen? (I think this can be done by using system()... but I do want to see the output printed sometimes..)
         execute build_cmd
     endfunction
 
@@ -70,12 +75,10 @@ if g:vsvim == 0
     nnoremap <silent> <F5> :BuildProject --start_debugging<CR>
     nnoremap <silent> <S-F5> :BuildProject --stop_debugging<CR>
 
+	filetype plugin on " plugins are enabled
+
     augroup misc_group
         autocmd!
-
-        " TODO: netrw doesn't load on startup anymore...
-        " TODO: netrw (file tree) doesn't load on startup anymore...
-        " TODO: color matching for parens doesn't load on startup anymore...
 
         " use vertical split for help
         autocmd FileType help wincmd L
@@ -85,8 +88,6 @@ if g:vsvim == 0
             autocmd BufNewFile,BufRead *.vs,*.fs,*.ps,*.comp,*.gs,*.vert,*.frag,*.pix,
                 \*.geom,*.tess,*.glsl,*.hlsl,*.hlsli,*.usf,*.ush set filetype=cpp
 
-            " TODO: this doesn't seem to work for vimdiff
-            " automatically makes split windows equal size after resizing app or font
             autocmd VimResized * if &equalalways | wincmd = | endif
         endif
 
@@ -94,10 +95,6 @@ if g:vsvim == 0
         autocmd BufEnter,WinEnter,WinNew,VimResized *,*.* norm zz
     augroup END
 endif
-
-" TODO: find out if there's a way to add empty 'padding' lines before the first line of code if you press 'zz'
-" towards the top of the file. This works for the bottom of the file. meaning if you type 'shft-g' followed by
-" 'zz', it will still bring the last line to the middle of the screen.
 
 let mapleader = " "
 
@@ -117,9 +114,6 @@ if g:vsvim == 0
             execute "mksession! " . g:session_file
         endif
     endfunction
-
-    " TODO: should automatically create tags and put them into the session directory...
-    " whether that's something that happens all the time is a good question'
 
     function! LoadSession()
         " if starting vim without referencing a file (no arguments)
@@ -165,7 +159,6 @@ if g:vsvim == 0
 
     " add ~/.tags directory when searching for a tag
     set tags+=~/.tags/*
-    "set tags+=$ROMANS_TAGS_PATH
 
     for tagfile in split(globpath('$HOME/.tags/', '*'), '\n')
         let &tags .=',' . tagfile
@@ -174,11 +167,68 @@ if g:vsvim == 0
     " treat tag paths as global
     set notagrelative
 
-    " TODO: need some way of specifying (for tags) that I want to follow the tag in a separate window.
-    " basically, I want it to show up to the right of the screen so I can keeyp looking at where I was just at.
-    " ^^ can look up 'window-tag'
+    " Show a tag definition inside a popup window
+    function! PopupTag(tag) abort
+        " If no tag given, use the word under the cursor
+        let l:tagname = a:tag ==# '' ? expand('<cword>') : a:tag
+        
+        " Get the tag location using taglist()
+        let l:matches = taglist(l:tagname)
+        if empty(l:matches)
+            echo "Tag not found: " . l:tagname
+            return
+        endif
+        
+        " We'll just take the first match (you could extend to menu)
+        let l:m = l:matches[0]
+        
+        " Read some lines from the file around the match
+        let l:file = l:m['filename']
+        
+        " Figure out the line number
+        let l:lnum = 0
+        if l:m['cmd'] =~# '^\d\+$'
+            " Direct line number
+            let l:lnum = str2nr(l:m['cmd'])
+        elseif l:m['cmd'] =~# '^/.\+/$'
+            " It's a search pattern: strip slashes
+            let l:pat = l:m['cmd'][1:-2]
+            let l:filelines = readfile(l:file)
+            for lnum in range(1, len(l:filelines))
+                if l:filelines[lnum - 1] =~ l:pat
+                    let l:lnum = lnum
+                    break
+                endif
+            endfor
+        endif
+        
+        if l:lnum == 0
+            echo "Can't locate tag position for: " . l:tagname
+            return
+        endif
+        
+        " Get num_lines+2 lines of context
+        let l:num_lines = 8
+        let l:start = max([1, l:lnum - 1])
+        let l:end   = l:lnum + l:num_lines
+        let l:lines = readfile(l:file, '', l:end)[l:start - 1 : l:end - 1]
+        
+        let l:opts = {
+            \ 'pos': 'topright',
+            \ 'line': 'cursor+1',
+            \ 'moved': 'word',
+            \ 'col': 'cursor',
+            \ 'minwidth': 400,
+            \ 'border': [0,0,0,0],
+            \ 'scrollbar': 1,
+            \ }
+        
+        call popup_create(l:lines, l:opts)
+    endfunction
 
-    " TODO: look into 'preview-popup' and more specifically ':ptag'
+    " F12 brings up a popup menu with the tag definition as a preview
+    command! -nargs=? PopupTag call PopupTag(<q-args>)
+    nnoremap <silent> <F12> :call PopupTag('')<CR>
 
     " Ctrl-F starts fuzzy finding files
     nnoremap <C-F> :find *
@@ -189,9 +239,6 @@ if g:vsvim == 0
 
     " which buffers to search for autocomplete via TAB
     set complete=w,.,b,u,t
-
-    " TODO: when I use :find, I would like it to search through my loaded buffers. Need to write a function I think:
-    " https://vi.stackexchange.com/questions/2904/how-to-show-search-results-for-all-open-buffers
 
 endif
 
@@ -232,9 +279,6 @@ xnoremap <S-J> <C-D>
 xnoremap <S-L> $
 xnoremap <S-H> ^
 
-"nnoremap <S-H> 0
-"xnoremap <S-L> $
-
 "}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Indentation
 "{
@@ -261,10 +305,6 @@ nnoremap > >>
 xnoremap <TAB> >gv
 xnoremap <S-TAB> <gv
 
-" TODO: autoindent will move cursor to start of line when exiting insert mode
-" on a line with only whitespace. 'S' will enter insert mode with correct 
-" indent level but I'd like to just use 'i'.
-
 "}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Formatting
 "{
@@ -272,6 +312,10 @@ xnoremap <S-TAB> <gv
 if g:vsvim == 0
     set formatoptions+=ro
     set foldopen=hor,search,undo
+
+    " opens curly braces with cursor in indented position between
+    inoremap <expr> <cr> getline(".")[col(".")-2:col(".")-1]=="{}" ? "<cr><bs><esc>O" : "<cr>"
+
 endif
 
 " print matching braces
@@ -280,9 +324,6 @@ inoremap { {}<Esc>i
 "inoremap [ []<Esc>i
 "inoremap " ""<Esc>i
 "inoremap ' ''<Esc>i
-
-" opens curly braces with cursor in indented position between
-"inoremap <expr> <cr> getline(".")[col(".")-2:col(".")-1]=="{}" ? "<cr><bs><esc>O" : "<cr>"
 
 " fold matching brace
 nnoremap <C-M> zf%<CR>
@@ -432,12 +473,12 @@ nnoremap <leader>h :sp .<CR>
 " close active window (if not last one)
 nnoremap <leader>q :close<CR>
 
-" netrw file browser settings
-let g:netrw_banner=0
-let g:netrw_dirhistmax=25
-let g:netrw_liststyle=3
-
 if g:vsvim == 0
+
+    " netrw file browser settings
+    let g:netrw_banner=0
+    let g:netrw_dirhistmax=25
+    let g:netrw_liststyle=3
 
     " complicated way of deleting a buffer via command
     function! s:Bclose(bang, buffer)
@@ -499,6 +540,49 @@ if g:vsvim == 0
     endfunction
 
     command! -bang -complete=buffer -nargs=? Bclose call <SID>Bclose(<q-bang>, <q-args>)
+
+    function! ShowBufferPopup() abort
+        " Collect listed buffers
+        let s:buffers = []
+        for buf in getbufinfo({'buflisted':1})
+            let name = buf.name !=# '' ? fnamemodify(buf.name, ':.') : '[No Name]'
+            "let name = buf.name !=# '' ? buf.name : '[No Name]'
+            call add(s:buffers, printf('%3d %s', buf.bufnr, name))
+        endfor
+        
+        if empty(s:buffers)
+            let s:buffers = ['No open buffers']
+        endif
+        
+        " Define callback for selecting a buffer
+        function! s:BufSelect(id, result) abort
+            if a:result > 0 && a:result <= len(s:buffers)
+                let line = s:buffers[a:result - 1]
+                let bufnr = str2nr(split(line)[0])
+                if bufnr > 0
+                    execute 'buffer' bufnr
+                endif
+            endif
+        endfunction
+        
+        let opts = {
+            \ 'title': 'Loaded Buffers',
+            \ 'scrollbar': 1,
+            \ 'pos': 'center',
+            \ 'padding': [0,3,0,0],
+            \ 'border': [],
+            \ 'minwidth': 30,
+            \ 'time': 10000,
+            \ 'maxheight': 10,
+            \ 'filter': 'popup_filter_menu',
+            \ 'callback': function('s:BufSelect'),
+            \ }
+        
+        call popup_menu(s:buffers, opts)
+    endfunction
+
+    " show a popup menu with selectable buffers to jump to
+    nnoremap <silent> <leader>l :call ShowBufferPopup()<CR>
 endif
 
 " switching between buffers
@@ -506,7 +590,7 @@ nnoremap <leader>n :bnext<CR>
 nnoremap <leader>p :bprev<CR>
 
 " switch to last viewed buffer
-nnoremap <leader>l <C-^>
+nnoremap <C-TAB> <C-^>
 
 " swap buffers between opened windows
 nnoremap <leader>s <C-w><C-r>
@@ -521,9 +605,11 @@ nnoremap <silent> <leader>d :Bclose<CR>
 
 if g:vsvim == 0
 
-    " TODO: there seems to be a bug after I apply clang format for the formatting that vim understands
-    " i.e. if I have folds (which understand the curly braces), vim has an understanding of that which
-    " isn't updated after I replace the text with the clang format. I need to force a restart of vim to reset.
+    " TODO: there seems to be a bug after I apply clang format for the formatting that
+    " vim understands.
+    " i.e. if I have folds (which understand the curly braces), vim has an understanding
+    " of that which isn't updated after I replace the text with the clang format.
+    " I need to force a restart of vim to reset.
 
     function! s:config_path() abort
         return findfile('.clang-format', fnameescape(expand('%:p:h')).';')
@@ -549,7 +635,7 @@ if g:vsvim == 0
 
         let clang_format_config_path = printf("%s", s:config_path())
         if (clang_format_config_path == '')
-            echoerr "Could not find a .clang-format config file in any parent directories."
+            echoerr "Couldn't find a .clang-format config file in any parent directories."
             return
         endif
 

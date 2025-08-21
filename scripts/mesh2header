@@ -7,6 +7,7 @@
 # Useful for quickly loading a mesh into a project without including a parser/loader.
 #
 # TODO: maybe include support for various bitdepth outputs if I find it necessary
+# TODO: add support for generating normals if none are provided
 #
 # Usage:
 #   mesh2header <mesh filepath> [--aos]

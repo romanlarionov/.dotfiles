@@ -31,7 +31,6 @@ msbuild_path_dict = {
 def find_msbuild(version):
     if version in msbuild_path_dict:
         for tier_path in msbuild_path_dict[version]:
-            # TODO: have way of specifying paid tier if multiple installed?
             if os.path.exists(tier_path):
                 return (True, version, tier_path)
 
@@ -79,8 +78,6 @@ def yellow(text):
 
 def main():
     args = parse_args()
-
-    # TODO: automatically interprut if x64/win32
 
     if not os.path.isfile(args.solution_path):
         red("Not valid solution path: " + args.solution_path)
