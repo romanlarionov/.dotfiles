@@ -59,12 +59,13 @@ def parse_solution_version(solution_path):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', action="store_true", default=False, help='compile with debug mode')
-    parser.add_argument('-w', '--warnings', action="store_true", default=False, help='enable showing warning messages')
-    parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='target architecture')
-    parser.add_argument('-v', '--version', type=int, choices=[14, 15, 17], default=17, help='version of visual studio')
-    parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='should do a full rebuild')
-    parser.add_argument('solution_path', help='path to VS solution file')
+    parser.add_argument('-d', '--debug', action="store_true", default=False, help='Compile with debug mode')
+    parser.add_argument('-w', '--warnings', action="store_true", default=False, help='Enable showing warning messages')
+    parser.add_argument('-a', '--arch', choices=["Win32", "x64"], default="x64", help='Set target architecture')
+    parser.add_argument('-v', '--version', type=int, choices=[14, 15, 17], default=17, help='Set Visual Studio version')
+    parser.add_argument('-r', '--rebuild', action="store_true", default=False, help='Should do a full rebuild')
+    parser.add_argument('--verbose', action="store_true", default=False, help='Print all contents received from MSBuild')
+    parser.add_argument('solution_path', help='Path to VS solution file')
     return parser.parse_args()
 
 def red(text):
@@ -138,22 +139,25 @@ def main():
     count = 0
     while True:
         nextline = process.stdout.readline().decode("utf-8")
-        is_valid_message = nextline and (nextline.isspace() is False)
 
-        if not args.warnings:
-            is_valid_message = is_valid_message and ("warning C" not in nextline)
+        if args.verbose:
+            print(nextline)
+        else:
+            is_valid_message = nextline and (nextline.isspace() is False)
+            if not args.warnings:
+                is_valid_message = is_valid_message and ("warning C" not in nextline)
 
-        if is_valid_message:
-            count += 1
+            if is_valid_message:
+                count += 1
 
-            # strips the ending details about which .vcxproj for error
-            nextline = nextline[:nextline.rfind("[")]
+                # strips the ending details about which .vcxproj for error
+                nextline = nextline[:nextline.rfind("[")]
 
-            # strips global file path for file in question
-            nextline = nextline.replace(project_parent_dir, "")
+                # strips global file path for file in question
+                nextline = nextline.replace(project_parent_dir, "")
 
-            if nextline != None:
-                print(nextline)
+                if nextline != None:
+                    print(nextline)
 
         if process.poll() is not None:
             break

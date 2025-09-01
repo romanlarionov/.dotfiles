@@ -111,10 +111,15 @@ function tag()
     local TARGET_DIR
     TARGET_DIR="${@}"
     if [[ -z "${TARGET_DIR}" ]]; then
-        TARGET_DIR="."
+        TARGET_DIR="$(pwd)"
     fi
+
+    PROJECT_NAME="${TARGET_DIR//\\//}"
+    PROJECT_NAME=$(basename "$PROJECT_NAME")
+
     find "${TARGET_DIR}" -type f -iregex '.*\.\(h\|hpp\|c\|cpp\|hxx\)$' | \
-        xargs -d '\n' ctags -a
+        xargs -d '\n' ctags -a && mv tags ${PROJECT_NAME}.tags && mv ${PROJECT_NAME}.tags ~/.tags
+    echo "Updated tags: ~/.tags/${PROJECT_NAME}.tags"
 }
 
 function rfind()

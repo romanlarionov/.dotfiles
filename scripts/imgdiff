@@ -196,7 +196,8 @@ def main(argv):
                 print("CWSSIM: {0:.5f}".format(cwssim))
 
             print("Percent pixels differing: {0:.2f}%".format(percentDifference * 100))
-            output_image_name = "diff-" + str(abs(hash(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")))) + ".png"
+            diff_filename = str(abs(hash(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))))
+            output_image_name = "diff-" + diff_filename + ".png"
             print("Output to: " + output_image_name)
             saveImage(diff, mode, output_image_name)
 

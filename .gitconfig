@@ -15,7 +15,7 @@
     filemode = false
 [alias]
     cm = commit -m
-    st = status
+    st = status .
     br = branch
     co = checkout
     pl = pull --rebase origin

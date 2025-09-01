@@ -26,6 +26,10 @@ if g:vsvim == 0
     set noswapfile
     set belloff=all
 
+    " <Ctrl-Backspace> deletes the previous word in insert mode
+    inoremap <C-BS> <C-w>
+
+    " TODO: think this is triggering for visual studio still
     " keep cursor column the same after yanking then pasting a line above or below
     function! s:PasteLinewise(cmd) abort
         " Only do this for linewise yanks
@@ -47,33 +51,6 @@ if g:vsvim == 0
 
     " set the character for vertical separating column between windows
     set fillchars+=vert:│
-
-    " detect if a local build script is present and execute it
-    function! BuildProject(line1, ...) abort
-        let g:build_script = ".build.sh"
-        if !exists('s:build_script_available')
-            if g:build_script == "" || !filereadable(g:build_script)
-                echoerr 'Could not find ./.build.sh'
-                return
-            endif
-            let s:build_script_available = 1
-        endif
-
-        let build_cmd = '!./' . g:build_script
-
-        " provide arguements if specified
-        if a:line1 != "--build"
-            let args = printf(' %s', a:line1)
-            let build_cmd .= args
-        endif
-
-        execute build_cmd
-    endfunction
-
-    command! -range=% -nargs=1 BuildProject call BuildProject(<f-args>)
-    nnoremap <silent> <C-B> :BuildProject --build<CR>
-    nnoremap <silent> <F5> :BuildProject --start_debugging<CR>
-    nnoremap <silent> <S-F5> :BuildProject --stop_debugging<CR>
 
 	filetype plugin on " plugins are enabled
 
@@ -97,6 +74,64 @@ if g:vsvim == 0
 endif
 
 let mapleader = " "
+
+"}
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Building
+"{
+
+if g:vsvim == 0
+
+    " Detect if a local build script is present and execute it
+    function! BuildProject(line1, ...) abort
+        let g:build_script = ".build.sh"
+        if !exists('s:build_script_available')
+            if g:build_script == "" || !filereadable(g:build_script)
+                echoerr 'Could not find ./.build.sh'
+                return
+            endif
+            let s:build_script_available = 1
+        endif
+
+        let build_cmd = './' . g:build_script
+
+        " Provide arguments if specified
+        if a:line1 != "--build"
+            let args = printf(' %s', a:line1)
+            let build_cmd .= args
+        endif
+
+        let l:output = systemlist(build_cmd)
+        let l:bufname = 'Build Output'
+
+        " Look for an open window displaying our scratch buffer
+        for l:win in range(1, winnr('$'))
+            if bufname(winbufnr(l:win)) ==# l:bufname
+                " Found it: jump there
+                execute l:win . 'wincmd w'
+                " Replace its contents
+                call setline(1, l:output)
+                if line('$') > len(l:output)
+                    execute (len(l:output)+1) . ',$delete'
+                endif
+                return
+            endif
+        endfor
+
+        " Open a scratch buffer to display the contents of the command's stdout
+        belowright split
+        resize 15
+        enew
+        file Build Output
+        setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+        let b:build_scratch_buf = 1
+        call setline(1, l:output)
+    endfunction
+
+    command! -range=% -nargs=1 BuildProject call BuildProject(<f-args>)
+    nnoremap <silent> <C-B> :BuildProject --build<CR>
+    nnoremap <silent> <F5> :BuildProject --start_debugging<CR>
+    nnoremap <silent> <S-F5> :BuildProject --stop_debugging<CR>
+endif
 
 "}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Sessions
@@ -316,6 +351,11 @@ if g:vsvim == 0
     " opens curly braces with cursor in indented position between
     inoremap <expr> <cr> getline(".")[col(".")-2:col(".")-1]=="{}" ? "<cr><bs><esc>O" : "<cr>"
 
+    " fold matching brace
+    nnoremap <C-M> zf%<CR>
+
+    " In normal mode, pressing 'l' will open a fold if at end of a folded line
+    nnoremap <expr> l foldclosed('.') == line('.') ? 'zo' : 'l'
 endif
 
 " print matching braces
@@ -324,9 +364,6 @@ inoremap { {}<Esc>i
 "inoremap [ []<Esc>i
 "inoremap " ""<Esc>i
 "inoremap ' ''<Esc>i
-
-" fold matching brace
-nnoremap <C-M> zf%<CR>
 
 "}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" Colors
